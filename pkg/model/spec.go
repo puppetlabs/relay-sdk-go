@@ -1,41 +1,41 @@
 package model
 
 type CredentialSpec struct {
-	Credentials map[string]string `json:"credentials"`
+	Credentials map[string]string
 }
 
 type GitSpec struct {
-	GitRepository *GitDetails `json:"git"`
+	GitRepository *GitDetails `spec:"git"`
 }
 
 type GitDetails struct {
-	Name       string `json:"name"`
-	Repository string `json:"repository"`
-	Branch     string `json:"branch"`
-	SSHKey     string `json:"ssh_key"`
-	KnownHosts string `json:"known_hosts"`
+	Name       string
+	Repository string
+	Branch     string
+	SSHKey     string `spec:"ssh_key"`
+	KnownHosts string `spec:"known_hosts"`
 }
 
 type ClusterSpec struct {
-	Cluster *ClusterDetails `json:"cluster"`
+	Cluster *ClusterDetails
 }
 
 type ClusterDetails struct {
-	Name     string `json:"name"`
-	URL      string `json:"url"`
-	CAData   string `json:"cadata"`
-	Token    string `json:"token"`
-	Insecure bool   `json:"insecure"`
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Name     string
+	URL      string
+	CAData   string `spec:"cadata"`
+	Token    string
+	Insecure bool
+	Username string
+	Password string
 }
 
 type AWSSpec struct {
-	AWS *AWSDetails `json:"aws"`
+	AWS *AWSDetails
 }
 
 type AWSDetails struct {
-	AccessKeyID     string `json:"accessKeyID"`
-	SecretAccessKey string `json:"secretAccessKey"`
-	Region          string `json:"region"`
+	AccessKeyID     string
+	SecretAccessKey string
+	Region          string
 }

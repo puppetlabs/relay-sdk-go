@@ -2,12 +2,16 @@ package task
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"gopkg.in/yaml.v2"
 )
 
 type TestValues struct {
@@ -21,8 +25,6 @@ type TestSpec struct {
 }
 
 func TestGetFileOutput(t *testing.T) {
-	t.Skip("Functional testing harness. Needs to be completed.")
-
 	testSpec := &TestSpec{
 		Values: &TestValues{
 			Name:    "test1",
@@ -31,10 +33,9 @@ func TestGetFileOutput(t *testing.T) {
 		},
 	}
 
-	opts := testutil.MockMetadataAPIOptions{
-		Name:           "test1",
+	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
 		ResponseObject: testSpec,
-	}
+	})
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
@@ -44,7 +45,18 @@ func TestGetFileOutput(t *testing.T) {
 
 		task := NewTaskInterface(opts)
 
-		err := task.WriteFile("output/values-test.yml", "values", "yaml")
-		require.Nil(t, err, "err is not nil")
+		testutil.WithTemporaryDirectory(t, "output-", func(dir string) {
+			f := filepath.Join(dir, "values-test.yml")
+
+			err := task.WriteFile(f, "values", "yaml")
+			require.Nil(t, err, "err is not nil")
+
+			b, err := ioutil.ReadFile(f)
+			require.NoError(t, err)
+
+			got := &TestValues{}
+			require.NoError(t, yaml.Unmarshal(b, got))
+			assert.EqualValues(t, testSpec.Values, got)
+		})
 	}, opts)
 }
