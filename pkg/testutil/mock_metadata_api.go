@@ -2,34 +2,86 @@ package testutil
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"path"
 	"strings"
 	"testing"
 )
 
-type MockMetadataAPIOptions struct {
-	Name           string
+type MockOutputKey struct {
+	TaskName string
+	Key      string
+}
+
+type MockOutput struct {
 	ResponseObject interface{}
+}
+
+type MockSpec struct {
+	ResponseObject interface{}
+}
+
+type MockMetadataAPIOptions struct {
+	Outputs map[MockOutputKey]MockOutput
+	Specs   map[string]MockSpec
+}
+
+func SingleSpecMockMetadataAPIOptions(name string, spec MockSpec) MockMetadataAPIOptions {
+	return MockMetadataAPIOptions{
+		Specs: map[string]MockSpec{
+			name: spec,
+		},
+	}
 }
 
 func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMetadataAPIOptions) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, fmt.Sprintf("/specs/%s", opts.Name)) {
-			if err := json.NewEncoder(w).Encode(opts.ResponseObject); err != nil {
-				panic(err)
-			}
+		handler, rest := shiftPath(r.URL.Path)
+		switch handler {
+		case "specs":
+			name, _ := shiftPath(rest)
 
-			return
+			s, found := opts.Specs[name]
+			if found {
+				if err := json.NewEncoder(w).Encode(s.ResponseObject); err != nil {
+					panic(err)
+				}
+
+				return
+			}
+		case "outputs":
+			var k MockOutputKey
+			k.TaskName, rest = shiftPath(rest)
+			k.Key, _ = shiftPath(rest)
+
+			o, found := opts.Outputs[k]
+			if found {
+				if err := json.NewEncoder(w).Encode(o.ResponseObject); err != nil {
+					panic(err)
+				}
+
+				return
+			}
 		}
 
 		http.NotFound(w, r)
-		return
 	})
 
 	ts := httptest.NewServer(handler)
 	defer ts.Close()
 
 	fn(ts)
+}
+
+// shiftPath takes a URI path and returns the first segment as the head
+// and the remaining segments as the tail.
+func shiftPath(p string) (head, tail string) {
+	p = path.Clean("/" + p)
+	i := strings.Index(p[1:], "/") + 1
+	if i <= 0 {
+		return p[1:], ""
+	}
+
+	return p[1:i], p[i:]
 }

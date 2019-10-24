@@ -5,23 +5,30 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 type TestSpec struct {
-	Name    string `json:"name"`
-	SomeNum int    `json:"someNum"`
+	Name      string
+	SomeNum   int
+	SomeValue string `spec:"someEncodedValue"`
 }
 
 func TestDefaultSpecPlan(t *testing.T) {
-	opts := testutil.MockMetadataAPIOptions{
-		Name: "test1",
-		ResponseObject: TestSpec{
-			Name:    "test1",
-			SomeNum: 12,
+	encodedValue, _ := transfer.EncodeJSON([]byte("Hello, \x90!"))
+
+	// Make sure that this will actually get encoded.
+	require.NotEqual(t, transfer.NoEncodingType, encodedValue.JSON.EncodingType)
+
+	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
+		ResponseObject: map[string]interface{}{
+			"name":             "test1",
+			"someNum":          12,
+			"someEncodedValue": encodedValue,
 		},
-	}
+	})
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		testSpec := TestSpec{}
@@ -34,5 +41,6 @@ func TestDefaultSpecPlan(t *testing.T) {
 		require.NoError(t, PopulateSpecFromDefaultPlan(&testSpec, opts))
 		require.Equal(t, "test1", testSpec.Name)
 		require.Equal(t, 12, testSpec.SomeNum)
+		require.Equal(t, "Hello, \x90!", testSpec.SomeValue)
 	}, opts)
 }

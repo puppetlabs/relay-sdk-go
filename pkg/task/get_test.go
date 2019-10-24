@@ -24,10 +24,9 @@ func TestGetOutput(t *testing.T) {
 		Data:    []string{"something", "else"},
 	}
 
-	opts := testutil.MockMetadataAPIOptions{
-		Name:           "test1",
+	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
 		ResponseObject: testSpec,
-	}
+	})
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{

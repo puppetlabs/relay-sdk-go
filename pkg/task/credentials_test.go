@@ -3,34 +3,29 @@ package task
 import (
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
 	"net/http/httptest"
+	"path/filepath"
 	"testing"
-
-	"github.com/stretchr/testify/require"
-
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestCredentialOutput(t *testing.T) {
-	t.Skip("Functional testing harness. Needs to be completed.")
-
 	credentialSpec := make(map[string]string)
 
 	data := base64.StdEncoding.EncodeToString([]byte("testdata"))
 	credentialSpec["ca.pem"] = data
 	credentialSpec["key.pem"] = data
 
-	testSpec := &model.CredentialSpec{
-		Credentials: credentialSpec,
-	}
-
-	opts := testutil.MockMetadataAPIOptions{
-		Name:           "test1",
-		ResponseObject: testSpec,
-	}
+	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
+		ResponseObject: map[string]interface{}{
+			"credentials": credentialSpec,
+		},
+	})
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
@@ -40,7 +35,14 @@ func TestCredentialOutput(t *testing.T) {
 
 		task := NewTaskInterface(opts)
 
-		err := task.ProcessCredentials("output")
-		require.Nil(t, err, "err is not nil")
+		testutil.WithTemporaryDirectory(t, "output-", func(dir string) {
+			err := task.ProcessCredentials(dir)
+			require.Nil(t, err, "err is not nil")
+
+			b, err := ioutil.ReadFile(filepath.Join(dir, "ca.pem"))
+			require.NoError(t, err)
+
+			assert.Equal(t, "testdata", string(b))
+		})
 	}, opts)
 }

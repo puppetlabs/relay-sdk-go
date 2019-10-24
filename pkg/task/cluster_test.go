@@ -6,30 +6,24 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
 
 func TestClusterOutput(t *testing.T) {
-	t.Skip("Functional testing harness. Needs to be completed.")
-
 	data := base64.StdEncoding.EncodeToString([]byte("cadata"))
 
-	testSpec := &model.ClusterSpec{
-		Cluster: &model.ClusterDetails{
-			Name:   "test1",
-			Token:  "tokendata",
-			CAData: data,
-			URL:    "url",
+	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
+		ResponseObject: map[string]interface{}{
+			"cluster": map[string]interface{}{
+				"name":   "test1",
+				"token":  "tokendata",
+				"cadata": data,
+				"url":    "url",
+			},
 		},
-	}
-
-	opts := testutil.MockMetadataAPIOptions{
-		Name:           "test1",
-		ResponseObject: testSpec,
-	}
+	})
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
@@ -39,7 +33,9 @@ func TestClusterOutput(t *testing.T) {
 
 		task := NewTaskInterface(opts)
 
-		err := task.ProcessClusters("output")
-		require.Nil(t, err, "err is not nil")
+		testutil.WithTemporaryDirectory(t, "output-", func(dir string) {
+			err := task.ProcessClusters(dir)
+			require.Nil(t, err, "err is not nil")
+		})
 	}, opts)
 }
