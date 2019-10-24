@@ -1,0 +1,74 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://nebula.puppet.com/schemas/container/v1/StepContainerTemplate.json",
+  "description": "A step container template",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "enum": ["container/v1"]
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["StepContainerTemplate"]
+    },
+    "inherit": {"$ref": "#/definitions/FileRef"},
+    "sdkVersion": {
+      "type": "string",
+      "pattern": "^v[1-9][0-9]*$"
+    },
+    "containers": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Container"}
+      },
+      "additionalProperties": false
+    },
+    "settings": {
+      "type": "object",
+      "patternProperties": {
+        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Setting"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "FileRef": {
+      "anyOf": [
+        {"type": "string"},
+        {
+          "type": "object",
+          "required": ["from", "name"],
+          "properties": {
+            "from": {"type": "string"},
+            "name": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "Container": {
+      "type": "object",
+      "required": ["template"],
+      "properties": {
+        "template": {"$ref": "#/definitions/FileRef"},
+        "dependsOn": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        }
+      }
+    },
+    "Setting": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "description": {"type": "string"},
+            "value": {}
+          }
+        },
+        {}
+      ]
+    }
+  }
+}

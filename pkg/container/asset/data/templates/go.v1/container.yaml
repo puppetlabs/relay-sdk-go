@@ -1,0 +1,15 @@
+version: container/v1
+kind: StepContainerTemplate
+sdkVersion: v1
+containers:
+  base:
+    template: Dockerfile.tpl
+settings:
+  CommandPath:
+    description: The path to the command binary, like `cmd/my-command`
+  GoVersion:
+    description: The version of the Go language to build with
+    default: "1.13"
+  Image:
+    description: The Alpine Linux-based image to use for distributing the step container
+    default: alpine:3
