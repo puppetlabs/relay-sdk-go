@@ -3,10 +3,11 @@ module github.com/puppetlabs/nebula-sdk
 go 1.12
 
 require (
+	github.com/davecgh/go-spew v1.1.1
 	github.com/ghodss/yaml v1.0.0 // indirect
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
-	github.com/googleapis/gnostic v0.3.1 // indirect
+	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/json-iterator/go v1.1.7 // indirect
 	github.com/mitchellh/go-homedir v1.1.0

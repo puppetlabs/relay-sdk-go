@@ -2,73 +2,24 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://nebula.puppet.com/schemas/container/v1/StepContainerTemplate.json",
   "description": "A step container template",
-  "type": "object",
-  "properties": {
-    "version": {
-      "type": "string",
-      "enum": ["container/v1"]
-    },
-    "kind": {
-      "type": "string",
-      "enum": ["StepContainerTemplate"]
-    },
-    "inherit": {"$ref": "#/definitions/FileRef"},
-    "sdkVersion": {
-      "type": "string",
-      "pattern": "^v[1-9][0-9]*$"
-    },
-    "containers": {
+  "allOf": [
+    {"$ref": "http://nebula.puppet.com/schemas/container/v1/StepContainer-common.json#"},
+    {
       "type": "object",
-      "patternProperties": {
-        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Container"}
-      },
-      "additionalProperties": false
-    },
-    "settings": {
-      "type": "object",
-      "patternProperties": {
-        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Setting"}
-      },
-      "additionalProperties": false
-    }
-  },
-  "additionalProperties": false,
-  "definitions": {
-    "FileRef": {
-      "anyOf": [
-        {"type": "string"},
-        {
-          "type": "object",
-          "required": ["from", "name"],
-          "properties": {
-            "from": {"type": "string"},
-            "name": {"type": "string"}
-          }
-        }
-      ]
-    },
-    "Container": {
-      "type": "object",
-      "required": ["template"],
+      "required": [
+        "version",
+        "kind"
+      ],
       "properties": {
-        "template": {"$ref": "#/definitions/FileRef"},
-        "dependsOn": {
+        "version": {
           "type": "string",
-          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+          "enum": ["container/v1"]
+        },
+        "kind": {
+          "type": "string",
+          "enum": ["StepContainerTemplate"]
         }
       }
-    },
-    "Setting": {
-      "anyOf": [
-        {
-          "type": "object",
-          "properties": {
-            "description": {"type": "string"},
-            "value": {}
-          }
-        },
-        {}
-      ]
     }
-  }
+  ]
 }

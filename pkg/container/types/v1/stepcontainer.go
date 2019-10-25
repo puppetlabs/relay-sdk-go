@@ -4,16 +4,19 @@ import (
 	"io"
 	"strings"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/xeipuuv/gojsonschema"
 	"gopkg.in/yaml.v3"
 )
 
 // StepContainer represents an object with kind "StepContainer".
 type StepContainer struct {
-	*StepContainerTemplate `yaml:",inline"`
+	*StepContainerCommon `yaml:",inline"`
 
-	Title       string `yaml:"title"`
-	Description string `yaml:"description"`
+	Version     string `yaml:"version" json:"version,omitempty"`
+	Kind        string `yaml:"kind" json:"kind,omitempty"`
+	Title       string `yaml:"title" json:"title"`
+	Description string `yaml:"description" json:"description"`
 }
 
 func NewStepContainerFromString(data string) (*StepContainer, error) {
@@ -30,7 +33,9 @@ func NewStepContainerFromReader(r io.Reader) (*StepContainer, error) {
 	if err != nil {
 		return nil, err
 	} else if !result.Valid() {
-		// TODO: Aggregate and return errors.
+		// XXX: FIXME: Aggregate and return errors.
+		spew.Dump(result.Errors())
+		panic("no")
 	}
 
 	return sc, nil

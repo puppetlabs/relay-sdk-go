@@ -1,11 +1,15 @@
 package asset
 
 import (
-	"io"
 	"io/ioutil"
+	"net/http"
 )
 
-func Asset(name string) (io.ReadCloser, error) {
+var (
+	FileSystem = assets
+)
+
+func Asset(name string) (http.File, error) {
 	return assets.Open(name)
 }
 
@@ -24,7 +28,7 @@ func AssetString(name string) (string, error) {
 	return string(b), nil
 }
 
-func MustAsset(name string) io.ReadCloser {
+func MustAsset(name string) http.File {
 	r, err := Asset(name)
 	if err != nil {
 		panic(err)
