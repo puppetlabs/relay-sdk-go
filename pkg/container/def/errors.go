@@ -29,3 +29,12 @@ type MissingSettingValueError struct {
 func (e *MissingSettingValueError) Error() string {
 	return fmt.Sprintf("def: setting %q has no value", e.Name)
 }
+
+type TemplateError struct {
+	FileRef *FileRef
+	Cause   error
+}
+
+func (e *TemplateError) Error() string {
+	return fmt.Sprintf("def: error in parent template %q: %+v", e.FileRef, e.Cause)
+}

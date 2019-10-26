@@ -59,7 +59,7 @@ func (fr FileRef) MarshalJSON() ([]byte, error) {
 	return json.Marshal(pm)
 }
 
-type StepContainerContainer struct {
+type StepContainerImage struct {
 	Template  FileRef  `yaml:"template" json:"template"`
 	DependsOn []string `yaml:"dependsOn" json:"dependsOn,omitempty"`
 }
@@ -112,8 +112,8 @@ func (scs *StepContainerSetting) UnmarshalYAML(value *yaml.Node) error {
 }
 
 type StepContainerCommon struct {
-	Inherit    *FileRef                          `yaml:"inherit,omitempty" json:"inherit,omitempty"`
-	SDKVersion string                            `yaml:"sdkVersion" json:"sdkVersion"`
-	Containers map[string]StepContainerContainer `yaml:"containers" json:"containers,omitempty"`
-	Settings   map[string]StepContainerSetting   `yaml:"settings" json:"settings,omitempty"`
+	Inherit    *FileRef                        `yaml:"inherit,omitempty" json:"inherit,omitempty"`
+	SDKVersion string                          `yaml:"sdkVersion" json:"sdkVersion,omitempty"`
+	Images     map[string]StepContainerImage   `yaml:"images" json:"images,omitempty"`
+	Settings   map[string]StepContainerSetting `yaml:"settings" json:"settings,omitempty"`
 }

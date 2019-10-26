@@ -9,6 +9,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	StepContainerTemplateKind = "StepContainerTemplate"
+)
+
 // StepContainerTemplate represents an object with kind "StepContainerTemplate".
 type StepContainerTemplate struct {
 	*StepContainerCommon `yaml:",inline"`
@@ -25,6 +29,15 @@ func NewStepContainerTemplateFromReader(r io.Reader) (*StepContainerTemplate, er
 	sc := &StepContainerTemplate{}
 	if err := yaml.NewDecoder(r).Decode(&sc); err != nil {
 		return nil, err
+	}
+
+	if sc.Version != Version || sc.Kind != StepContainerTemplateKind {
+		return nil, &InvalidVersionKindError{
+			ExpectedVersion: Version,
+			ExpectedKind:    StepContainerTemplateKind,
+			GotVersion:      sc.Version,
+			GotKind:         sc.Kind,
+		}
 	}
 
 	result, err := StepContainerTemplateSchema.Validate(gojsonschema.NewGoLoader(sc))

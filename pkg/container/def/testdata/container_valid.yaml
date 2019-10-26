@@ -5,7 +5,7 @@ sdkVersion: v1
 title: Jira resolve
 description: >
   A task that can update the state of a Jira ticket.
-containers:
+images:
   bonus:
     template: Dockerfile.bonus.tpl
     dependsOn:

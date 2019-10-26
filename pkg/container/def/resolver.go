@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/container/asset"
-	v1 "github.com/puppetlabs/nebula-sdk/pkg/container/types/v1"
 )
 
 // Resolver allows the generator to load dependent resources.
@@ -22,6 +21,10 @@ type Resolver struct {
 }
 
 func (r *Resolver) Open(name string) (http.File, error) {
+	if r == nil {
+		r = DefaultResolver
+	}
+
 	if !path.IsAbs(name) {
 		name = path.Join(r.WorkingDirectory, name)
 	}
@@ -33,84 +36,45 @@ func (r *Resolver) Open(name string) (http.File, error) {
 	return os.Open(filepath.FromSlash(name))
 }
 
+func (r *Resolver) NewRelativeTo(name string) *Resolver {
+	if r == nil {
+		r = DefaultResolver
+	}
+
+	dir := path.Dir(name)
+
+	if !path.IsAbs(name) {
+		dir = path.Join(r.WorkingDirectory, dir)
+	}
+
+	return &Resolver{
+		FileSystem:       r.FileSystem,
+		WorkingDirectory: dir,
+	}
+}
+
+func (r *Resolver) String() string {
+	if r == nil {
+		r = DefaultResolver
+	}
+
+	var fs string
+
+	switch r {
+	case DefaultResolver:
+	case SDKResolver:
+		fs = "sdk:"
+	default:
+		fs = "(unknown):"
+	}
+
+	return fs + r.WorkingDirectory
+}
+
 var (
-	SDKResolver = &Resolver{
+	DefaultResolver = &Resolver{}
+	SDKResolver     = &Resolver{
 		FileSystem:       asset.FileSystem,
 		WorkingDirectory: "templates",
 	}
 )
-
-// FileRef points to a given file in a resolver.
-type FileRef struct {
-	resolver *Resolver
-	name     string
-}
-
-func (fr *FileRef) Join(name string) *FileRef {
-	return NewFileRef(path.Join(fr.name, name), WithFileRefResolver(fr.resolver))
-}
-
-// ResolverHere returns a resolver that can look up files relative to this
-// FileRef.
-func (fr *FileRef) ResolverHere() *Resolver {
-	resolver := &Resolver{}
-	if fr.resolver != nil {
-		*resolver = *fr.resolver
-	}
-
-	resolver.WorkingDirectory = path.Join(resolver.WorkingDirectory, path.Dir(fr.name))
-
-	return resolver
-}
-
-func (fr *FileRef) WithFile(fn func(f http.File) error) error {
-	resolver := fr.resolver
-	if resolver == nil {
-		resolver = &Resolver{}
-	}
-
-	f, err := resolver.Open(fr.name)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	return fn(f)
-}
-
-type FileRefOption func(fr *FileRef)
-
-func WithFileRefResolver(resolver *Resolver) FileRefOption {
-	return func(fr *FileRef) {
-		fr.resolver = resolver
-	}
-}
-
-func NewFileRef(name string, opts ...FileRefOption) *FileRef {
-	fr := &FileRef{name: name}
-	for _, opt := range opts {
-		opt(fr)
-	}
-
-	if fr.resolver == nil || fr.resolver.FileSystem == nil {
-		fr.name = filepath.ToSlash(fr.name)
-	}
-
-	return fr
-}
-
-func NewFileRefFromTyped(ref v1.FileRef, opts ...FileRefOption) (*FileRef, error) {
-	switch ref.From {
-	case v1.FileSourceSystem:
-		return NewFileRef(ref.Name, opts...), nil
-	case v1.FileSourceSDK:
-		// Clean name so users can't traverse outside of the template directory
-		// and override the resolver with the SDK one.
-		name := path.Clean(`.` + path.Clean(`/`+ref.Name))
-		opts = append([]FileRefOption{}, opts...)
-		opts = append(opts, WithFileRefResolver(SDKResolver))
-		return NewFileRef(name, opts...), nil
-	default:
-		return nil, &UnknownFileSourceError{Got: ref.From}
-	}
-}

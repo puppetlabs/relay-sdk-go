@@ -9,10 +9,10 @@
       "type": "string",
       "pattern": "^v[1-9][0-9]*$"
     },
-    "containers": {
+    "images": {
       "type": "object",
       "patternProperties": {
-        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Container"}
+        "^[A-Za-z][A-Za-z0-9_-]*$": {"$ref": "#/definitions/Image"}
       },
       "additionalProperties": false
     },
@@ -38,7 +38,7 @@
         }
       ]
     },
-    "Container": {
+    "Image": {
       "type": "object",
       "required": ["template"],
       "properties": {
@@ -46,11 +46,11 @@
         "dependsOn": {
           "type": "array",
           "minItems": 1,
-          "items": {"$ref": "#/definitions/ContainerDependsOn"}
+          "items": {"$ref": "#/definitions/ImageDependsOn"}
         }
       }
     },
-    "ContainerDependsOn": {
+    "ImageDependsOn": {
       "type": "string",
       "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
     },

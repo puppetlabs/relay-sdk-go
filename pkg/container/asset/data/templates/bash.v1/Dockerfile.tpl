@@ -4,8 +4,8 @@ RUN apk --no-cache add bash ca-certificates curl git jq openssh && update-ca-cer
 {{- if .Settings.AdditionalPackages }}
 RUN apk --no-cache add{{ range .Settings.AdditionalPackages }} {{ . }}{{ end }}
 {{- end }}
-{{- range .Descriptor.AdditionalCommands }}
-RUN ["/bin/bash", "-c", {{ . | tojson }}]
+{{- range .Settings.AdditionalCommands }}
+RUN ["/bin/bash", "-c", {{ . | mustToJson }}]
 {{- end }}
 COPY "./{{ .Settings.CommandPath }}" "{{ $FilePath }}"
 CMD ["/bin/bash", "{{ $FilePath }}"]

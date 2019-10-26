@@ -1,13 +1,13 @@
 version: container/v1
 kind: StepContainerTemplate
 sdkVersion: v1
-containers:
+images:
   base:
     template: Dockerfile.tpl
-  standalone:
-    template: Dockerfile.standalone.tpl
-    dependsOn:
-    - base
+  # standalone:
+  #   template: Dockerfile.standalone.tpl
+  #   dependsOn:
+  #   - base
 settings:
   CommandPath:
     description: The path to the shell script to run
