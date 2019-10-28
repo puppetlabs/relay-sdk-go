@@ -2,9 +2,9 @@ package v1
 
 import (
 	"io"
-	"strings"
+	"io/ioutil"
 
-	"github.com/xeipuuv/gojsonschema"
+	"github.com/puppetlabs/nebula-sdk/pkg/util/typeutil"
 	"gopkg.in/yaml.v3"
 )
 
@@ -12,39 +12,36 @@ const (
 	StepContainerTemplateKind = "StepContainerTemplate"
 )
 
+var StepContainerTemplateVersionKindExpectation = typeutil.NewVersionKindExpectation(Version, StepContainerTemplateKind)
+
 // StepContainerTemplate represents an object with kind "StepContainerTemplate".
 type StepContainerTemplate struct {
-	*StepContainerCommon `yaml:",inline"`
-
-	Version string `yaml:"version" json:"version,omitempty"`
-	Kind    string `yaml:"kind" json:"kind,omitempty"`
+	*typeutil.VersionKind `yaml:",inline"`
+	*StepContainerCommon  `yaml:",inline"`
 }
 
 func NewStepContainerTemplateFromString(data string) (*StepContainerTemplate, error) {
-	return NewStepContainerTemplateFromReader(strings.NewReader(data))
+	if _, err := StepContainerTemplateVersionKindExpectation.NewFromYAMLString(data); err != nil {
+		return nil, err
+	}
+
+	if err := typeutil.ValidateYAMLString(StepContainerTemplateSchema, data); err != nil {
+		return nil, err
+	}
+
+	sct := &StepContainerTemplate{}
+	if err := yaml.Unmarshal([]byte(data), &sct); err != nil {
+		return nil, err
+	}
+
+	return sct, nil
 }
 
 func NewStepContainerTemplateFromReader(r io.Reader) (*StepContainerTemplate, error) {
-	sc := &StepContainerTemplate{}
-	if err := yaml.NewDecoder(r).Decode(&sc); err != nil {
-		return nil, err
-	}
-
-	if sc.Version != Version || sc.Kind != StepContainerTemplateKind {
-		return nil, &InvalidVersionKindError{
-			ExpectedVersion: Version,
-			ExpectedKind:    StepContainerTemplateKind,
-			GotVersion:      sc.Version,
-			GotKind:         sc.Kind,
-		}
-	}
-
-	result, err := StepContainerTemplateSchema.Validate(gojsonschema.NewGoLoader(sc))
+	b, err := ioutil.ReadAll(r)
 	if err != nil {
 		return nil, err
-	} else if !result.Valid() {
-		return nil, schemaError(result.Errors())
 	}
 
-	return sc, nil
+	return NewStepContainerTemplateFromString(string(b))
 }

@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
-	v1 "github.com/puppetlabs/nebula-sdk/pkg/container/types/v1"
+	"github.com/puppetlabs/nebula-sdk/pkg/util/typeutil"
 )
 
 func Walk(root string) ([]*def.ResolvedContainer, error) {
@@ -22,7 +22,7 @@ func Walk(root string) ([]*def.ResolvedContainer, error) {
 		}
 
 		c, err := def.NewFromFilePath(path)
-		if _, ok := err.(*v1.InvalidVersionKindError); ok {
+		if _, ok := err.(*typeutil.InvalidVersionKindError); ok {
 			// This file is named container.yaml but does not contain a
 			// container specification.
 			return nil
