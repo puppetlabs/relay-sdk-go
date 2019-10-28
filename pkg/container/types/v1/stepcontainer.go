@@ -19,8 +19,9 @@ type StepContainer struct {
 	*typeutil.VersionKind `yaml:",inline"`
 	*StepContainerCommon  `yaml:",inline"`
 
-	Title       string `yaml:"title" json:"title"`
-	Description string `yaml:"description" json:"description"`
+	Name        string `yaml:"name,omitempty"`
+	Title       string `yaml:"title"`
+	Description string `yaml:"description"`
 }
 
 func NewStepContainerFromString(data string) (*StepContainer, error) {

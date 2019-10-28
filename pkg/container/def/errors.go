@@ -1,9 +1,14 @@
 package def
 
 import (
+	"errors"
 	"fmt"
 
 	v1 "github.com/puppetlabs/nebula-sdk/pkg/container/types/v1"
+)
+
+var (
+	ErrMissingName = errors.New("def: could not automatically determine container name from parent directory")
 )
 
 type UnknownFileSourceError struct {

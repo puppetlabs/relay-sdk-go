@@ -3,6 +3,7 @@ package generator
 import (
 	"bytes"
 	"fmt"
+	"path"
 	"strings"
 	"text/template"
 
@@ -80,25 +81,25 @@ func generateImage(c *def.Container, imageName string, data *imageTemplateData, 
 	return f, nil
 }
 
-func generateImages(name string, c *def.Container, base *def.FileRef) ([]*File, error) {
+func (g *Generator) generateImages() ([]*File, error) {
 	data := &imageTemplateData{
-		Name:       name,
-		SDKVersion: c.SDKVersion,
-		Images:     make(map[string]*imageTemplateImageData, len(c.Images)),
-		Settings:   make(map[string]interface{}, len(c.Settings)),
+		Name:       g.c.Name,
+		SDKVersion: g.c.SDKVersion,
+		Images:     make(map[string]*imageTemplateImageData, len(g.c.Images)),
+		Settings:   make(map[string]interface{}, len(g.c.Settings)),
 	}
 
-	for imageName := range c.Images {
-		data.Images[imageName] = &imageTemplateImageData{Ref: imageRef(name, imageName)}
+	for imageName := range g.c.Images {
+		data.Images[imageName] = &imageTemplateImageData{Ref: g.imageRef(imageName)}
 	}
 
-	for settingName, setting := range c.Settings {
+	for settingName, setting := range g.c.Settings {
 		data.Settings[settingName] = setting.Value
 	}
 
 	var fs []*File
-	for imageName := range c.Images {
-		f, err := generateImage(c, imageName, data, base.Join(dockerfile(imageName).Filename()))
+	for imageName := range g.c.Images {
+		f, err := generateImage(g.c, imageName, data, g.base.Join(dockerfile(imageName).Filename()))
 		if err != nil {
 			return nil, err
 		}
@@ -109,8 +110,24 @@ func generateImages(name string, c *def.Container, base *def.FileRef) ([]*File, 
 	return fs, nil
 }
 
-func imageRef(name, imageName string) string {
-	return fmt.Sprintf("%s/%.64s-%.64s", "sdk.nebula.localhost/generated", name, imageName)
+func (g *Generator) imageRef(imageName string) string {
+	name := g.c.Name
+
+	if len(name) > 64 {
+		name = name[:64]
+	}
+
+	repoName := path.Join(g.repoNameBase, name)
+
+	if imageName != "base" {
+		if len(imageName) > 64 {
+			imageName = imageName[:64]
+		}
+
+		repoName += "-" + imageName
+	}
+
+	return repoName
 }
 
 func newDockerfileQuoteEscaper(token string) *strings.Replacer {

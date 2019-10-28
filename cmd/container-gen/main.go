@@ -5,9 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/pmezard/go-difflib/difflib"
@@ -22,6 +20,7 @@ var (
 	write          bool
 	recursive      bool
 	scriptFilename string
+	repoNameBase   string
 )
 
 func main() {
@@ -39,6 +38,7 @@ func main() {
 	c.Flags().BoolVarP(&write, "write", "w", false, "Whether to persist the generated files")
 	c.Flags().BoolVarP(&recursive, "recursive", "r", false, "Whether to recurse directory arguments")
 	c.Flags().StringVar(&scriptFilename, "script-filename", generator.DefaultScriptFilename, "The file name to use when generating the build script")
+	c.Flags().StringVarP(&repoNameBase, "repo-name-base", "n", generator.DefaultRepoNameBase, "The base Docker repository name to use")
 
 	if err := c.Execute(); err != nil {
 		os.Exit(1)
@@ -46,11 +46,6 @@ func main() {
 }
 
 func run(w io.Writer, args []string) error {
-	wd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
 	if len(args) == 0 {
 		args = []string{"."}
 	}
@@ -77,14 +72,12 @@ func run(w io.Writer, args []string) error {
 
 	var fs []*generator.File
 	for _, c := range containers {
-		dir := c.FileRef.Dir().Name()
-		if dir == "." {
-			dir = wd
-		}
-
-		name := slug(path.Base(dir))
-
-		g := generator.New(name, c.Container, generator.WithFilesRelativeTo(c.FileRef), generator.WithScriptFilename(scriptFilename))
+		g := generator.New(
+			c.Container,
+			generator.WithFilesRelativeTo(c.FileRef),
+			generator.WithScriptFilename(scriptFilename),
+			generator.WithRepoNameBase(repoNameBase),
+		)
 
 		gfs, err := g.Files()
 		if err != nil {
@@ -113,7 +106,7 @@ func run(w io.Writer, args []string) error {
 				Context:  3,
 			}
 			if err := difflib.WriteUnifiedDiff(w, diff); err != nil {
-				io.WriteString(w, formatError(fmt.Sprintf("Unable to generate changes for file %q", dest), err))
+				io.WriteString(w, formatError(fmt.Sprintf("Unable to generate changes for file %q", dest), err)+"\n")
 				continue
 			}
 		} else if string(prev) != f.Content {
@@ -142,12 +135,6 @@ func splitLinesUnlessEmpty(in string) []string {
 	}
 
 	return difflib.SplitLines(in)
-}
-
-var slugReplacer = regexp.MustCompile(`[^A-Za-z0-9_-]+`)
-
-func slug(in string) string {
-	return strings.Trim(slugReplacer.ReplaceAllLiteralString(in, "-"), "-")
 }
 
 func formatError(explanation string, err error) string {

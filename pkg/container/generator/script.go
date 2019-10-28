@@ -9,10 +9,7 @@ import (
 	"github.com/puppetlabs/horsehead/v2/graph/algo"
 	"github.com/puppetlabs/horsehead/v2/graph/traverse"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/asset"
-	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
 )
-
-const DefaultScriptFilename = "hack/build-container"
 
 var (
 	scriptTemplate = template.Must(template.New("build.tpl").Parse(asset.MustAssetString("scripts/build.tpl")))
@@ -27,15 +24,17 @@ type scriptTemplateData struct {
 	Images []*scriptTemplateImageData
 }
 
-func generateScript(name string, c *def.Container, ref *def.FileRef) (*File, error) {
+func (gen *Generator) generateScript() (*File, error) {
+	ref := gen.base.Join(gen.scriptFilename)
+
 	// Organize the dependencies into a graph to determine which should come
 	// first.
 	g := graph.NewSimpleDirectedGraphWithFeatures(graph.DeterministicIteration)
 
 	// Get the names of the images and sort them for consistency.
-	imageNames := make([]string, len(c.Images))
+	imageNames := make([]string, len(gen.c.Images))
 	i := 0
-	for name := range c.Images {
+	for name := range gen.c.Images {
 		imageNames[i] = name
 		i++
 	}
@@ -48,7 +47,7 @@ func generateScript(name string, c *def.Container, ref *def.FileRef) (*File, err
 	}
 
 	// Now connect its dependencies.
-	for name, image := range c.Images {
+	for name, image := range gen.c.Images {
 		for _, dep := range image.DependsOn {
 			if err := g.Connect(dep, name); err == graph.ErrEdgeAlreadyInGraph {
 				continue
@@ -71,13 +70,13 @@ func generateScript(name string, c *def.Container, ref *def.FileRef) (*File, err
 
 	// Write out the build instructions in topological order.
 	data := &scriptTemplateData{
-		Images: make([]*scriptTemplateImageData, len(c.Images)),
+		Images: make([]*scriptTemplateImageData, len(gen.c.Images)),
 	}
 
 	i = 0
 	traverse.NewTopologicalOrderTraverser(g).ForEachInto(func(imageName string) error {
 		data.Images[i] = &scriptTemplateImageData{
-			Ref:      imageRef(name, imageName),
+			Ref:      gen.imageRef(imageName),
 			Filename: dockerfile(imageName).Filename(),
 		}
 		i++

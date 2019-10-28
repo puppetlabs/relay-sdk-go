@@ -3,6 +3,11 @@ package def
 import (
 	"io"
 	"net/http"
+	"os"
+	"path"
+	"path/filepath"
+	"regexp"
+	"strings"
 
 	v1 "github.com/puppetlabs/nebula-sdk/pkg/container/types/v1"
 )
@@ -10,6 +15,7 @@ import (
 type Container struct {
 	*Common
 
+	Name        string
 	Title       string
 	Description string
 }
@@ -32,8 +38,19 @@ func NewFromTyped(sct *v1.StepContainer, opts ...CommonOption) (*Container, erro
 		}
 	}
 
+	name := sct.Name
+	if name == "" {
+		dir := slug(path.Base(co.Resolver.WorkingDirectory))
+		if dir == "" {
+			return nil, ErrMissingName
+		}
+
+		name = dir
+	}
+
 	c := &Container{
 		Common:      co,
+		Name:        name,
 		Title:       sct.Title,
 		Description: sct.Description,
 	}
@@ -73,5 +90,20 @@ func NewFromFileRef(ref *FileRef) (rc *ResolvedContainer, err error) {
 }
 
 func NewFromFilePath(name string) (*ResolvedContainer, error) {
+	if !filepath.IsAbs(name) {
+		wd, err := os.Getwd()
+		if err != nil {
+			return nil, err
+		}
+
+		name = filepath.Clean(filepath.Join(wd, name))
+	}
+
 	return NewFromFileRef(NewFileRef(name))
+}
+
+var slugReplacer = regexp.MustCompile(`[^A-Za-z0-9_-]+`)
+
+func slug(in string) string {
+	return strings.Trim(slugReplacer.ReplaceAllLiteralString(in, "-"), "-")
 }

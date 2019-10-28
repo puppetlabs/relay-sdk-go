@@ -19,6 +19,10 @@
           "type": "string",
           "enum": ["StepContainer"]
         },
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"
+        },
         "title": {
           "type": "string"
         },

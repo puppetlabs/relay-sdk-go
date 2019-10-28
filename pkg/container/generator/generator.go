@@ -6,6 +6,11 @@ import (
 	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
 )
 
+const (
+	DefaultScriptFilename = "hack/build-container"
+	DefaultRepoNameBase   = "sdk.nebula.localhost/generated"
+)
+
 type File struct {
 	Ref     *def.FileRef
 	Mode    os.FileMode
@@ -13,25 +18,25 @@ type File struct {
 }
 
 type Generator struct {
-	name string
-	c    *def.Container
+	c *def.Container
 
 	base           *def.FileRef
 	scriptFilename string
+	repoNameBase   string
 }
 
 func (g *Generator) Files() ([]*File, error) {
 	var fs []*File
 
 	// Generate build script
-	f, err := generateScript(g.name, g.c, g.base.Join(g.scriptFilename))
+	f, err := g.generateScript()
 	if err != nil {
 		return nil, err
 	}
 	fs = append(fs, f)
 
 	// Generate Dockerfiles
-	ifs, err := generateImages(g.name, g.c, g.base)
+	ifs, err := g.generateImages()
 	if err != nil {
 		return nil, err
 	}
@@ -48,19 +53,25 @@ func WithScriptFilename(filename string) Option {
 	}
 }
 
+func WithRepoNameBase(base string) Option {
+	return func(g *Generator) {
+		g.repoNameBase = base
+	}
+}
+
 func WithFilesRelativeTo(ref *def.FileRef) Option {
 	return func(g *Generator) {
 		g.base = ref.Dir()
 	}
 }
 
-func New(name string, container *def.Container, opts ...Option) *Generator {
+func New(container *def.Container, opts ...Option) *Generator {
 	g := &Generator{
-		name: name,
-		c:    container,
+		c: container,
 
 		base:           def.NewFileRef("."),
 		scriptFilename: DefaultScriptFilename,
+		repoNameBase:   DefaultRepoNameBase,
 	}
 
 	for _, opt := range opts {

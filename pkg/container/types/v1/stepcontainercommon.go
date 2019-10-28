@@ -1,8 +1,6 @@
 package v1
 
 import (
-	"encoding/json"
-
 	"gopkg.in/yaml.v3"
 )
 
@@ -44,29 +42,14 @@ func (fr *FileRef) UnmarshalYAML(value *yaml.Node) error {
 	return nil
 }
 
-func (fr FileRef) MarshalJSON() ([]byte, error) {
-	if fr.From == FileSourceSystem {
-		return json.Marshal(fr.Name)
-	}
-
-	pm := struct {
-		From FileSource `json:"from"`
-		Name string     `json:"name"`
-	}{
-		From: fr.From,
-		Name: fr.Name,
-	}
-	return json.Marshal(pm)
-}
-
 type StepContainerImage struct {
-	Template  FileRef  `yaml:"template" json:"template"`
-	DependsOn []string `yaml:"dependsOn" json:"dependsOn,omitempty"`
+	Template  FileRef  `yaml:"template"`
+	DependsOn []string `yaml:"dependsOn"`
 }
 
 type StepContainerSetting struct {
-	Description string      `json:"description,omitempty"`
-	Value       interface{} `json:"value"`
+	Description string
+	Value       interface{}
 }
 
 func (scs *StepContainerSetting) UnmarshalYAML(value *yaml.Node) error {
@@ -112,8 +95,8 @@ func (scs *StepContainerSetting) UnmarshalYAML(value *yaml.Node) error {
 }
 
 type StepContainerCommon struct {
-	Inherit    *FileRef                        `yaml:"inherit,omitempty" json:"inherit,omitempty"`
-	SDKVersion string                          `yaml:"sdkVersion" json:"sdkVersion,omitempty"`
-	Images     map[string]StepContainerImage   `yaml:"images" json:"images,omitempty"`
-	Settings   map[string]StepContainerSetting `yaml:"settings" json:"settings,omitempty"`
+	Inherit    *FileRef                        `yaml:"inherit,omitempty"`
+	SDKVersion string                          `yaml:"sdkVersion"`
+	Images     map[string]StepContainerImage   `yaml:"images"`
+	Settings   map[string]StepContainerSetting `yaml:"settings"`
 }
