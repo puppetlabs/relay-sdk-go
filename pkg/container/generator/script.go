@@ -16,7 +16,13 @@ var (
 )
 
 type scriptTemplateImageData struct {
-	Ref      string
+	// Name is the final repository name of the image.
+	Name string
+
+	// Ref is the internal intermediate build reference name of the image.
+	Ref string
+
+	// Filename is the path to the Dockerfile for the image.
 	Filename string
 }
 
@@ -76,6 +82,7 @@ func (gen *Generator) generateScript() (*File, error) {
 	i = 0
 	traverse.NewTopologicalOrderTraverser(g).ForEachInto(func(imageName string) error {
 		data.Images[i] = &scriptTemplateImageData{
+			Name:     gen.absoluteImageName(imageName),
 			Ref:      gen.imageRef(imageName),
 			Filename: dockerfile(imageName).Filename(),
 		}

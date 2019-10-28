@@ -11,9 +11,39 @@ set -euo pipefail
 DOCKER="${DOCKER:-docker}"
 
 #
+# Variables
+#
+
+DOCKER_ARGS="${DOCKER_ARGS:-}"
+DOCKER_BUILD_ARGS="${DOCKER_BUILD_ARGS:-}"
+
+#
 #
 #
 
+declare -a TAGS
+
+while getopts ':t:' OPTNAME; do
+  case "${OPTNAME}" in
+  t)
+    TAGS+=( "${OPTARG}" )
+    ;;
+  \?)
+    echo "Unrecognized option: -${OPTARG}" >&2
+    exit 1
+    ;;
+  esac
+done
+
+shift $(( OPTIND - 1 ))
+
 {{ range .Images }}
-$DOCKER build -t {{ .Ref }} -f {{ .Filename }} .
+$DOCKER $DOCKER_ARGS build $DOCKER_BUILD_ARGS --tag {{ .Ref }} --file {{ .Filename }} .
 {{- end }}
+
+for TAG in "${TAGS[@]}"; do
+{{- range .Images }}
+  $DOCKER $DOCKER_ARGS tag {{ .Ref }} "{{ .Name }}:${TAG}" && \
+    printf "# Tagged %s:%s\n" {{ .Name }} "${TAG}"
+{{- end }}
+done

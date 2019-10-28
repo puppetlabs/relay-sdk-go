@@ -1,6 +1,9 @@
 package def
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
+	"encoding/json"
 	"io"
 	"net/http"
 	"os"
@@ -15,6 +18,7 @@ import (
 type Container struct {
 	*Common
 
+	ID          string
 	Name        string
 	Title       string
 	Description string
@@ -40,7 +44,7 @@ func NewFromTyped(sct *v1.StepContainer, opts ...CommonOption) (*Container, erro
 
 	name := sct.Name
 	if name == "" {
-		dir := slug(path.Base(co.Resolver.WorkingDirectory))
+		dir := slug(path.Base(co.resolver.WorkingDirectory))
 		if dir == "" {
 			return nil, ErrMissingName
 		}
@@ -54,6 +58,19 @@ func NewFromTyped(sct *v1.StepContainer, opts ...CommonOption) (*Container, erro
 		Title:       sct.Title,
 		Description: sct.Description,
 	}
+
+	// Generate intermediate ID by hashing the container as JSON.
+	//
+	// TODO: Do we want something less prone to change (e.g., if we add new
+	// fields) than this?
+	b, err := json.Marshal(c)
+	if err != nil {
+		return nil, err
+	}
+
+	id := sha1.Sum(b)
+	c.ID = hex.EncodeToString(id[:])
+
 	return c, nil
 }
 

@@ -110,24 +110,30 @@ func (g *Generator) generateImages() ([]*File, error) {
 	return fs, nil
 }
 
-func (g *Generator) imageRef(imageName string) string {
+func (g *Generator) relativeImageName(imageName string) string {
 	name := g.c.Name
 
 	if len(name) > 64 {
 		name = name[:64]
 	}
 
-	repoName := path.Join(g.repoNameBase, name)
-
 	if imageName != "base" {
 		if len(imageName) > 64 {
 			imageName = imageName[:64]
 		}
 
-		repoName += "-" + imageName
+		name += "-" + imageName
 	}
 
-	return repoName
+	return name
+}
+
+func (g *Generator) absoluteImageName(imageName string) string {
+	return path.Join(g.repoNameBase, g.relativeImageName(imageName))
+}
+
+func (g *Generator) imageRef(imageName string) string {
+	return path.Join(IntermediateRepoNameBase, g.c.ID[:12], g.relativeImageName(imageName))
 }
 
 func newDockerfileQuoteEscaper(token string) *strings.Replacer {

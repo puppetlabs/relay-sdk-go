@@ -26,17 +26,18 @@ type Setting struct {
 }
 
 type Common struct {
-	Resolver   *Resolver
 	SDKVersion string
 	Images     map[string]*Image
 	Settings   map[string]*Setting
+
+	resolver *Resolver
 }
 
 type CommonOption func(c *Common)
 
 func WithResolver(resolver *Resolver) CommonOption {
 	return func(c *Common) {
-		c.Resolver = resolver
+		c.resolver = resolver
 	}
 }
 
@@ -88,7 +89,7 @@ func NewCommonFromTyped(sctt *v1.StepContainerCommon, opts ...CommonOption) (*Co
 			DependsOn:    image.DependsOn,
 		}
 
-		fr, err := NewFileRefFromTyped(image.Template, WithFileRefResolver(c.Resolver))
+		fr, err := NewFileRefFromTyped(image.Template, WithFileRefResolver(c.resolver))
 		if err != nil {
 			return nil, err
 		}
@@ -110,7 +111,7 @@ func NewCommonFromTyped(sctt *v1.StepContainerCommon, opts ...CommonOption) (*Co
 
 	// We need to merge this file with its parents.
 	if sctt.Inherit != nil {
-		fr, err := NewFileRefFromTyped(*sctt.Inherit, WithFileRefResolver(c.Resolver))
+		fr, err := NewFileRefFromTyped(*sctt.Inherit, WithFileRefResolver(c.resolver))
 		if err != nil {
 			return nil, err
 		}
