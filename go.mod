@@ -9,12 +9,15 @@ require (
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-openapi/strfmt v0.19.3 // indirect
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/imdario/mergo v0.3.8
+	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/json-iterator/go v1.1.7 // indirect
+	github.com/mattn/go-runewidth v0.0.5 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/moby/buildkit v0.3.3

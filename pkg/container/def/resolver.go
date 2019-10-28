@@ -20,6 +20,10 @@ type Resolver struct {
 	WorkingDirectory string
 }
 
+func (r *Resolver) Local() bool {
+	return r == nil || r.FileSystem == nil
+}
+
 func (r *Resolver) Open(name string) (http.File, error) {
 	if r == nil {
 		r = DefaultResolver
@@ -29,7 +33,7 @@ func (r *Resolver) Open(name string) (http.File, error) {
 		name = path.Join(r.WorkingDirectory, name)
 	}
 
-	if r.FileSystem != nil {
+	if !r.Local() {
 		return r.FileSystem.Open(name)
 	}
 

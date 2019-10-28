@@ -14,6 +14,10 @@ type FileRef struct {
 	name     string
 }
 
+func (fr *FileRef) Local() bool {
+	return fr.resolver.Local()
+}
+
 func (fr *FileRef) Dir() *FileRef {
 	return NewFileRef(path.Dir(fr.name))
 }
