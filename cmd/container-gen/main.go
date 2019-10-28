@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"path/filepath"
@@ -33,6 +32,7 @@ func main() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return run(cmd.OutOrStdout(), args)
 		},
+		SilenceUsage: true,
 	}
 
 	c.Flags().BoolVarP(&verbose, "verbose", "v", false, "Print each file written")
@@ -41,7 +41,7 @@ func main() {
 	c.Flags().StringVar(&scriptFilename, "script-filename", generator.DefaultScriptFilename, "The file name to use when generating the build script")
 
 	if err := c.Execute(); err != nil {
-		log.Fatalln(err)
+		os.Exit(1)
 	}
 }
 

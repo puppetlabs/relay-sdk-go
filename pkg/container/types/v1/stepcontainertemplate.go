@@ -4,7 +4,6 @@ import (
 	"io"
 	"strings"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/xeipuuv/gojsonschema"
 	"gopkg.in/yaml.v3"
 )
@@ -44,9 +43,7 @@ func NewStepContainerTemplateFromReader(r io.Reader) (*StepContainerTemplate, er
 	if err != nil {
 		return nil, err
 	} else if !result.Valid() {
-		// XXX: FIXME: Aggregate and return errors.
-		spew.Dump(result.Errors())
-		panic("no")
+		return nil, schemaError(result.Errors())
 	}
 
 	return sc, nil

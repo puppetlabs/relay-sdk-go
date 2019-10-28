@@ -87,7 +87,8 @@ func generateScript(name string, c *def.Container, ref *def.FileRef) (*File, err
 
 	var buf bytes.Buffer
 	if err := scriptTemplate.Execute(&buf, data); err != nil {
-		panic(err)
+		// This should really never happen.
+		return nil, err
 	}
 
 	f := &File{

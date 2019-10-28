@@ -4,13 +4,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
 	v1 "github.com/puppetlabs/nebula-sdk/pkg/container/types/v1"
 )
 
 func Walk(root string) ([]*def.ResolvedContainer, error) {
 	var cs []*def.ResolvedContainer
+	var errs WalkErrors
 
 	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -27,8 +27,11 @@ func Walk(root string) ([]*def.ResolvedContainer, error) {
 			// container specification.
 			return nil
 		} else if err != nil {
-			// XXX: TODO: Collect error
-			spew.Dump("oh no err", path, err)
+			errs = append(errs, &WalkError{
+				Path:  path,
+				Cause: err,
+			})
+			return nil
 		}
 
 		cs = append(cs, c)
@@ -36,6 +39,8 @@ func Walk(root string) ([]*def.ResolvedContainer, error) {
 	})
 	if err != nil {
 		return nil, err
+	} else if len(errs) > 0 {
+		return nil, errs
 	}
 
 	return cs, nil

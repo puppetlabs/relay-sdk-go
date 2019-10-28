@@ -41,3 +41,18 @@ func init() {
 	StepContainerTemplateSchema = stepContainerTemplateSchema
 	StepContainerSchema = stepContainerSchema
 }
+
+func schemaError(errs []gojsonschema.ResultError) error {
+	fes := make([]*SchemaValidationFieldError, len(errs))
+	for i, err := range errs {
+		fes[i] = &SchemaValidationFieldError{
+			Context:     err.Context().String(),
+			Field:       err.Field(),
+			Description: err.Description(),
+		}
+	}
+
+	return &SchemaValidationError{
+		FieldErrors: fes,
+	}
+}
