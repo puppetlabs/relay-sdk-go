@@ -41,7 +41,7 @@ shift $(( OPTIND - 1 ))
 $DOCKER $DOCKER_ARGS build $DOCKER_BUILD_ARGS --tag {{ .Ref }} --file {{ .Filename }} .
 {{- end }}
 
-for TAG in "${TAGS[@]}"; do
+for TAG in ${TAGS[@]+"${TAGS[@]}"}; do
 {{- range .Images }}
   $DOCKER $DOCKER_ARGS tag {{ .Ref }} "{{ .Name }}:${TAG}" && \
     printf "# Tagged %s:%s\n" {{ .Name }} "${TAG}"
