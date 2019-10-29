@@ -1,11 +1,12 @@
 package generator_test
 
 import (
-	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/generator"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -15,19 +16,25 @@ func TestGeneratorFiles(t *testing.T) {
 
 	c := &def.Container{
 		Common:      tpl.Common,
+		ID:          "abcdef123456",
+		Name:        "test",
 		Title:       "Test",
 		Description: "The test task does the best testing.",
 	}
 	c.Settings["AdditionalPackages"].Value = []string{"xmlstarlet"}
 	c.Settings["AdditionalCommands"].Value = []string{"do\nmy\nbidding"}
 
-	g := generator.New("test", c)
+	g := generator.New(c, generator.WithRepoNameBase("foo/bar"), generator.WithScriptFilename("foo.sh"))
 
-	m, err := g.Files()
+	fs, err := g.Files()
 	require.NoError(t, err)
 
-	for _, f := range m {
-		fmt.Println("====", f.Name, "====")
-		fmt.Println(f.Content)
+	assert.Len(t, fs, 2)
+	for _, f := range fs {
+		if strings.HasPrefix(f.Ref.String(), "Dockerfile") {
+			assert.Equal(t, "Dockerfile", f.Ref.String())
+		} else {
+			assert.Equal(t, "foo.sh", f.Ref.String())
+		}
 	}
 }

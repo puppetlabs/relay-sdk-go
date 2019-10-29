@@ -1,2 +1,2 @@
-FROM {{ .Containers.Base.Ref }}
+FROM {{ .Images.base.Ref }}
 RUN echo yay

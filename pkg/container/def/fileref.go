@@ -19,7 +19,7 @@ func (fr *FileRef) Local() bool {
 }
 
 func (fr *FileRef) Dir() *FileRef {
-	return NewFileRef(path.Dir(fr.name))
+	return NewFileRef(path.Dir(fr.name), WithFileRefResolver(fr.resolver))
 }
 
 func (fr *FileRef) Join(name string) *FileRef {
