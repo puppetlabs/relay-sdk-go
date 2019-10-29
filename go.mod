@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	github.com/Masterminds/sprig/v3 v3.0.0
-	github.com/davecgh/go-spew v1.1.1
 	github.com/docker/docker v1.4.2-0.20190410120755-93886fcc5adc // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
