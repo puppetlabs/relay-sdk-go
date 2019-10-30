@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+MKDIR_P="${MKDIR_P:-mkdir -p}"
+GO="${GO:-go}"
+
+#
+# Variables
+#
+
+BIN_DIR="${BIN_DIR:-bin}"
+
+GOOS="$( $GO env GOOS )"
+GOARCH="$( $GO env GOARCH )"
+GOFLAGS="${GOFLAGS:-}"
+LDFLAGS="${LDFLAGS:-}"
+
+#
+#
+#
+
+. scripts/library.sh
+
+[[ "$#" -eq 1 ]] || nebula::sdk::usage "$0 <program>"
+
+eval "$( nebula::sdk::cli_vars "$1" )"
+
+$MKDIR_P "${BIN_DIR}"
+
+set -x
+$GO build $GOFLAGS -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "${LDFLAGS[*]}" "./cmd/${CLI_NAME}"

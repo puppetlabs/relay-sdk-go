@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+GO="${GO:-go}"
+
+#
+#
+#
+
+$GO test -v -race ./...

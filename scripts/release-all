@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RELEASE_PROGRAMS=( ${RELEASE_PROGRAMS:-$( nebula::sdk::default_programs )} )
+
+for PROGRAM in "${RELEASE_PROGRAMS[@]}"; do
+  echo "# release: ${PROGRAM}"
+  scripts/release "${PROGRAM}"
+done
