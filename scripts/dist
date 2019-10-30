@@ -33,6 +33,7 @@ eval "$( nebula::sdk::cli_vars "$1" )"
 ARTIFACTS_CLI_DIR="${ARTIFACTS_DIR}/${CLI_NAME}"
 
 BIN_DIR="${ARTIFACTS_CLI_DIR}" \
+  CGO_ENABLED=0 \
   GOFLAGS="${GOFLAGS:-} -a" \
   LDFLAGS="${LDFLAGS:-}"' -extldflags "-static"' \
   scripts/build "${CLI_NAME}"
