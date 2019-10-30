@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+. scripts/library.sh
+
+BUILD_PROGRAMS=( ${BUILD_PROGRAMS:-$( nebula::sdk::default_programs )} )
+
+for PROGRAM in "${BUILD_PROGRAMS[@]}"; do
+  echo "# build: ${PROGRAM}"
+  scripts/build "${PROGRAM}"
+done

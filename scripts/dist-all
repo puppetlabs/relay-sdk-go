@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+. scripts/library.sh
+
+DEFAULT_DIST_OS_ARCHES=( linux-amd64 linux-386 linux-arm64 linux-ppc64le linux-s390x windows-amd64 darwin-amd64 )
+
+DIST_OS_ARCHES=( ${DIST_OS_ARCHES:-${DEFAULT_DIST_OS_ARCHES[@]}} )
+DIST_PROGRAMS=( ${DIST_PROGRAMS:-$( nebula::sdk::default_programs )} )
+
+for PROGRAM in "${DIST_PROGRAMS[@]}"; do
+  for OS_ARCH in "${DIST_OS_ARCHES[@]}"; do
+    echo "# dist: ${PROGRAM} ${OS_ARCH}"
+    GOOS="${OS_ARCH%-*}" GOARCH="${OS_ARCH##*-}" scripts/dist "${PROGRAM}"
+  done
+done
