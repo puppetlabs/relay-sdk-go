@@ -14,7 +14,7 @@ SHA256SUM="${SHA256SUM:-shasum -a 256}"
 
 nebula::sdk::default_programs() {
   local DEFAULT_PROGRAMS
-  DEFAULT_PROGRAMS=( ni )
+  DEFAULT_PROGRAMS=( ni spindle )
 
   for DEFAULT_PROGRAM in ${DEFAULT_PROGRAMS[@]}; do
     printf "%s\n" "${DEFAULT_PROGRAM}"
