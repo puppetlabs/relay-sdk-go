@@ -16,7 +16,7 @@ func TestStepContainerValid(t *testing.T) {
 	sct, err := v1.NewStepContainerFromString(string(b))
 	require.NoError(t, err)
 
-	assert.Equal(t, v1.Version, sct.Version)
+	assert.Equal(t, v1.Version, sct.APIVersion)
 	assert.Equal(t, v1.StepContainerKind, sct.Kind)
 	assert.NotEmpty(t, sct.Title, "container has no title")
 	assert.NotEmpty(t, sct.Description, "container has no description")

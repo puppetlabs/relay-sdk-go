@@ -3,13 +3,13 @@ package typeutil
 import "gopkg.in/yaml.v2"
 
 type VersionKind struct {
-	Version string `yaml:"version" json:"version,omitempty"`
-	Kind    string `yaml:"kind" json:"kind,omitempty"`
+	APIVersion string `yaml:"apiVersion" json:"apiVersion,omitempty"`
+	Kind       string `yaml:"kind" json:"kind,omitempty"`
 }
 
 type VersionKindExpectation struct {
-	Version string
-	Kind    string
+	APIVersion string
+	Kind       string
 }
 
 func (vke *VersionKindExpectation) NewFromYAMLString(data string) (*VersionKind, error) {
@@ -17,18 +17,18 @@ func (vke *VersionKindExpectation) NewFromYAMLString(data string) (*VersionKind,
 	if err := yaml.Unmarshal([]byte(data), &vk); err != nil {
 		if _, ok := err.(*yaml.TypeError); ok {
 			return nil, &InvalidVersionKindError{
-				ExpectedVersion: vke.Version,
+				ExpectedVersion: vke.APIVersion,
 				ExpectedKind:    vke.Kind,
 			}
 		}
 		return nil, err
 	}
 
-	if vk.Version != vke.Version || vk.Kind != vke.Kind {
+	if vk.APIVersion != vke.APIVersion || vk.Kind != vke.Kind {
 		return nil, &InvalidVersionKindError{
-			ExpectedVersion: vke.Version,
+			ExpectedVersion: vke.APIVersion,
 			ExpectedKind:    vke.Kind,
-			GotVersion:      vk.Version,
+			GotVersion:      vk.APIVersion,
 			GotKind:         vk.Kind,
 		}
 	}
@@ -36,9 +36,9 @@ func (vke *VersionKindExpectation) NewFromYAMLString(data string) (*VersionKind,
 	return vk, nil
 }
 
-func NewVersionKindExpectation(version, kind string) *VersionKindExpectation {
+func NewVersionKindExpectation(apiVersion, kind string) *VersionKindExpectation {
 	return &VersionKindExpectation{
-		Version: version,
-		Kind:    kind,
+		APIVersion: apiVersion,
+		Kind:       kind,
 	}
 }

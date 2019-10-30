@@ -27,28 +27,18 @@ func (lc *listCommand) run(cmd *cobra.Command, args []string) error {
 			io.WriteString(cmd.OutOrStdout(), relativePath(c.FileRef)+"\n")
 		}
 	} else {
-		t := table.NewWriter()
-		t.SetOutputMirror(cmd.OutOrStdout())
-		t.SetStyle(table.Style{
-			Box:     table.StyleBoxDefault,
-			Color:   table.ColorOptionsDefault,
-			Format:  table.FormatOptionsDefault,
-			Options: table.OptionsNoBordersAndSeparators,
-			Title:   table.TitleOptionsDefault,
+		writeTable(cmd.OutOrStdout(), func(t table.Writer) {
+			t.AppendHeader(table.Row{"ID", "Name", "SDK Version", "Path"})
+
+			for _, c := range cs {
+				t.AppendRow(table.Row{
+					c.Container.ID[:12],
+					c.Container.Name,
+					c.Container.SDKVersion,
+					relativePath(c.FileRef),
+				})
+			}
 		})
-
-		t.AppendHeader(table.Row{"ID", "Name", "SDK Version", "Path"})
-
-		for _, c := range cs {
-			t.AppendRow(table.Row{
-				c.Container.ID[:12],
-				c.Container.Name,
-				c.Container.SDKVersion,
-				relativePath(c.FileRef),
-			})
-		}
-
-		t.Render()
 	}
 
 	return nil
@@ -58,7 +48,7 @@ func NewListCommand() *cobra.Command {
 	lc := &listCommand{}
 
 	cmd := &cobra.Command{
-		Use:     "list",
+		Use:     "list [flags] <paths...>",
 		Short:   "List the containers detected in the given files or directories",
 		Aliases: []string{"ls"},
 		Args:    cobra.ArbitraryArgs,

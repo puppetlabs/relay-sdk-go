@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/generator"
@@ -69,6 +70,11 @@ func (gc *generateCommand) run(cmd *cobra.Command, args []string) error {
 				continue
 			}
 		} else if string(prev) != f.Content {
+			if err := os.MkdirAll(filepath.Dir(dest), 0755); err != nil {
+				io.WriteString(cmd.ErrOrStderr(), formatError(fmt.Sprintf("Unable to generate file %q", dest), err)+"\n")
+				continue
+			}
+
 			if err := ioutil.WriteFile(dest, []byte(f.Content), f.Mode); err != nil {
 				io.WriteString(cmd.ErrOrStderr(), formatError(fmt.Sprintf("Unable to generate file %q", dest), err)+"\n")
 				continue
@@ -92,7 +98,7 @@ func NewGenerateCommand() *cobra.Command {
 	gc := &generateCommand{}
 
 	cmd := &cobra.Command{
-		Use:     "generate",
+		Use:     "generate [flags] <paths...>",
 		Short:   "Generate the Dockerfiles and build scripts for the given files and directories",
 		Aliases: []string{"gen"},
 		Args:    cobra.ArbitraryArgs,

@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	DefaultScriptFilename = "hack/build-container"
+	DefaultScriptFilename = "scripts/build-container"
 	DefaultRepoNameBase   = "sdk.nebula.localhost/generated"
 
 	IntermediateRepoNameBase = "sdk.nebula.localhost/intermediate"

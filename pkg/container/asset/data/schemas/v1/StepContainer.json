@@ -7,11 +7,11 @@
     {
       "type": "object",
       "required": [
-        "version",
+        "apiVersion",
         "kind"
       ],
       "properties": {
-        "version": {
+        "apiVersion": {
           "type": "string",
           "enum": ["container/v1"]
         },

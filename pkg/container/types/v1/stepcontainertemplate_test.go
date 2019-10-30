@@ -19,7 +19,7 @@ func TestStepContainerTemplatesValid(t *testing.T) {
 			sctt, err := v1.NewStepContainerTemplateFromString(s)
 			require.NoError(t, err)
 
-			assert.Equal(t, v1.Version, sctt.Version)
+			assert.Equal(t, v1.Version, sctt.APIVersion)
 			assert.Equal(t, v1.StepContainerTemplateKind, sctt.Kind)
 			assert.NotEmpty(t, sctt.Images, "template has no images")
 			assert.NotEmpty(t, sctt.Settings, "template has no settings")

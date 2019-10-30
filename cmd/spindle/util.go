@@ -2,10 +2,12 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/jedib0t/go-pretty/table"
 	"github.com/pmezard/go-difflib/difflib"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/def"
 	"github.com/puppetlabs/nebula-sdk/pkg/container/defwalker"
@@ -61,4 +63,20 @@ func relativePath(fr *def.FileRef) string {
 	}
 
 	return p
+}
+
+func writeTable(w io.Writer, fn func(t table.Writer)) {
+	t := table.NewWriter()
+	t.SetOutputMirror(w)
+	t.SetStyle(table.Style{
+		Box:     table.StyleBoxDefault,
+		Color:   table.ColorOptionsDefault,
+		Format:  table.FormatOptionsDefault,
+		Options: table.OptionsNoBordersAndSeparators,
+		Title:   table.TitleOptionsDefault,
+	})
+
+	fn(t)
+
+	t.Render()
 }

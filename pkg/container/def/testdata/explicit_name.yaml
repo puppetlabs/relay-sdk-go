@@ -1,4 +1,4 @@
-version: container/v1
+apiVersion: container/v1
 kind: StepContainer
 inherit: {from: sdk, name: bash.v1}
 name: jira-resolve

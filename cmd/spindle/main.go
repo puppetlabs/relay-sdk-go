@@ -13,6 +13,7 @@ func main() {
 		SilenceUsage: true,
 	}
 
+	cmd.AddCommand(NewDescribeCommand())
 	cmd.AddCommand(NewGenerateCommand())
 	cmd.AddCommand(NewListCommand())
 
