@@ -11,4 +11,5 @@ GO="${GO:-go}"
 #
 #
 
+set -x
 $GO generate ./...

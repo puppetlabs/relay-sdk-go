@@ -16,7 +16,6 @@ BIN_DIR="${BIN_DIR:-bin}"
 
 GOOS="$( $GO env GOOS )"
 GOARCH="$( $GO env GOARCH )"
-GOFLAGS="${GOFLAGS:-}"
 LDFLAGS="${LDFLAGS:-}"
 
 #
@@ -32,4 +31,4 @@ eval "$( nebula::sdk::cli_vars "$1" )"
 $MKDIR_P "${BIN_DIR}"
 
 set -x
-$GO build $GOFLAGS -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "${LDFLAGS[*]}" "./cmd/${CLI_NAME}"
+$GO build -o "${BIN_DIR}/${CLI_FILE_BIN}" -ldflags "${LDFLAGS[*]}" "./cmd/${CLI_NAME}"

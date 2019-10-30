@@ -1,20 +1,51 @@
 language: go
 go:
 - 1.13.x
+cache:
+  directories:
+  - "${GOPATH}/pkg/mod"
+  - "${GOPATH}/pkg/sumdb"
+  - /opt/google-cloud-sdk
 env:
   global:
   - GO111MODULE=on
+  - GOFLAGS="${GOFLAGS} -mod=readonly"
+  - PATH="${PATH}:/opt/google-cloud-sdk/bin"
 jobs:
   include:
   - stage: build
     install: []
     script:
+    - set -e
     - scripts/ci scripts/generate
     - scripts/ci scripts/build-all
     - scripts/ci scripts/test
   - stage: release
-    if: branch = master and tag =~ ^v
-    install: []
+    env:
+    - GCP_SERVICE_ACCOUNT_PGP_MESSAGE=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpqQTBFQ1FNQ2NzdjBibWxJRityLzB1b0JiU2VleC9iaTRGL3pJc1JKYW04QzJTU0lDSzhrMStwZVN1Ukl4ZWIwCkpOdmhzbXRiYWhraGpQbnVQcDJSUkoxLzhhcDdyQjIrYkc4UDZHbzA1R0IwWVBFeUIwKyt6Z0YzUE1UMk93d2kKL3VCK1EzbWRIcWVmb3dCUWxnNG5nRm5aVGE5dnZXaWROYzM5U3RtRCtLT29ZcVhhUCtPRWtzbDJoRVVCMno1bgpWeWhSRjFQaDh4a0puQ2UxQUlOZXNwOXQ2MGpJWFRSV25LTkxwbGpkV1ZyVTEwQm9nWmRGOHQ3MmFVOVBobTFhCmZPTXR5bkpsQXN5cDRLNmgxR3RvUk9hRGhNU2QrZVJyRkovdGtnTyt0MWxUZG9IYXhiMlBTNThqcHBFTy9OdTQKTHRHTUZZTGVvalliM1EzZjcyS0x1SWUwRzF6UG9JTWE3NTBrZzB2OEdNRkRkNGorMWM5alRvTS9vc2RQZFY2ZwpwRS9NeW9aSEw3Umd1a29vRE5IdmdTUU9uY1lVS2xPcWdSTm1xVk40VUZhR3lPSjV1VG1MMVl0bmNPWWZzVDZhCjBxdng4aTl0US93QjZFZ1lMTG1OakNnd3UvdVNYUkFsRTRub0dlQndEUHhrL2hLN1NhTFN0bnhVdmZDRkVOc1kKWHhTTkQvMTRZcU9qWENmbjZlV2s2dEhVRTFPYzFXVG9lQkJidVAyc1dWbWlIME5ZSEpBQm9xQ1NHZUM1K3NqOApSd0lwWFIyTUxQMkRBdUNkeEgxZi9Mb2xsZUtrSGtDTnY3UGhkeGpXUDd6M0loMElqYnl1MUdpWnZzWklJc2dmCjVrem8raWZ6Yk54OXFDYVJVdHdXOXhNUjR0RFhhNkF6enRteEM2ejA1YlRvZW5ZVm9pd09EbkJFbCtGS01oNE4KZE1qUUJCZmZXeUg5a0RFQjQwT3lvMzBvaGFRQmo1TXU3aEJpZDVVUis2S3djSUFMdUlKK3lTMWFHSnBOWWdCQQpOVjhaOW1RR3prR3V3TzgzOHgrT0szVDhXVUxRUWR6U3lvK1FWUHJnR0xaUGxFd3QxVVhnYldERTQ1Nnl2SXpQCklqcENtQlFZS0tSQ3lJdm5kbENMOVc0aHBERzVMK0Q0QkZzb295MDZIemdKRlpqMmkvNEtNcUp4eS9CU2s2T3IKM1k5NVVOZ1NUbnBnSXRtWEhGQzlWUENIandWTTFxTkxmcHdndmlOWUtMTnR0bDhvQ0VZTU1IeldLa3hCMmZQNApYSDc3Y29jTWdyL3RycWdNOFBDTUVzYmVOZ0ZUWWoxaVBhZWRpcnlJSHFBT2REcWlFN0tvek1mVm1LT3Bvd1lHClRTYy9RTm45bm1Oei9SeVh0V3d3dU83bStHaVdnR1I4d3pBQU9NMUJ4UEliUnY4dStkSnMwMjFYelVpbUNaNkcKZFVCWVNrQ3JsRGxXQWVoWEh4bjErY3BRaEp0eCt3MnFwTC9DVENKYjF2L1h0VHFuTyt2T0JqSUxmckhqajBHWQoyNkxWMnJ4REJhWXgxRUJ4TXFoYkZHalVQT3A0elVqdFRTWVp0eVQ3UVUrU2dia0V4U0JJNWI4WlVZSVdCam9oCjUwLytsSmNMUWdsVWwrSE9vZmVJczZSNDBoMnZuRDc3eFF0UmhUZngybU5KS01EcUxoSmhZcUEzWHFSYzJPVzAKc3o2UmoyVmpKQUR3UllQY1Z4M0RwNjkvczJwUVJPRzJacmxYMU1hbG1VRkhXb1c5Tkg4MC94cWozSTBad05zWQp2RXRHdlB5ZEVhb2h6c2JnUjNkQnVOem1tbXgyS2g5TWtnRVhYS2g4RnZ5YzZkWTU3WjZzYjFxSnRhSnJlamt6CldSckg5NHVOcWpJTnNwczNYNGx0M2x6clZHU3hrT2t5eldqOG1qUzNsQU82RWIxNCtubnJ3T1IvQncrTk1aNm4KT2E1eHdWdHB1ZGI4Y2ZpNWFQS3k1bVZuWkRzVHJ3MUtzcXpkSjEwZWxVNVhhZ0pSRHE2YjZjM3JIQmFOWEFpQgo0QnY5WTF5cy9ocU5qTUZXN3lvbGY3ZkVaTkFpd0Z2M3JIUmN1SWllYUlxYXlpMWlyNWw4ejB4TlZjNkpsQWo4CkhJMUZKYkZyM3d5VS9QM3dwZGsyMUxHcHo3emc3Mkc4d3VJMGVXVUdlNENxbjBzWnc3MVRIUzRTQWw1WmxqNUUKdHZRc0tZd0dFZ0o5ZStXNFdOcS9ZSE5FSzdEbjZTa0VvckFtemkzSlNOZi9NWWoxY0VKNjhkb01JMVNiYTRHRgpPcmM1b2Y5V0RZci9rNHUzcFBEZ2grTitGTUFDTUdWV1E5eXJsOHhIUXhYdkNyWEMrMG1tYVErTHJNVFhLWmppCjBnenJ6d1ZpRWRBMVE0OHF0UFlBL0N2eXF5OXNCalYwN0xValpRemp3eklselN0cHBxZ2dFTnhDWmdaWThyV1QKQ3o0Nng3R3JTS0RCU0tNelR3RnRNRUlua0o3Rkg2LzNhMlFrT1hkemxPN2VhUHRJRUpmQkJ3bHJwNzIwMGhIbgowWU5EVTYwcEp3d1V1MDhZem9BQVJRL3VEcUxiTXk0a2tSM2U0SzQzRGxsaE1BMytiUytQc3RvQmpMRjU1VHZICm1rUDAxb2V6d0p1UXU0TDRlT2hXVW5LZzdiQk9FbElmbDlPejBRRWxhd2dtVm56VzRJVkVhcjhmRlVWeTc2d0sKSm9ITVhSUzQvSHNWbytZSmJqV21mZVhsb0NhcFl4OEJ0dk9XQXRISzBUVzhkNjY0bmdqT1hRNjJyUWhvbTlpYgpMSlFtR0tGRGpqUkN6RDJ3ZXBRYktLTmNhUmFaSWc1UTVBYldSMWs2dm1MbXFlYmUxcmxrcTlsU3Q4Nzc5Q2REClJqN0NpRzJGenV3MHlabi9YNXVWTk1BK2FzVmI3NW1OMDZnUHRTakVkQXl4NmpRS29uV0Q0cGYvYWtoZVpEankKdkthL1JzMHpQWHozVG9lbWxMVm5CQm5JdVZQNFpTU0UrOVJUWS9LQ2JlQ0N0Skk9Cj1MMEw0Ci0tLS0tRU5EIFBHUCBNRVNTQUdFLS0tLS0K
+    - secure: R2SqVdrWbxNgT4PF/8svnFkFXnyCHRGRUURC4FHtGV4KHUri2jHKUJmcD0OBQixKCQ1OiwjP/1Q55IhIGKrtGqqqDIvIw71kVfsGT7cNa1ZRYHZgZLicp2Vgaq+JC4pwl7ui3uJdM+ElS4egUbTgDkUzeGr4b3XSQYrPIGyYZtq2EV+w0ZageN178ktQCc9P3H1nnvbM4G3AGEi+AIr+qOIJLSjggKnsRRzdxR7wmYfW5+fmBb6t9Nk7jqMXdcQOp+N+YIjIHj1L4JaNV/3CayOfkMIGz+TEzgWdoWxhJUJxPUNsNbkv+ZWZ5fhPAI+gEPaLrtwqhqGp+nGSsQwRQgkKzW3W+SrD727jLY3NXnzZAVuGl6T35HfzxxkReutXusrdu2fdeGviJTPBSNFgkZ/2YRCBcYbhN3/EziydsvFurWSHpnCHxa0odwgNENJmj+JuaxzIz1awIXduR/eD1rxwaSykvdTRPIkPbvT+DEUDsfwG+UirhoUJgGV3S6x9QhYLNxZ11n4jVlOVzZyRKJ2Tygxx6CjaTtULWOmV3n4Il8a4qlrt3ijiWfZG8/ES4ewQ4ALQLadV9lNBaFuXtCL3yagVcYiyO7QIOMbON5W5fo1989KEsUzbdqsLEm5hdKw9Gl3hexvj6EbyOxGc7yY47DjX34vgCsRp9F9uV4M=
+    install:
+    - set -e
+    - |
+      if [ ! -d /opt/google-cloud-sdk/bin ]; then
+        pushd /opt
+        curl -L -o google-cloud-sdk.tar.gz https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-269.0.0-linux-x86_64.tar.gz
+        sha256sum -c <<<'f152815d05a2f9374c87be1325a7d3bdbf62720d8fad9acb42dc2312d2e33f4a  google-cloud-sdk.tar.gz'
+        tar -xvzf google-cloud-sdk.tar.gz
+        popd
+      fi
+    - gcloud config set core/disable_usage_reporting true
+    - gcloud config set component_manager/disable_update_check true
+    - base64 -d >/tmp/service-account.json.asc <<<"${GCP_SERVICE_ACCOUNT_PGP_MESSAGE}"
+    - gpg --decrypt --batch --yes --passphrase-fd 0 /tmp/service-account.json.asc >/tmp/service-account.json <<<"${GCP_SERVICE_ACCOUNT_PGP_PASSPHRASE}"
+    - gcloud auth activate-service-account --key-file=/tmp/service-account.json
+    - rm -f /tmp/service-account.json
     script:
+    - set -e
+    - scripts/ci scripts/generate
     - scripts/ci scripts/dist-all
     - scripts/ci scripts/release-all
+stages:
+- build
+- name: release
+  if: tag =~ ^v
