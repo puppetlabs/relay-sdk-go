@@ -9,10 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.1]
 
+### Changed
+
 * Fix: Clear the entrypoint in generated Docker images to align overridden
   Alpine Linux-based image behavior to the standard Alpine Linux image.
 
 ## [1.1.0]
+
+### Added
 
 * Initial implementation of the Spindle utility.
 
