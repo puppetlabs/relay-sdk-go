@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1]
+
 * Fix: Clear the entrypoint in generated Docker images to align overridden
   Alpine Linux-based image behavior to the standard Alpine Linux image.
 
@@ -26,7 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.0.1...v1.1.0
 [1.0.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/puppetlabs/nebula-sdk/compare/902be9735b850b21229bf34ddf42a11aba6b315e...v1.0.0
