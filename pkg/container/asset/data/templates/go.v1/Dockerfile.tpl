@@ -14,4 +14,5 @@ RUN apk --no-cache add{{ range .Settings.AdditionalPackages }} {{ . }}{{ end }}
 RUN ["/bin/sh", "-c", {{ . | mustToJson }}]
 {{- end }}
 COPY --from=builder "{{ $Binary }}" "{{ $Binary }}"
+ENTRYPOINT []
 CMD ["{{ $Binary }}"]
