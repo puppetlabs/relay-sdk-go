@@ -24,4 +24,5 @@ RUN apk --no-cache add{{ range .Settings.AdditionalPackages }} {{ . }}{{ end }}
 RUN ["/bin/bash", "-c", {{ . | mustToJson }}]
 {{- end }}
 COPY "./{{ .Settings.CommandPath }}" "{{ $FilePath }}"
+ENTRYPOINT []
 CMD ["/bin/bash", "{{ $FilePath }}"]
