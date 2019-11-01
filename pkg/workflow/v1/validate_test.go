@@ -19,7 +19,7 @@ func TestFixtureValidation(t *testing.T) {
 			b, err := ioutil.ReadFile(file)
 			require.NoError(t, err)
 
-			err = v1.Validate(string(b))
+			err = v1.ValidateYAML(string(b))
 			if strings.HasSuffix(file[:len(file)-len(filepath.Ext(file))], "_invalid") {
 				require.Error(t, err)
 			} else {

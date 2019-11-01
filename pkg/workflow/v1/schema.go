@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/puppetlabs/nebula-sdk/pkg/util/typeutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/asset"
 	"github.com/xeipuuv/gojsonschema"
 )
@@ -8,9 +9,8 @@ import (
 var WorkflowSchema *gojsonschema.Schema
 
 func init() {
-	workflowSchemaLoader := gojsonschema.NewStringLoader(asset.MustAssetString("schemas/v1/Workflow.json"))
+	workflowSchema, err := typeutil.LoadSchemaFromStrings(asset.MustAssetString("schemas/v1/Workflow.json"))
 
-	workflowSchema, err := gojsonschema.NewSchema(workflowSchemaLoader)
 	if err != nil {
 		panic(err)
 	}
