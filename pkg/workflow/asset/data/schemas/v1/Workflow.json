@@ -11,35 +11,39 @@
         "v1"
       ]
     },
+    "kind": {
+      "type": "string",
+      "description": "Nebula schema type",
+      "enum": [
+        "Workflow"
+      ]
+    },
     "description": {
       "type": "string",
       "description": "An optional user-provided workflow description"
     },
     "parameters": {
       "type": "object",
-      "patternProperties": {
-        "(.*?)": {
-          "$ref": "#/definitions/Parameter"
-        }
-      },
-      "additionalProperties": false
+      "additionalProperties": {
+        "$ref": "#/definitions/Parameter"
+      }
     },
     "steps": {
       "type": "array",
       "description": "List of workflow steps",
+      "minItems": 1,
       "items": {
         "$ref": "#/definitions/Step"
       }
     }
   },
   "required": [
-    "apiVersion",
     "steps"
   ],
   "definitions": {
     "Parameter": {
       "type": "object",
-      "description": "The parameters required to run this workflow",
+      "description": "A workflow parameter definition",
       "properties": {
         "default": {
           "description": "Default parameter value"
@@ -58,16 +62,37 @@
           "type": "string",
           "description": "Unique workflow step name"
         },
+        "dependsOn": {
+          "description": "Step dependencies",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "oneOf": [
+        { "$ref": "#/definitions/ContainerStep" },
+        { "$ref": "#/definitions/ApprovalStep" }
+      ]
+    },
+    "ContainerStep": {
+      "properties": {
+        "type": {
+          "const": "container"
+        },
         "image": {
           "type": "string",
           "description": "Docker image for step execution"
-        },
-        "dependsOn": {
-          "type": "array",
-          "description": "A list of step dependencies",
-          "items": {
-            "type": "string"
-          }
         },
         "command": {
           "type": "string",
@@ -88,7 +113,17 @@
           }
         }
       },
-      "required": ["name", "image"]
+      "required": [
+        "image"
+      ]
+    },
+    "ApprovalStep": {
+      "properties": {
+        "type": {
+          "const": "approval"
+        }
+      },
+      "required": ["type"]
     }
   }
 }
