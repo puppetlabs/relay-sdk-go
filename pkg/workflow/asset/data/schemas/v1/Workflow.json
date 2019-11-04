@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Workflow",
+  "description": "A project nebula workflow definition",
+  "type": "object",
+  "properties": {
+    "apiVersion": {
+      "type": "string",
+      "description": "Nebula workflow schema version",
+      "enum": [
+        "v1"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "description": "Nebula schema type",
+      "enum": [
+        "Workflow"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "description": "An optional user-provided workflow description"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/Parameter"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "List of workflow steps",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/Step"
+      }
+    }
+  },
+  "required": [
+    "steps"
+  ],
+  "definitions": {
+    "Parameter": {
+      "type": "object",
+      "description": "A workflow parameter definition",
+      "properties": {
+        "default": {
+          "description": "Default parameter value"
+        },
+        "description": {
+          "type": "string",
+          "description": "Optional parameter description"
+        }
+      }
+    },
+    "Step": {
+      "type": "object",
+      "description": "A workflow step definition",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique workflow step name"
+        },
+        "dependsOn": {
+          "description": "Step dependencies",
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "oneOf": [
+        { "$ref": "#/definitions/ContainerStep" },
+        { "$ref": "#/definitions/ApprovalStep" }
+      ]
+    },
+    "ContainerStep": {
+      "properties": {
+        "type": {
+          "const": "container"
+        },
+        "image": {
+          "type": "string",
+          "description": "Docker image for step execution"
+        },
+        "command": {
+          "type": "string",
+          "description": "Command to issue"
+        },
+        "args": {
+          "type": "array",
+          "description": "Command arguments",
+          "items": {
+            "type": "string"
+          }
+        },
+        "input": {
+          "type": "array",
+          "description": "Input script to execute",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "image"
+      ]
+    },
+    "ApprovalStep": {
+      "properties": {
+        "type": {
+          "const": "approval"
+        }
+      },
+      "required": ["type"]
+    }
+  }
+}

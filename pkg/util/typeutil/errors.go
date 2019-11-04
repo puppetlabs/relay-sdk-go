@@ -25,6 +25,7 @@ type FieldValidationError struct {
 	Context     string
 	Field       string
 	Description string
+	Type        string
 }
 
 func (e *FieldValidationError) Error() string {
@@ -48,6 +49,20 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("typeutil: validation error:\n* %s", strings.Join(fes, "\n* "))
 }
 
+// The following jsonschema field error types should be excluded from the constructed
+// ValidationError because they refer to internal abstractions used in the schema document
+// such as anyOf, oneOf, allOf, if / else rather than the end-user document being validated.
+// Each will be accompanied by an additional error more specifically referencing the issue
+// in the document being validated
+var excludedResultErrorTypes = map[string]bool{
+	"number_any_of":  true,
+	"number_one_of":  true,
+	"number_all_of":  true,
+	"number_not":     true,
+	"condition_then": true,
+	"condition_else": true,
+}
+
 func ValidationErrorFromResult(result *gojsonschema.Result) error {
 	if result.Valid() {
 		return nil
@@ -55,12 +70,16 @@ func ValidationErrorFromResult(result *gojsonschema.Result) error {
 
 	errs := result.Errors()
 
-	fes := make([]*FieldValidationError, len(errs))
-	for i, err := range errs {
-		fes[i] = &FieldValidationError{
-			Context:     err.Context().String(),
-			Field:       err.Field(),
-			Description: err.Description(),
+	var fes []*FieldValidationError
+
+	for _, err := range errs {
+		if !excludedResultErrorTypes[err.Type()] {
+			fes = append(fes, &FieldValidationError{
+				Context:     err.Context().String(),
+				Field:       err.Field(),
+				Description: err.Description(),
+				Type:        err.Type(),
+			})
 		}
 	}
 
