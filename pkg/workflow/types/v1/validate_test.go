@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	v1 "github.com/puppetlabs/nebula-sdk/pkg/workflow/v1"
+	v1 "github.com/puppetlabs/nebula-sdk/pkg/workflow/types/v1"
 	"github.com/stretchr/testify/require"
 )
 
