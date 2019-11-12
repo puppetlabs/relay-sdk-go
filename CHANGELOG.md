@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0]
+
+### Added
+
+* Add logging interface through go sdk and `ni log` command
+
 ## [1.2.0]
 
 ### Added
