@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-	"io"
-	"os"
-
+	"github.com/puppetlabs/nebula-sdk/pkg/log"
 	"github.com/spf13/cobra"
 )
 
@@ -15,46 +12,56 @@ func NewLogCommand() *cobra.Command {
 		DisableFlagsInUseLine: true,
 	}
 
-	cmd.AddCommand(NewLogLevelCommand(LogLevelInfo, "Logs a general message"))
-	cmd.AddCommand(NewLogLevelCommand(LogLevelWarning, "Logs a warning message"))
-	cmd.AddCommand(NewLogLevelCommand(LogLevelError, "Logs an error message"))
-	cmd.AddCommand(NewLogLevelCommand(LogLevelFatal, "Logs an error message and forces termination of step container"))
+	cmd.AddCommand(NewLogInfoCommand())
+	cmd.AddCommand(NewLogWarnCommand())
+	cmd.AddCommand(NewLogErrorCommand())
+	cmd.AddCommand(NewLogFatalCommand())
 
 	return cmd
 }
 
-type LogLevel string
-
-const (
-	LogLevelInfo    LogLevel = "info"
-	LogLevelWarning LogLevel = "warn"
-	LogLevelError   LogLevel = "error"
-	LogLevelFatal   LogLevel = "fatal"
-)
-
-func NewLogLevelCommand(level LogLevel, description string) *cobra.Command {
+func NewLogInfoCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   string(level),
-		Short: description,
+		Use:   string(log.LogLevelInfo),
+		Short: "Logs an informational message",
 		Run: func(cmd *cobra.Command, args []string) {
-			// This is a stub for eventual forwarding of these log messages to nebula for collection and reporting
+			log.Info(args[0])
+		},
+	}
 
-			var writer io.Writer
+	return cmd
+}
 
-			if level == LogLevelInfo {
-				writer = cmd.OutOrStdout()
-			} else {
-				writer = cmd.ErrOrStderr()
-			}
+func NewLogWarnCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   string(log.LogLevelWarn),
+		Short: "Logs a warning message",
+		Run: func(cmd *cobra.Command, args []string) {
+			log.Warn(args[0])
+		},
+	}
 
-			fmt.Fprintln(
-				writer,
-				args[0],
-			)
+	return cmd
+}
 
-			if level == LogLevelFatal {
-				os.Exit(1)
-			}
+func NewLogErrorCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   string(log.LogLevelError),
+		Short: "Logs an error message",
+		Run: func(cmd *cobra.Command, args []string) {
+			log.Error(args[0])
+		},
+	}
+
+	return cmd
+}
+
+func NewLogFatalCommand() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   string(log.LogLevelFatal),
+		Short: "Logs a fatal error message and exits process",
+		Run: func(cmd *cobra.Command, args []string) {
+			log.Fatal(args[0])
 		},
 	}
 
