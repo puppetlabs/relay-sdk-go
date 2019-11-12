@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"strings"
+
 	"github.com/puppetlabs/nebula-sdk/pkg/log"
 	"github.com/spf13/cobra"
 )
@@ -24,8 +26,9 @@ func NewLogInfoCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   string(log.LogLevelInfo),
 		Short: "Logs an informational message",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Info(args[0])
+			log.Info(strings.Join(args, " "))
 		},
 	}
 
@@ -36,8 +39,9 @@ func NewLogWarnCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   string(log.LogLevelWarn),
 		Short: "Logs a warning message",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Warn(args[0])
+			log.Warn(strings.Join(args, " "))
 		},
 	}
 
@@ -48,8 +52,9 @@ func NewLogErrorCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   string(log.LogLevelError),
 		Short: "Logs an error message",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Error(args[0])
+			log.Error(strings.Join(args, " "))
 		},
 	}
 
@@ -60,8 +65,9 @@ func NewLogFatalCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   string(log.LogLevelFatal),
 		Short: "Logs a fatal error message and exits process",
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			log.Fatal(args[0])
+			log.Fatal(strings.Join(args, " "))
 		},
 	}
 

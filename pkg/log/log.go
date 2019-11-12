@@ -17,7 +17,7 @@ const (
 
 // Log prints tagged log messages. It is a stub for future reporting of
 // such messages to the nebula service
-func Log(writer io.Writer, level LogLevel, log string) {
+func writeLog(writer io.Writer, level LogLevel, log string) {
 	fmt.Fprintln(
 		writer,
 		log,
@@ -26,21 +26,21 @@ func Log(writer io.Writer, level LogLevel, log string) {
 
 // Info reports an informational log
 func Info(log string) {
-	Log(os.Stdout, LogLevelInfo, log)
+	writeLog(os.Stdout, LogLevelInfo, log)
 }
 
 // Warn reports a warning
 func Warn(log string) {
-	Log(os.Stderr, LogLevelWarn, log)
+	writeLog(os.Stderr, LogLevelWarn, log)
 }
 
 // Error reports an error
 func Error(log string) {
-	Log(os.Stderr, LogLevelError, log)
+	writeLog(os.Stderr, LogLevelError, log)
 }
 
 // Fatal reports a fatal error then exits the process
 func Fatal(log string) {
-	Log(os.Stderr, LogLevelFatal, log)
+	writeLog(os.Stderr, LogLevelFatal, log)
 	os.Exit(1)
 }
