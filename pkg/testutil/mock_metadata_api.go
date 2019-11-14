@@ -9,6 +9,10 @@ import (
 	"testing"
 )
 
+type MockSecret struct {
+	ResponseObject interface{}
+}
+
 type MockOutputKey struct {
 	TaskName string
 	Key      string
@@ -23,6 +27,7 @@ type MockSpec struct {
 }
 
 type MockMetadataAPIOptions struct {
+	Secrets map[string]MockSecret
 	Outputs map[MockOutputKey]MockOutput
 	Specs   map[string]MockSpec
 }
@@ -43,6 +48,17 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 			name, _ := shiftPath(rest)
 
 			s, found := opts.Specs[name]
+			if found {
+				if err := json.NewEncoder(w).Encode(s.ResponseObject); err != nil {
+					panic(err)
+				}
+
+				return
+			}
+		case "secrets":
+			name, _ := shiftPath(rest)
+
+			s, found := opts.Secrets[name]
 			if found {
 				if err := json.NewEncoder(w).Encode(s.ResponseObject); err != nil {
 					panic(err)
