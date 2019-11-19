@@ -4,6 +4,8 @@ go 1.12
 
 require (
 	github.com/Masterminds/sprig/v3 v3.0.0
+	github.com/PaesslerAG/gval v1.0.2-0.20190803062529-6fceb06ca162 // indirect
+	github.com/PaesslerAG/jsonpath v0.1.1 // indirect
 	github.com/docker/docker v1.4.2-0.20190410120755-93886fcc5adc // indirect
 	github.com/docker/go-connections v0.4.0 // indirect
 	github.com/docker/go-units v0.4.0 // indirect
@@ -24,6 +26,8 @@ require (
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/puppetlabs/horsehead/v2 v2.2.0
+	github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b
+	github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
 	github.com/smartystreets/goconvey v0.0.0-20190731233626-505e41936337 // indirect
 	github.com/spf13/cobra v0.0.5

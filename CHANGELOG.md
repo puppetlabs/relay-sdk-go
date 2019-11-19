@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Add a common interface to read partially hydrated workflow specifications.
 * Add a client to retrieve secrets from the metadata API.
 
 ## [1.3.0]
