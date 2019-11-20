@@ -216,7 +216,14 @@ func (e *Evaluator) evaluateEncoding(ctx context.Context, em map[string]interfac
 	if err != nil {
 		return nil, &InvalidEncodingError{Type: ty, Cause: err}
 	} else if !dr.Complete() {
-		return (&Result{Value: em}).extends(dr), nil
+		r := &Result{
+			Value: map[string]interface{}{
+				"$encoding": ty,
+				"data":      dr.Value,
+			},
+		}
+		r.extends(dr)
+		return r, nil
 	}
 
 	data, ok := dr.Value.(string)
@@ -253,7 +260,13 @@ func (e *Evaluator) evaluateInvocation(ctx context.Context, im map[string]interf
 	if err != nil {
 		return nil, err
 	} else if !a.Complete() {
-		return (&Result{Value: im}).extends(a), nil
+		r := &Result{
+			Value: map[string]interface{}{
+				key: a.Value,
+			},
+		}
+		r.extends(a)
+		return r, nil
 	}
 
 	var invoker fn.Invoker
@@ -304,12 +317,10 @@ func (e *Evaluator) evaluate(ctx context.Context, v interface{}, depth int) (*Re
 					Path:  strconv.Itoa(i),
 					Cause: err,
 				}
-			} else if !nv.Complete() {
-				l[i] = v
-				r.extends(nv)
-			} else {
-				l[i] = nv.Value
 			}
+
+			r.extends(nv)
+			l[i] = nv.Value
 		}
 
 		r.Value = l
@@ -337,12 +348,10 @@ func (e *Evaluator) evaluate(ctx context.Context, v interface{}, depth int) (*Re
 			nv, err := e.evaluate(ctx, v, depth-1)
 			if err != nil {
 				return nil, &PathEvaluationError{Path: k, Cause: err}
-			} else if !nv.Complete() {
-				m[k] = v
-				r.extends(nv)
-			} else {
-				m[k] = nv.Value
 			}
+
+			r.extends(nv)
+			m[k] = nv.Value
 		}
 
 		r.Value = m

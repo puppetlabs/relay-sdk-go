@@ -368,6 +368,33 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "partially resolvable invocation",
+			Data: `{
+				"foo": {
+					"$fn.concat": [
+						{"$type": "Parameter", "name": "first"},
+						{"$type": "Parameter", "name": "second"}
+					]
+				}
+			}`,
+			ExpectedValue: map[string]interface{}{
+				"foo": testutil.JSONInvocation("concat", []interface{}{
+					"bar",
+					testutil.JSONParameter("second"),
+				}),
+			},
+			Opts: []evaluate.Option{
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(
+					map[string]interface{}{"first": "bar"},
+				)),
+			},
+			ExpectedUnresolvable: evaluate.Unresolvable{
+				Parameters: []evaluate.UnresolvableParameter{
+					{Name: "second"},
+				},
+			},
+		},
+		{
 			Name: "encoded string",
 			Data: `{
 				"foo": {
