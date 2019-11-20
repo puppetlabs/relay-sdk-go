@@ -15,8 +15,9 @@ var (
 )
 
 type ArityError struct {
-	Wanted []int
-	Got    int
+	Wanted   []int
+	Variadic bool
+	Got      int
 }
 
 func (e *ArityError) Error() string {
@@ -25,7 +26,12 @@ func (e *ArityError) Error() string {
 		wanted[i] = strconv.FormatInt(int64(w), 10)
 	}
 
-	return fmt.Sprintf("fn: unexpected number of arguments: %d (wanted %s)", e.Got, strings.Join(wanted, ", "))
+	var variadic string
+	if e.Variadic {
+		variadic = " or more"
+	}
+
+	return fmt.Sprintf("fn: unexpected number of arguments: %d (wanted %s%s)", e.Got, strings.Join(wanted, ", "), variadic)
 }
 
 type UnexpectedTypeError struct {

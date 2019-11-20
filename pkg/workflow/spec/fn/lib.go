@@ -76,4 +76,32 @@ var Library = NewMap(map[string]Descriptor{
 			return fn, nil
 		},
 	},
+	"append": DescriptorFuncs{
+		DescriptionFunc: func() string { return "Adds new items to a given array, returning a new array" },
+		PositionalInvokerFunc: func(args []interface{}) (Invoker, error) {
+			if len(args) < 2 {
+				return nil, &ArityError{Wanted: []int{2}, Variadic: true, Got: len(args)}
+			}
+
+			fn := InvokerFunc(func(ctx context.Context) (m interface{}, err error) {
+				base, ok := args[0].([]interface{})
+				if !ok {
+					return nil, &PositionalArgError{
+						Arg: 1,
+						Cause: &UnexpectedTypeError{
+							Wanted: []reflect.Type{
+								reflect.TypeOf([]interface{}(nil)),
+							},
+							Got: reflect.TypeOf(args[0]),
+						},
+					}
+				}
+
+				new := append([]interface{}{}, base...)
+				new = append(new, args[1:]...)
+				return new, nil
+			})
+			return fn, nil
+		},
+	},
 })
