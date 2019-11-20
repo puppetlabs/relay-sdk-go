@@ -239,10 +239,6 @@ func ParseYAMLString(data string) (Tree, error) {
 }
 
 func ParseYAMLNode(node *yaml.Node) (Tree, error) {
-	if node.Kind != yaml.DocumentNode || len(node.Content) != 1 {
-		return nil, fmt.Errorf(`invalid YAML document (no document node)`)
-	}
-
 	stack := []*yaml.Node{node}
 	for len(stack) > 0 {
 		node := stack[0]
