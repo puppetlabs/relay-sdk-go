@@ -26,3 +26,7 @@ func (se *ScopedEvaluator) EvaluateInto(ctx context.Context, target interface{})
 func (se *ScopedEvaluator) EvaluateQuery(ctx context.Context, query string) (*Result, error) {
 	return se.parent.EvaluateQuery(ctx, se.tree, query)
 }
+
+func (se *ScopedEvaluator) Copy(opts ...Option) *ScopedEvaluator {
+	return &ScopedEvaluator{parent: se.parent.Copy(opts...), tree: se.tree}
+}

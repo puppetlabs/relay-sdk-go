@@ -30,6 +30,7 @@ type InvokeFunc func(ctx context.Context, i fn.Invoker) (interface{}, error)
 type Evaluator struct {
 	lang                  Language
 	invoke                InvokeFunc
+	resultMapper          ResultMapper
 	secretTypeResolver    resolve.SecretTypeResolver
 	outputTypeResolver    resolve.OutputTypeResolver
 	parameterTypeResolver resolve.ParameterTypeResolver
@@ -40,8 +41,28 @@ func (e *Evaluator) ScopeTo(tree parse.Tree) *ScopedEvaluator {
 	return &ScopedEvaluator{parent: e, tree: tree}
 }
 
+func (e *Evaluator) Copy(opts ...Option) *Evaluator {
+	if len(opts) == 0 {
+		return e
+	}
+
+	ne := &Evaluator{}
+	*ne = *e
+
+	for _, opt := range opts {
+		opt(ne)
+	}
+
+	return ne
+}
+
 func (e *Evaluator) Evaluate(ctx context.Context, tree parse.Tree, depth int) (*Result, error) {
-	return e.evaluate(ctx, map[string]interface{}(tree), depth)
+	r, err := e.evaluate(ctx, map[string]interface{}(tree), depth)
+	if err != nil {
+		return nil, err
+	}
+
+	return e.resultMapper.MapResult(ctx, r)
 }
 
 func (e *Evaluator) EvaluateAll(ctx context.Context, tree parse.Tree) (*Result, error) {
@@ -107,7 +128,7 @@ func (e *Evaluator) EvaluateQuery(ctx context.Context, tree parse.Tree, query st
 	// Add any other unresolved paths in here (provided by the variable selector).
 	er.extends(r)
 
-	return er, nil
+	return e.resultMapper.MapResult(ctx, er)
 }
 
 func (e *Evaluator) evaluateType(ctx context.Context, tm map[string]interface{}) (*Result, error) {
@@ -331,48 +352,11 @@ func (e *Evaluator) evaluate(ctx context.Context, v interface{}, depth int) (*Re
 	}
 }
 
-type Option func(e *Evaluator)
-
-func WithSecretTypeResolver(resolver resolve.SecretTypeResolver) Option {
-	return func(e *Evaluator) {
-		e.secretTypeResolver = resolver
-	}
-}
-
-func WithOutputTypeResolver(resolver resolve.OutputTypeResolver) Option {
-	return func(e *Evaluator) {
-		e.outputTypeResolver = resolver
-	}
-}
-
-func WithParameterTypeResolver(resolver resolve.ParameterTypeResolver) Option {
-	return func(e *Evaluator) {
-		e.parameterTypeResolver = resolver
-	}
-}
-
-func WithInvocationResolver(resolver resolve.InvocationResolver) Option {
-	return func(e *Evaluator) {
-		e.invocationResolver = resolver
-	}
-}
-
-func WithLanguage(lang Language) Option {
-	return func(e *Evaluator) {
-		e.lang = lang
-	}
-}
-
-func WithInvokeFunc(fn InvokeFunc) Option {
-	return func(e *Evaluator) {
-		e.invoke = fn
-	}
-}
-
 func NewEvaluator(opts ...Option) *Evaluator {
 	e := &Evaluator{
 		lang:                  LanguagePath,
 		invoke:                func(ctx context.Context, i fn.Invoker) (interface{}, error) { return i.Invoke(ctx) },
+		resultMapper:          IdentityResultMapper,
 		secretTypeResolver:    resolve.NoOpSecretTypeResolver,
 		outputTypeResolver:    resolve.NoOpOutputTypeResolver,
 		parameterTypeResolver: resolve.NoOpParameterTypeResolver,

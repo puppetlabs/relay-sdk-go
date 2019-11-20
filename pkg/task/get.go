@@ -2,9 +2,9 @@ package task
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 )
 
 func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
@@ -20,8 +20,11 @@ func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
 			return []byte(vt), nil
 		}
 	} else {
-		output, _ := eval.EvaluateAll(context.Background())
-		return json.Marshal(output.Value)
+		eval := eval.Copy(evaluate.WithResultMapper(evaluate.NewJSONResultMapper()))
+		output, err := eval.EvaluateAll(context.Background())
+		if err == nil {
+			return output.Value.([]byte), nil
+		}
 	}
 
 	return nil, nil

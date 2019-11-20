@@ -699,3 +699,34 @@ func TestEvaluateIntoStepHelper(t *testing.T) {
 		},
 	}.RunAll(t)
 }
+
+func TestJSON(t *testing.T) {
+	tests{
+		{
+			Name: "encoded safe string",
+			Data: `{
+				"foo": {
+					"$encoding": "base64",
+					"data": "SGVsbG8sIHdvcmxkIQ=="
+				}
+			}`,
+			Opts: []evaluate.Option{
+				evaluate.WithResultMapper(evaluate.NewJSONResultMapper()),
+			},
+			ExpectedValue: []byte(`{"foo":"Hello, world!"}`),
+		},
+		{
+			Name: "encoded unsafe string",
+			Data: `{
+				"foo": {
+					"$encoding": "base64",
+					"data": "SGVsbG8sIJCiikU="
+				}
+			}`,
+			Opts: []evaluate.Option{
+				evaluate.WithResultMapper(evaluate.NewJSONResultMapper()),
+			},
+			ExpectedValue: []byte(`{"foo":{"$encoding":"base64","data":"SGVsbG8sIJCiikU="}}`),
+		},
+	}.RunAll(t)
+}
