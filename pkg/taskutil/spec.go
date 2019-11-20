@@ -2,6 +2,7 @@ package taskutil
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -9,9 +10,9 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"time"
 
-	"github.com/mitchellh/mapstructure"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
 )
 
 const SpecURLEnvName = "SPEC_URL"
@@ -88,19 +89,35 @@ type DefaultPlanOptions struct {
 	SpecURL string
 }
 
-func PopulateSpecFromDefaultPlan(v interface{}, opts DefaultPlanOptions) error {
+func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) error {
+	eval, err := EvaluatorFromDefaultPlan(opts)
+	if err != nil {
+		return err
+	}
+
+	// The existing behavior is to substitute empty strings where secrets,
+	// outputs, etc. are currently missing. We should revisit this.
+	_, err = eval.EvaluateInto(context.Background(), &target)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluator, error) {
 	location := opts.SpecURL
 
 	if location == "" {
 		location := os.Getenv(SpecURLEnvName)
 		if location == "" {
-			return errors.New("SPEC_URL was empty")
+			return nil, errors.New("SPEC_URL was empty")
 		}
 	}
 
 	u, err := url.Parse(location)
 	if err != nil {
-		return fmt.Errorf("parsing SPEC_URL failed: %+v", err)
+		return nil, fmt.Errorf("parsing SPEC_URL failed: %+v", err)
 	}
 
 	var loader SpecLoader
@@ -108,37 +125,28 @@ func PopulateSpecFromDefaultPlan(v interface{}, opts DefaultPlanOptions) error {
 	switch u.Scheme {
 	case "file":
 		if u.Host != "" {
-			return errors.New("unable to read from remote host in file URL")
+			return nil, errors.New("unable to read from remote host in file URL")
 		}
 
 		loader = NewLocalSpecLoader(u.Path)
 	case "http", "https":
 		loader = NewRemoteSpecLoader(u, opts.Client)
 	default:
-		return fmt.Errorf("unknown scheme %s in spec URL", u.Scheme)
+		return nil, fmt.Errorf("unknown scheme %s in spec URL", u.Scheme)
 	}
 
 	r, err := loader.LoadSpec()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	mv, err := (&JSONSpecDecoder{}).DecodeSpec(r)
+	tree, err := parse.ParseJSON(r)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	d, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		DecodeHook: mapstructure.ComposeDecodeHookFunc(
-			mapstructure.StringToTimeDurationHookFunc(),
-			mapstructure.StringToTimeHookFunc(time.RFC3339Nano),
-		),
-		Result:  v,
-		TagName: "spec",
-	})
-	if err != nil {
-		return err
-	}
-
-	return d.Decode(mv)
+	ev := evaluate.NewEvaluator(
+		evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
+	).ScopeTo(tree)
+	return ev, nil
 }

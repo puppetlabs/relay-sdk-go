@@ -1,26 +1,30 @@
 package task
 
 import (
-	"encoding/json"
+	"context"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 )
 
 func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
-	var spec map[string]interface{}
-
-	if err := taskutil.PopulateSpecFromDefaultPlan(&spec, ti.opts); err != nil {
+	eval, err := taskutil.EvaluatorFromDefaultPlan(ti.opts)
+	if err != nil {
 		return nil, err
 	}
 
 	if path != "" {
-		output, _ := taskutil.EvaluateJSONPath(path, spec)
-		if output != nil {
-			return output.Bytes(), nil
+		output, _ := eval.EvaluateQuery(context.Background(), path)
+		switch vt := output.Value.(type) {
+		case string:
+			return []byte(vt), nil
 		}
 	} else {
-		output, _ := json.Marshal(spec)
-		return output, nil
+		eval := eval.Copy(evaluate.WithResultMapper(evaluate.NewJSONResultMapper()))
+		output, err := eval.EvaluateAll(context.Background())
+		if err == nil {
+			return output.Value.([]byte), nil
+		}
 	}
 
 	return nil, nil
