@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.1]
+
+### Changed
+
+* Fix: Make .git at the end of a Git SSH URL optional.
+* Fix: Make the username portion of a Git SSH URL dynamic. You are no longer
+  required to use `git` as the username.
+
 ## [1.5.0]
 
 ### Added
@@ -57,7 +65,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.2.0...v1.3.0

@@ -10,7 +10,7 @@ import (
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 )
 
-var gitSSHUrl = regexp.MustCompile(`^git@([a-zA-Z0-9\-\.]+):(.+)/(.+)\.git$`)
+var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-\.]+):(.+)/(.+)(\.git)?$`)
 
 func (ti *TaskInterface) CloneRepository(revision string, directory string) error {
 	var spec model.GitSpec
@@ -54,15 +54,24 @@ func (ti *TaskInterface) CloneRepository(revision string, directory string) erro
 	return nil
 }
 
+func gitURLComponents(url string) ([]string, error) {
+	matches := gitSSHURL.FindStringSubmatch(url)
+	if len(matches) <= 1 {
+		return nil, errors.New("SSH URL is malformed")
+	}
+
+	return matches, nil
+}
+
 func writeSSHConfig(resource *model.GitDetails) error {
 	gitConfig := taskutil.SSHConfig{}
 
-	matches := gitSSHUrl.FindStringSubmatch(resource.Repository)
-	if len(matches) <= 1 {
-		return errors.New("SSH URL is malformed")
+	matches, err := gitURLComponents(resource.Repository)
+	if err != nil {
+		return err
 	}
 
-	host := matches[1]
+	host := matches[2]
 
 	gitConfig.Order = make([]string, 0)
 	gitConfig.Order = append(gitConfig.Order, host)
