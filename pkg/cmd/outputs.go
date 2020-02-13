@@ -47,7 +47,9 @@ func NewSetOutputCommand() *cobra.Command {
 				return err
 			}
 
-			fmt.Fprintln(cmd.OutOrStdout(), "Successfully set output.")
+			if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Successfully set output for %q.\n", key); err != nil {
+				return err
+			}
 
 			return nil
 		},
