@@ -6,8 +6,10 @@ var (
 	library = map[string]fn.Descriptor{
 		"append":        appendDescriptor,
 		"concat":        concatDescriptor,
+		"equals":        equalsDescriptor,
 		"jsonUnmarshal": jsonUnmarshalDescriptor,
 		"merge":         mergeDescriptor,
+		"notEquals":     notEqualsDescriptor,
 	}
 )
 

@@ -18,6 +18,7 @@ require (
 	github.com/imdario/mergo v0.3.8
 	github.com/jedib0t/go-pretty v4.3.0+incompatible
 	github.com/json-iterator/go v1.1.7 // indirect
+	github.com/kr/pretty v0.1.0
 	github.com/mattn/go-runewidth v0.0.5 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
