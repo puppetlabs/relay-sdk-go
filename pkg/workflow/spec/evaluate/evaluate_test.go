@@ -232,7 +232,8 @@ func TestEvaluate(t *testing.T) {
 				"b": {"$type": "Output", "from": "baz", "name": "bar"},
 				"c": {"$type": "Parameter", "name": "quux"},
 				"d": {"$fn.foo": "bar"},
-				"e": "hello"
+				"e": "hello",
+				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"}
 			}`,
 			ExpectedValue: map[string]interface{}{
 				"a": testutil.JSONSecret("foo"),
@@ -240,6 +241,7 @@ func TestEvaluate(t *testing.T) {
 				"c": testutil.JSONParameter("quux"),
 				"d": testutil.JSONInvocation("foo", "bar"),
 				"e": "hello",
+				"f": testutil.JSONAnswer("baz", "bar"),
 			},
 			ExpectedUnresolvable: evaluate.Unresolvable{
 				Secrets: []evaluate.UnresolvableSecret{
@@ -253,6 +255,9 @@ func TestEvaluate(t *testing.T) {
 				},
 				Invocations: []evaluate.UnresolvableInvocation{
 					{Name: "foo", Cause: fn.ErrFunctionNotFound},
+				},
+				Answers: []evaluate.UnresolvableAnswer{
+					{AskRef: "baz", Name: "bar"},
 				},
 			},
 		},
@@ -287,7 +292,8 @@ func TestEvaluate(t *testing.T) {
 				"b": {"$type": "Output", "from": "baz", "name": "bar"},
 				"c": {"$type": "Parameter", "name": "quux"},
 				"d": {"$fn.foo": "bar"},
-				"e": "hello"
+				"e": "hello",
+				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"}
 			}`,
 			Opts: []evaluate.Option{
 				evaluate.WithSecretTypeResolver(resolve.NewMemorySecretTypeResolver(
@@ -302,6 +308,11 @@ func TestEvaluate(t *testing.T) {
 					map[string]interface{}{"quux": []interface{}{1, 2, 3}},
 				)),
 				evaluate.WithInvocationResolver(fns),
+				evaluate.WithAnswerTypeResolver(resolve.NewMemoryAnswerTypeResolver(
+					map[resolve.MemoryAnswerKey]interface{}{
+						{AskRef: "baz", Name: "bar"}: "approved",
+					},
+				)),
 			},
 			ExpectedValue: map[string]interface{}{
 				"a": "v3ry s3kr3t!",
@@ -309,6 +320,7 @@ func TestEvaluate(t *testing.T) {
 				"c": []interface{}{1, 2, 3},
 				"d": "~~[bar]~~",
 				"e": "hello",
+				"f": "approved",
 			},
 		},
 		{

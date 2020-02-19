@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `AsError()` method to internal expression evaluation result unresolvable
   entities to avoid having to manually process each.
 * Add `JSONResultEnvelope` to allow evaluation results to be serialized as JSON.
+* Add support for Answer resolution.
 
 ### Changed
 
