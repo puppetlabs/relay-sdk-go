@@ -417,13 +417,19 @@ func TestEvaluate(t *testing.T) {
 		{
 			Name: "resolved conditionals evaluation",
 			Data: `{
-				"conditions": [{"$fn.equals": [
-					{"$type": "Parameter", "name": "first"},
-					"foobar"
-				]}]
+				"conditions": [
+					{"$fn.equals": [
+						{"$type": "Parameter", "name": "first"},
+						"foobar"
+					]},
+					{"$fn.notEquals": [
+						{"$type": "Parameter", "name": "first"},
+						"barfoo"
+					]}
+				]
 			}`,
 			ExpectedValue: map[string]interface{}{
-				"conditions": []interface{}{true},
+				"conditions": []interface{}{true, true},
 			},
 			Opts: []evaluate.Option{
 				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(
