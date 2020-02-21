@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Add output keys to logs
+* Add equals and notEquals workflow functions used in conditional step execution
 
 ## [1.5.1]
 

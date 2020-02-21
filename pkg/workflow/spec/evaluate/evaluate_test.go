@@ -395,6 +395,49 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "unresolved conditionals evaluation",
+			Data: `{
+				"conditions": [{"$fn.equals": [
+					{"$type": "Parameter", "name": "first"},
+					"foobar"
+				]}]
+			}`,
+			ExpectedValue: map[string]interface{}{
+				"conditions": []interface{}{testutil.JSONInvocation("equals", []interface{}{
+					testutil.JSONParameter("first"),
+					"foobar",
+				})},
+			},
+			ExpectedUnresolvable: evaluate.Unresolvable{
+				Parameters: []evaluate.UnresolvableParameter{
+					{Name: "first"},
+				},
+			},
+		},
+		{
+			Name: "resolved conditionals evaluation",
+			Data: `{
+				"conditions": [
+					{"$fn.equals": [
+						{"$type": "Parameter", "name": "first"},
+						"foobar"
+					]},
+					{"$fn.notEquals": [
+						{"$type": "Parameter", "name": "first"},
+						"barfoo"
+					]}
+				]
+			}`,
+			ExpectedValue: map[string]interface{}{
+				"conditions": []interface{}{true, true},
+			},
+			Opts: []evaluate.Option{
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(
+					map[string]interface{}{"first": "foobar"},
+				)),
+			},
+		},
+		{
 			Name: "encoded string",
 			Data: `{
 				"foo": {
