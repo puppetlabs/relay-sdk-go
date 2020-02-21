@@ -2,7 +2,6 @@ package fnlib
 
 import (
 	"context"
-	"fmt"
 	"reflect"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fn"
@@ -17,7 +16,7 @@ var (
 			}
 
 			fn := fn.InvokerFunc(func(ctx context.Context) (m interface{}, err error) {
-				return isEqual(args[0], args[1])
+				return reflect.DeepEqual(args[0], args[1]), nil
 			})
 
 			return fn, nil
@@ -32,27 +31,10 @@ var (
 			}
 
 			fn := fn.InvokerFunc(func(ctx context.Context) (m interface{}, err error) {
-				result, err := isEqual(args[0], args[1])
-
-				return !result, err
+				return !reflect.DeepEqual(args[0], args[1]), nil
 			})
 
 			return fn, nil
 		},
 	}
 )
-
-func isEqual(left, right interface{}) (bool, error) {
-	leftt := reflect.TypeOf(left)
-	rightt := reflect.TypeOf(right)
-
-	if !leftt.Comparable() {
-		return false, fmt.Errorf("%w: %v", fn.ErrUncomparableType, left)
-	}
-
-	if !rightt.Comparable() {
-		return false, fmt.Errorf("%w: %v", fn.ErrUncomparableType, right)
-	}
-
-	return left == right, nil
-}
