@@ -14,10 +14,7 @@ func TestEquals(t *testing.T) {
 
 	cases := [][]interface{}{
 		[]interface{}{"foobar", "foobar"},
-		[]interface{}{123, 123},
-		[]interface{}{123.05, 123.05},
-		[]interface{}{true, true},
-		[]interface{}{false, false},
+		[]interface{}{10, 10},
 	}
 
 	for _, c := range cases {
@@ -35,9 +32,7 @@ func TestNotEquals(t *testing.T) {
 
 	cases := [][]interface{}{
 		[]interface{}{"foobar", "barfoo"},
-		[]interface{}{123, 321},
-		[]interface{}{123.05, 321.05},
-		[]interface{}{true, false},
+		[]interface{}{10, 50},
 	}
 
 	for _, c := range cases {
@@ -45,6 +40,6 @@ func TestNotEquals(t *testing.T) {
 		require.NoError(t, err)
 		r, err := invoker.Invoke(context.Background())
 		require.NoError(t, err)
-		require.Equal(t, false, r)
+		require.Equal(t, true, r)
 	}
 }

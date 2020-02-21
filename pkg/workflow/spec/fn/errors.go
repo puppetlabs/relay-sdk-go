@@ -13,6 +13,7 @@ var (
 	ErrArgNotFound               = errors.New("fn: arg not found")
 	ErrPositionalArgsNotAccepted = errors.New("fn: positional arguments cannot be used")
 	ErrKeywordArgsNotAccepted    = errors.New("fn: keyword arguments cannot be used")
+	ErrUncomparableType          = errors.New("fn: arg is not of a comparable type")
 )
 
 type ArityError struct {

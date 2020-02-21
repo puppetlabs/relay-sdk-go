@@ -211,6 +211,24 @@ func TestYAML(t *testing.T) {
 			}),
 		},
 		{
+			Name: "conditional invocation",
+			Data: yaml(`
+				when:
+				- !Fn.equals [!Parameter param1, "foobar"]
+				- !Fn.notEquals [!Parameter param2, "barfoo"]
+				`),
+			ExpectedTree: parse.Tree(map[string]interface{}{
+				"when": []interface{}{
+					testutil.JSONInvocation("equals", []interface{}{
+						testutil.JSONParameter("param1"), "foobar",
+					}),
+					testutil.JSONInvocation("notEquals", []interface{}{
+						testutil.JSONParameter("param2"), "barfoo",
+					}),
+				},
+			}),
+		},
+		{
 			Name: "invocation scalar",
 			Data: yaml(`
 				message: !Fn.jsonUnmarshal '{"foo": "bar"}'
