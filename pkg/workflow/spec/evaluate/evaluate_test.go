@@ -395,7 +395,7 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
-			Name: "conditionals evaluation",
+			Name: "unresolved conditionals evaluation",
 			Data: `{
 				"conditions": [{"$fn.equals": [
 					{"$type": "Parameter", "name": "first"},
@@ -412,6 +412,23 @@ func TestEvaluate(t *testing.T) {
 				Parameters: []evaluate.UnresolvableParameter{
 					{Name: "first"},
 				},
+			},
+		},
+		{
+			Name: "resolved conditionals evaluation",
+			Data: `{
+				"conditions": [{"$fn.equals": [
+					{"$type": "Parameter", "name": "first"},
+					"foobar"
+				]}]
+			}`,
+			ExpectedValue: map[string]interface{}{
+				"conditions": []interface{}{true},
+			},
+			Opts: []evaluate.Option{
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(
+					map[string]interface{}{"first": "foobar"},
+				)),
 			},
 		},
 		{
