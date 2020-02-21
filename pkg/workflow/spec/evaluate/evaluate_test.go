@@ -397,10 +397,10 @@ func TestEvaluate(t *testing.T) {
 		{
 			Name: "conditionals evaluation",
 			Data: `{
-                "conditions": [{"$fn.equals": [
-                    {"$type": "Parameter", "name": "first"},
-                    "foobar"
-                ]}]
+				"conditions": [{"$fn.equals": [
+					{"$type": "Parameter", "name": "first"},
+					"foobar"
+				]}]
 			}`,
 			ExpectedValue: map[string]interface{}{
 				"conditions": []interface{}{testutil.JSONInvocation("equals", []interface{}{

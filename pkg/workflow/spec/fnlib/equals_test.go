@@ -15,6 +15,7 @@ func TestEquals(t *testing.T) {
 	cases := [][]interface{}{
 		[]interface{}{"foobar", "foobar"},
 		[]interface{}{10, 10},
+		[]interface{}{10.5, 10.5},
 	}
 
 	for _, c := range cases {
@@ -33,6 +34,7 @@ func TestNotEquals(t *testing.T) {
 	cases := [][]interface{}{
 		[]interface{}{"foobar", "barfoo"},
 		[]interface{}{10, 50},
+		[]interface{}{10.0, 50.5},
 	}
 
 	for _, c := range cases {

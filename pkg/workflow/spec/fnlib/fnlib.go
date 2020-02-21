@@ -13,6 +13,8 @@ var (
 	}
 )
 
+// Library creates an fn.Map of all the core functions supported
+// by the platform.
 func Library() fn.Map {
 	return fn.NewMap(library)
 }
