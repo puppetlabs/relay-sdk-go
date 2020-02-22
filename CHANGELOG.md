@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* Add output keys to logs
-* Add equals and notEquals workflow functions used in conditional step execution
+* Add output keys to logs.
+* Add `!Fn.equals` and `!Fn.notEquals` workflow functions used in conditional
+  step execution.
+* Allow structured output values in addition to strings.
 
 ## [1.5.1]
 

@@ -294,7 +294,7 @@ func TestEvaluate(t *testing.T) {
 					map[string]string{"foo": "v3ry s3kr3t!"},
 				)),
 				evaluate.WithOutputTypeResolver(resolve.NewMemoryOutputTypeResolver(
-					map[resolve.MemoryOutputKey]string{
+					map[resolve.MemoryOutputKey]interface{}{
 						{From: "baz", Name: "bar"}: "127.0.0.1",
 					},
 				)),
@@ -551,6 +551,25 @@ func TestEvaluateQuery(t *testing.T) {
 				)),
 			},
 			ExpectedValue: "quux",
+		},
+		{
+			Name: "JSONPath traverses output",
+			Data: `{
+				"foo": {"$type": "Output", "from": "baz", "name": "bar"}
+			}`,
+			Query: "$.foo.b[1]",
+			Opts: []evaluate.Option{
+				evaluate.WithLanguage(evaluate.LanguageJSONPath),
+				evaluate.WithOutputTypeResolver(resolve.NewMemoryOutputTypeResolver(
+					map[resolve.MemoryOutputKey]interface{}{
+						{From: "baz", Name: "bar"}: map[string]interface{}{
+							"a": "test",
+							"b": []interface{}{"c", "d"},
+						},
+					},
+				)),
+			},
+			ExpectedValue: "d",
 		},
 		{
 			Name: "JSONPath template traverses parameter",

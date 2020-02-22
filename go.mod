@@ -25,7 +25,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0
-	github.com/puppetlabs/horsehead/v2 v2.2.0
+	github.com/puppetlabs/horsehead/v2 v2.6.1-0.20200222032856-6b2565e44cb7
 	github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b
 	github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641
 	github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd
@@ -41,7 +41,7 @@ require (
 	google.golang.org/appengine v1.6.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.48.0
-	gopkg.in/yaml.v2 v2.2.4
+	gopkg.in/yaml.v2 v2.2.7
 	gopkg.in/yaml.v3 v3.0.0-20191010095647-fc94e3f71652
 	gotest.tools v2.2.0+incompatible // indirect
 	k8s.io/api v0.0.0-20190528110122-9ad12a4af326 // indirect
