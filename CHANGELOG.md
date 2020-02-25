@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* Add support for specifying an `inputFile` in place of an `input` array in a
+  workflow step.
+
 ## [1.6.0]
 
 ### Added

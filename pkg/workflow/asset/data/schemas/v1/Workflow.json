@@ -105,6 +105,10 @@
             "type": "string"
           }
         },
+        "inputFile": {
+          "type": "string",
+          "description": "The relative path to an file to use for the input script"
+        },
         "input": {
           "type": "array",
           "description": "Input script to execute",
