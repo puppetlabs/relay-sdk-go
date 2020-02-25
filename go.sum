@@ -128,8 +128,8 @@ github.com/prometheus/procfs v0.0.0-20181005140218-185b4288413d/go.mod h1:c3At6R
 github.com/puppetlabs/errawr-gen v1.0.1/go.mod h1:tv4cnckPnxd51XksuKix1KVFWvoYitu7dpgK7/n9Wpo=
 github.com/puppetlabs/errawr-go/v2 v2.1.0/go.mod h1:TFKBrNpfPDG8ta8/NfaqpC+hMMsJqd9xKvBJDRgHFCQ=
 github.com/puppetlabs/errawr-go/v2 v2.2.0/go.mod h1:SJ1lTqOW0HcfqVPS/F7kSrUAc4o/6DfjBatQ5TTS/JU=
-github.com/puppetlabs/horsehead/v2 v2.6.1-0.20200222032856-6b2565e44cb7 h1:9AgZg3PhNp2wz2ncdCu9hGpWF2etHRfyGgp5Osnrpmc=
-github.com/puppetlabs/horsehead/v2 v2.6.1-0.20200222032856-6b2565e44cb7/go.mod h1:S2DMCdNIHfEBZmy463I8vpM3UUKuxau1JrMj6uIv1t8=
+github.com/puppetlabs/horsehead/v2 v2.7.0 h1:ue7bP92j8+ikdG4gg1ayx0BgrclLN5tmTMmG5aKYCuk=
+github.com/puppetlabs/horsehead/v2 v2.7.0/go.mod h1:S2DMCdNIHfEBZmy463I8vpM3UUKuxau1JrMj6uIv1t8=
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b h1:L3KBXqsUZK0OsVAN6DQ99OzI18BvtP+uVtX0oTjCxhQ=
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b/go.mod h1:+fTpFaf5D42b+LP12OkDl9tYbLdn36H+fvBauW4KIR4=
 github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641 h1:qGAe9FVzhkLON7icGlVWmvHFAAQQYJFczZRl7mlv00Y=
