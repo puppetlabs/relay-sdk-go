@@ -15,23 +15,23 @@ import (
 )
 
 func TestOutputs(t *testing.T) {
-	rawValue, _ := (transfer.NoEncoding{}).EncodeJSON([]byte("Hello, test!"))
-	encodedValue, _ := (transfer.Base64Encoding{}).EncodeJSON([]byte("Hello, \x90!"))
-
 	opts := testutil.MockMetadataAPIOptions{
 		Outputs: map[testutil.MockOutputKey]testutil.MockOutput{
 			testutil.MockOutputKey{TaskName: "test1", Key: "raw"}: {
 				ResponseObject: outputs.Output{
 					TaskName: "test1",
 					Key:      "output",
-					Value:    rawValue,
+					Value:    transfer.JSONInterface{Data: "Hello, test!"},
 				},
 			},
 			testutil.MockOutputKey{TaskName: "test1", Key: "encoded"}: {
 				ResponseObject: outputs.Output{
 					TaskName: "test1",
 					Key:      "output",
-					Value:    encodedValue,
+					Value: transfer.JSONInterface{Data: map[string]interface{}{
+						"a": "Hello, \x90!",
+						"b": "Goodbye, world!",
+					}},
 				},
 			},
 		},
@@ -47,7 +47,7 @@ func TestOutputs(t *testing.T) {
 
 		tt := []struct {
 			TaskName, Key string
-			ExpectedValue string
+			ExpectedValue interface{}
 			ExpectedError error
 		}{
 			{
@@ -56,9 +56,12 @@ func TestOutputs(t *testing.T) {
 				ExpectedValue: "Hello, test!",
 			},
 			{
-				TaskName:      "test1",
-				Key:           "encoded",
-				ExpectedValue: "Hello, \x90!",
+				TaskName: "test1",
+				Key:      "encoded",
+				ExpectedValue: map[string]interface{}{
+					"a": "Hello, \x90!",
+					"b": "Goodbye, world!",
+				},
 			},
 			{
 				TaskName:      "test2",

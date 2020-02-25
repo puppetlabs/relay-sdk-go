@@ -3,8 +3,10 @@ package cmd
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	outputsclient "github.com/puppetlabs/nebula-sdk/pkg/outputs"
 	"github.com/spf13/cobra"
 )
@@ -38,9 +40,24 @@ func NewSetOutputCommand() *cobra.Command {
 				return err
 			}
 
-			value, err := cmd.Flags().GetString("value")
+			var value interface{}
+
+			valueString, err := cmd.Flags().GetString("value")
 			if err != nil {
 				return err
+			}
+
+			if asJSON, err := cmd.Flags().GetBool("json"); err != nil {
+				return err
+			} else if asJSON {
+				var encoded transfer.JSONInterface
+				if err := json.Unmarshal([]byte(valueString), &encoded); err != nil {
+					return fmt.Errorf("JSON decoding error: %+v", err)
+				}
+
+				value = encoded.Data
+			} else {
+				value = valueString
 			}
 
 			if err := client.SetOutput(context.Background(), key, value); err != nil {
@@ -57,6 +74,7 @@ func NewSetOutputCommand() *cobra.Command {
 
 	cmd.Flags().StringP("key", "k", "", "the output key")
 	cmd.Flags().StringP("value", "v", "", "the output value")
+	cmd.Flags().Bool("json", false, "whether the value should be interpreted as a JSON string")
 
 	return cmd
 }
@@ -82,15 +100,24 @@ func NewGetOutputCommand() *cobra.Command {
 				return err
 			}
 
+			asJSON, err := cmd.Flags().GetBool("json")
+			if err != nil {
+				return err
+			}
+
 			value, err := client.GetOutput(context.Background(), taskName, key)
 			if err != nil {
 				return err
 			}
 
-			buf := bytes.NewBufferString(value)
+			if valueString, ok := value.(string); !ok || asJSON {
+				return json.NewEncoder(cmd.OutOrStdout()).Encode(transfer.JSONInterface{Data: value})
+			} else {
+				buf := bytes.NewBufferString(valueString)
 
-			if _, err := buf.WriteTo(cmd.OutOrStdout()); err != nil {
-				return err
+				if _, err := buf.WriteTo(cmd.OutOrStdout()); err != nil {
+					return err
+				}
 			}
 
 			return nil
@@ -99,6 +126,7 @@ func NewGetOutputCommand() *cobra.Command {
 
 	cmd.Flags().StringP("task-name", "n", "", "the name of the task")
 	cmd.Flags().StringP("key", "k", "", "the output key")
+	cmd.Flags().Bool("json", false, "whether to always provide the output as JSON, even if it is a string")
 
 	return cmd
 }
