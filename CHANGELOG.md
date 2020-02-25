@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0]
+
 ### Added
 
 * Add output keys to logs.
@@ -72,7 +74,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.1...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.1...v1.6.0
 [1.5.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.3.0...v1.4.0
