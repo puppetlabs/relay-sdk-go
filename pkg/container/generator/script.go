@@ -2,6 +2,7 @@ package generator
 
 import (
 	"bytes"
+	"path"
 	"sort"
 	"text/template"
 
@@ -21,6 +22,9 @@ type scriptTemplateImageData struct {
 
 	// Ref is the internal intermediate build reference name of the image.
 	Ref string
+
+	// TagSuffix is the additional suffix, if any, associated with this image.
+	TagSuffix string
 
 	// Filename is the path to the Dockerfile for the image.
 	Filename string
@@ -82,9 +86,10 @@ func (gen *Generator) generateScript() (*File, error) {
 	i = 0
 	traverse.NewTopologicalOrderTraverser(g).ForEachInto(func(imageName string) error {
 		data.Images[i] = &scriptTemplateImageData{
-			Name:     gen.absoluteImageName(imageName),
-			Ref:      gen.imageRef(imageName),
-			Filename: dockerfile(imageName).Filename(),
+			Name:      path.Join(gen.repoNameBase, gen.c.Name),
+			Ref:       gen.imageRef(imageName),
+			TagSuffix: imageTagSuffix(imageName),
+			Filename:  dockerfile(imageName).Filename(),
 		}
 		i++
 

@@ -43,7 +43,7 @@ $DOCKER $DOCKER_ARGS build $DOCKER_BUILD_ARGS --tag {{ .Ref }} --file {{ .Filena
 
 for TAG in ${TAGS[@]+"${TAGS[@]}"}; do
 {{- range .Images }}
-  $DOCKER $DOCKER_ARGS tag {{ .Ref }} "{{ .Name }}:${TAG}" && \
-    printf "# Tagged %s:%s\n" {{ .Name }} "${TAG}"
+  $DOCKER $DOCKER_ARGS tag {{ .Ref }} "{{ .Name }}:${TAG}{{ .TagSuffix }}" && \
+    printf "# Tagged %s:%s\n" {{ .Name }} "${TAG}{{ .TagSuffix }}"
 {{- end }}
 done
