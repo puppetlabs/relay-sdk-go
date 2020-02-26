@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+PYTHON="${PYTHON:-python}"
+
+#
+# Variables
+#
+
+ARTIFACTS_BUCKET="${ARTIFACTS_BUCKET:-nebula-packages}"
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-dist}"
+
+#
+#
+#
+
+. scripts/library.sh
+
+PACKAGE_VERSION="$( $PYTHON setup.py --version )"
+
+for PACKAGE in $( nebula::sdk::support_python::package_artifacts "${ARTIFACTS_DIR}" ); do
+  case "${PACKAGE}" in
+  *.tar.gz)
+    PACKAGE_DIST_NAME="$( nebula::sdk::support_python::package_name )"
+    ;;
+  *.whl)
+    PACKAGE_DIST_NAME="$( nebula::sdk::support_python::package_name_wheel )"
+    ;;
+  *)
+    echo "error: $0: invalid package ${PACKAGE}: not supported" >&2
+    exit 1
+    ;;
+  esac
+
+  PACKAGE_EXT="${PACKAGE##${ARTIFACTS_DIR}/${PACKAGE_DIST_NAME}-${PACKAGE_VERSION}}"
+  nebula::sdk::release "${ARTIFACTS_BUCKET}" support/python "${PACKAGE}" "${PACKAGE_EXT}" "${PACKAGE_DIST_NAME}-"
+done

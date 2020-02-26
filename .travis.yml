@@ -6,11 +6,23 @@ cache:
   - "${GOPATH}/pkg/mod"
   - "${GOPATH}/pkg/sumdb"
   - /opt/google-cloud-sdk
+  - /opt/python
 env:
   global:
+  - PYTHON=python3
   - GO111MODULE=on
   - GOFLAGS="${GOFLAGS} -mod=readonly"
   - PATH="${PATH}:/opt/google-cloud-sdk/bin"
+before_install:
+- sudo apt-get -y install python3-pip python3-setuptools
+- ( cd "$( pyenv root )" && git pull origin master )
+- pyenv install -s 3.8.2
+- pyenv rehash
+- pyenv global system 3.8.2
+- $PYTHON -m pip install --user tox
+addons:
+  apt:
+    update: true
 jobs:
   include:
   - stage: build

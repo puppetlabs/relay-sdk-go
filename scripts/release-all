@@ -3,9 +3,15 @@ set -euo pipefail
 
 . scripts/library.sh
 
-RELEASE_PROGRAMS=( ${RELEASE_PROGRAMS:-$( nebula::sdk::default_programs )} )
+RELEASE_PROGRAMS=( $( nebula::sdk::default_programs ) )
 
 for PROGRAM in "${RELEASE_PROGRAMS[@]}"; do
-  echo "# release: ${PROGRAM}"
+  echo "# release (go): ${PROGRAM}"
   scripts/release "${PROGRAM}"
 done
+
+echo "# release (python)"
+(
+  pushd support/python >/dev/null
+  scripts/release
+)

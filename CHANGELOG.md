@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* Add support for Python containers and add a Python SDK to work with the
+  metadata API.
+
 ## [1.7.1]
 
 ### Changed

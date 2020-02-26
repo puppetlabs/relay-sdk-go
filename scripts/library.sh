@@ -6,6 +6,7 @@
 
 FIND="${FIND:-find}"
 GIT="${GIT:-git}"
+GSUTIL="${GSUTIL:-gsutil}"
 SHA256SUM="${SHA256SUM:-shasum -a 256}"
 
 #
@@ -76,6 +77,35 @@ nebula::sdk::release_vars() {
 nebula::sdk::release_vars_local() {
   printf 'local RELEASE_VERSION RELEASE_VERSION_MAJOR RELEASE_VERSION_MINOR RELEASE_VERSION_PATCH\n'
   nebula::sdk::release_vars "$@"
+}
+
+nebula::sdk::release() {
+  if [[ "$#" -lt 3 ]]; then
+    echo "usage: ${FUNCNAME[0]} <bucket> <release-name> <filename> [dist-ext [dist-prefix]]" >&2
+    return 1
+  fi
+
+  nebula::sdk::release_check
+  eval "$( nebula::sdk::release_vars )"
+
+  local KEY_PREFIX FILENAME DIST_PREFIX DIST_EXT
+  KEY_PREFIX="gs://$1/sdk/$2"
+  FILENAME="$3"
+  DIST_EXT="${4:-}"
+  DIST_PREFIX="${5:-"$2-v"}"
+
+  (
+    set -x
+
+    local KEY KEY_MAJOR_MINOR KEY_MAJOR
+    KEY="${KEY_PREFIX}/v${RELEASE_VERSION}/${DIST_PREFIX}${RELEASE_VERSION}${DIST_EXT}"
+    KEY_MAJOR_MINOR="${KEY_PREFIX}/v${RELEASE_VERSION_MAJOR}.${RELEASE_VERSION_MINOR}/${DIST_PREFIX}${RELEASE_VERSION_MAJOR}.${RELEASE_VERSION_MINOR}${DIST_EXT}"
+    KEY_MAJOR="${KEY_PREFIX}/v${RELEASE_VERSION_MAJOR}/${DIST_PREFIX}${RELEASE_VERSION_MAJOR}${DIST_EXT}"
+
+    $GSUTIL cp "${FILENAME}" "${KEY}"
+    $GSUTIL cp "${KEY}" "${KEY_MAJOR_MINOR}"
+    $GSUTIL cp "${KEY}" "${KEY_MAJOR}"
+  )
 }
 
 nebula::sdk::version() {
