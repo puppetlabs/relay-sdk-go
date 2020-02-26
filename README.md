@@ -71,6 +71,7 @@ Dockerfiles:
 |------|----------------|-------------|
 | `bash.v1` | `{from: sdk, name: bash.v1}` | Alpine Linux-based image configured to run a Bash script |
 | `go.v1` | `{from: sdk, name: go.v1}` | Alpine Linux-based image configured to run a compiled Go binary |
+| `python.v1` | `{from: sdk, name: python.v1}` | Alpine Linux-based image configured to run a Python script |
 
 You can also write your own templates, or write templates that build from these.
 For examples of customizing these templates, check out the
@@ -152,3 +153,13 @@ A:  Five; four to hold the car up and one to swap tires.
 
 For more examples, take a look at the steps defined in our
 [step content repository](https://github.com/puppetlabs/nebula-steps).
+
+## Client APIs
+
+This repository contains client APIs for interacting with the Nebula metadata
+service in steps:
+
+| SDK Version | Language | Source Code | Archive | SHA-256 Checksum |
+|-------------|----------|-------------|---------|------------------|
+| v1 | Python | [`support/python`](support/python) | [nebula-sdk-1.tar.gz](https://packages.nebula.puppet.net/sdk/support/python/v1/nebula-sdk-1.tar.gz) | [nebula-sdk-1.tar.gz.sha256](https://packages.nebula.puppet.net/sdk/support/python/v1/nebula-sdk-1.tar.gz.sha256) |
+|||| [nebula_sdk-1-py3-none-any.whl](https://packages.nebula.puppet.net/sdk/support/python/v1/nebula_sdk-1-py3-none-any.whl) | [nebula_sdk-1-py3-none-any.whl.sha256](https://packages.nebula.puppet.net/sdk/support/python/v1/nebula_sdk-1-py3-none-any.whl.sha256) |

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+PYTHON="${PYTHON:-python}"
+
+#
+# Variables
+#
+
+ARTIFACTS_DIR="${ARTIFACTS_DIR:-dist}"
+
+#
+#
+#
+
+. scripts/library.sh
+
+set -x
+
+$PYTHON -m tox --sdistonly
+$PYTHON -m pip wheel -w dist --no-deps "dist/$( $PYTHON setup.py --fullname ).tar.gz"
+
+for PACKAGE in $( nebula::sdk::support_python::package_artifacts "${ARTIFACTS_DIR}" ); do
+  nebula::sdk::sha256sum <"${PACKAGE}" >"${PACKAGE}.sha256"
+done

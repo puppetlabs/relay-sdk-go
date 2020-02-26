@@ -2,12 +2,6 @@
 set -euo pipefail
 
 #
-# Commands
-#
-
-GSUTIL="${GSUTIL:-gsutil}"
-
-#
 # Variables
 #
 
@@ -22,8 +16,6 @@ ARTIFACTS_DIR="${ARTIFACTS_DIR:-artifacts}"
 
 [[ "$#" -eq 1 ]] || nebula::sdk::usage "$0 <program>"
 
-nebula::sdk::release_check
-eval "$( nebula::sdk::release_vars )"
 eval "$( nebula::sdk::cli_vars "$1" )"
 
 PACKAGE_KEY_PREFIX="gs://${ARTIFACTS_BUCKET}/sdk/${CLI_NAME}"
@@ -31,24 +23,7 @@ PACKAGE_KEY_PREFIX="gs://${ARTIFACTS_BUCKET}/sdk/${CLI_NAME}"
 for PACKAGE in $( nebula::sdk::cli_artifacts "$1" "${ARTIFACTS_DIR}/${CLI_NAME}" ); do
   # Get the remaining file path and extension (directory, name and version
   # truncated) from the package.
-  CLI_PLATFORM_EXT="$( nebula::sdk::cli_platform_ext "$1" "${PACKAGE}" )"
-
-  PACKAGE_KEY="${PACKAGE_KEY_PREFIX}/${CLI_VERSION}/${CLI_NAME}-${CLI_VERSION}-${CLI_PLATFORM_EXT}"
-
-  (
-    set -x
-
-    # Copy file to primary key.
-    $GSUTIL cp "${PACKAGE}" "${PACKAGE_KEY}"
-    $GSUTIL cp "${PACKAGE}.sha256" "${PACKAGE_KEY}.sha256"
-
-    # Copy package to vX and vX.Y.
-    PACKAGE_MAJOR_MINOR_KEY="${PACKAGE_KEY_PREFIX}/v${RELEASE_VERSION_MAJOR}.${RELEASE_VERSION_MINOR}/${CLI_NAME}-v${RELEASE_VERSION_MAJOR}.${RELEASE_VERSION_MINOR}-${CLI_PLATFORM_EXT}"
-    $GSUTIL cp "${PACKAGE_KEY}" "${PACKAGE_MAJOR_MINOR_KEY}"
-    $GSUTIL cp "${PACKAGE_KEY}.sha256" "${PACKAGE_MAJOR_MINOR_KEY}.sha256"
-
-    PACKAGE_MAJOR_KEY="${PACKAGE_KEY_PREFIX}/v${RELEASE_VERSION_MAJOR}/${CLI_NAME}-v${RELEASE_VERSION_MAJOR}-${CLI_PLATFORM_EXT}"
-    $GSUTIL cp "${PACKAGE_KEY}" "${PACKAGE_MAJOR_KEY}"
-    $GSUTIL cp "${PACKAGE_KEY}.sha256" "${PACKAGE_MAJOR_KEY}.sha256"
-  )
+  CLI_PLATFORM_EXT="-$( nebula::sdk::cli_platform_ext "$1" "${PACKAGE}" )"
+  nebula::sdk::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}" "${CLI_PLATFORM_EXT}"
+  nebula::sdk::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}.sha256" "${CLI_PLATFORM_EXT}.sha256"
 done

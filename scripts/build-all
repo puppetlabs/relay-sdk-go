@@ -6,6 +6,6 @@ set -euo pipefail
 BUILD_PROGRAMS=( ${BUILD_PROGRAMS:-$( nebula::sdk::default_programs )} )
 
 for PROGRAM in "${BUILD_PROGRAMS[@]}"; do
-  echo "# build: ${PROGRAM}"
+  echo "# build (go): ${PROGRAM}"
   scripts/build "${PROGRAM}"
 done

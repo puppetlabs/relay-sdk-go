@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+#
+# Commands
+#
+
+PYTHON="${PYTHON:-python}"
+
+#
+#
+#
+
+$PYTHON -m tox
+$PYTHON -m tox -e check

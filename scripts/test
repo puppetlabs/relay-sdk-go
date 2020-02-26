@@ -11,5 +11,14 @@ GO="${GO:-go}"
 #
 #
 
-set -x
-$GO test -v -race ./...
+echo '# test (go)'
+(
+    set -x
+    $GO test -v -race ./...
+)
+
+echo '# test (python)'
+(
+    pushd support/python >/dev/null
+    scripts/test
+)
