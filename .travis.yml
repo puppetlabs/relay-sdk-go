@@ -19,7 +19,7 @@ before_install:
 - pyenv install -s 3.8.2
 - pyenv rehash
 - pyenv global system 3.8.2
-- $PYTHON -m pip install --user tox
+- $PYTHON -m pip install --user wheel tox
 addons:
   apt:
     update: true
