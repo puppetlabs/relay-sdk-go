@@ -38,4 +38,5 @@ for PACKAGE in $( nebula::sdk::support_python::package_artifacts "${ARTIFACTS_DI
 
   PACKAGE_EXT="${PACKAGE##${ARTIFACTS_DIR}/${PACKAGE_DIST_NAME}-${PACKAGE_VERSION}}"
   nebula::sdk::release "${ARTIFACTS_BUCKET}" support/python "${PACKAGE}" "${PACKAGE_EXT}" "${PACKAGE_DIST_NAME}-"
+  nebula::sdk::release "${ARTIFACTS_BUCKET}" support/python "${PACKAGE}.sha256" "${PACKAGE_EXT}.sha256" "${PACKAGE_DIST_NAME}-"
 done
