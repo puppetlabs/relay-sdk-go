@@ -57,7 +57,7 @@ func (e *Evaluator) Copy(opts ...Option) *Evaluator {
 }
 
 func (e *Evaluator) Evaluate(ctx context.Context, tree parse.Tree, depth int) (*Result, error) {
-	r, err := e.evaluate(ctx, map[string]interface{}(tree), depth)
+	r, err := e.evaluate(ctx, tree, depth)
 	if err != nil {
 		return nil, err
 	}
@@ -115,7 +115,7 @@ func (e *Evaluator) EvaluateQuery(ctx context.Context, tree parse.Tree, query st
 		return nil, err
 	}
 
-	v, err := path(ctx, map[string]interface{}(tree))
+	v, err := path(ctx, tree)
 	if err != nil {
 		return nil, err
 	}

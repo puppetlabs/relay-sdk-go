@@ -5,7 +5,9 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-type YAMLTree parse.Tree
+type YAMLTree struct {
+	parse.Tree
+}
 
 func (yt *YAMLTree) UnmarshalYAML(value *yaml.Node) error {
 	tree, err := parse.ParseYAMLNode(value)
@@ -13,6 +15,6 @@ func (yt *YAMLTree) UnmarshalYAML(value *yaml.Node) error {
 		return err
 	}
 
-	*yt = YAMLTree(tree)
+	*yt = YAMLTree{Tree: tree}
 	return nil
 }
