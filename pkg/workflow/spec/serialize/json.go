@@ -9,7 +9,9 @@ import (
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/resolve"
 )
 
-type JSONTree parse.Tree
+type JSONTree struct {
+	parse.Tree
+}
 
 func (jt *JSONTree) UnmarshalJSON(data []byte) error {
 	tree, err := parse.ParseJSONString(string(data))
@@ -17,7 +19,7 @@ func (jt *JSONTree) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	*jt = JSONTree(tree)
+	*jt = JSONTree{Tree: tree}
 	return nil
 }
 
@@ -25,7 +27,7 @@ func (jt JSONTree) MarshalJSON() ([]byte, error) {
 	r, err := evaluate.NewEvaluator(
 		evaluate.WithInvocationResolver(resolve.NewMemoryInvocationResolver(fn.NewMap(map[string]fn.Descriptor{}))),
 		evaluate.WithResultMapper(evaluate.NewJSONResultMapper()),
-	).EvaluateAll(context.Background(), parse.Tree(jt))
+	).EvaluateAll(context.Background(), jt.Tree)
 	if err != nil {
 		return nil, err
 	}
