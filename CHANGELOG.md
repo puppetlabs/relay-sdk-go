@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.2]
+
+### Changed
+
+* Fix: Allow the YAML parser for expressions to handle values other than
+  mappings.
+
 ## [1.9.1]
 
 ### Build
@@ -120,7 +127,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.1...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.2...HEAD
+[1.9.2]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.8.1...v1.9.0
 [1.8.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.8.0...v1.8.1
