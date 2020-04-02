@@ -35,12 +35,34 @@
       "items": {
         "$ref": "#/definitions/Step"
       }
+    },
+    "triggers": {
+      "type": "array",
+      "description": "List of workflow triggers",
+      "minItems": 0,
+      "items": {
+        "$ref": "#/definitions/Trigger"
+      }
     }
   },
   "required": [
     "steps"
   ],
   "definitions": {
+    "SchemaField": {
+      "type": "object",
+      "description": "A descriptor of typed information",
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "A value type"
+        }
+      },
+      "required": ["type"]
+    },
+    "Expression": {
+      "description": "An expression evaluated by the backend"
+    },
     "Parameter": {
       "type": "object",
       "description": "A workflow parameter definition",
@@ -85,11 +107,8 @@
         { "$ref": "#/definitions/ApprovalStep" }
       ]
     },
-    "ContainerStep": {
+    "ContainerMixin": {
       "properties": {
-        "type": {
-          "const": "container"
-        },
         "image": {
           "type": "string",
           "description": "Docker image for step execution"
@@ -121,6 +140,16 @@
         "image"
       ]
     },
+    "ContainerStep": {
+      "properties": {
+        "type": {
+          "const": "container"
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/ContainerMixin" }
+      ]
+    },
     "ApprovalStep": {
       "properties": {
         "type": {
@@ -128,6 +157,103 @@
         }
       },
       "required": ["type"]
+    },
+    "Trigger": {
+      "type": "object",
+      "description": "A workflow trigger definition",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique workflow trigger name"
+        },
+        "source": {
+          "$ref": "#/definitions/TriggerSource"
+        },
+        "binding": {
+          "$ref": "#/definitions/TriggerBinding"
+        },
+        "when": {
+          "$ref": "#/definitions/Expression"
+        }
+      },
+      "required": [
+        "name",
+        "source"
+      ]
+    },
+    "TriggerSource": {
+      "type": "object",
+      "description": "A workflow trigger source definition",
+      "oneOf": [
+        { "$ref": "#/definitions/WebhookTriggerSource" },
+        { "$ref": "#/definitions/ScheduleTriggerSource" },
+        { "$ref": "#/definitions/PushTriggerSource" }
+      ]
+    },
+    "WebhookTriggerSource": {
+      "type": "object",
+      "description": "A webhook trigger source definition",
+      "properties": {
+        "type": {
+          "const": "webhook"
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/ContainerMixin" }
+      ],
+      "required": ["type"]
+    },
+    "ScheduleTriggerSource": {
+      "type": "object",
+      "description": "A schedule trigger source definition",
+      "properties": {
+        "type": {
+          "const": "schedule"
+        },
+        "schedule": {
+          "type": "string",
+          "description": "The frequency to invoke this trigger expressed in the cron syntax"
+        }
+      },
+      "required": [
+        "type",
+        "schedule"
+      ]
+    },
+    "PushTriggerSource": {
+      "type": "object",
+      "description": "A push trigger source definition",
+      "properties": {
+        "type": {
+          "const": "push"
+        },
+        "schema": {
+          "type": "object",
+          "description": "An optional schema to enforce on submitted event data",
+          "additionalProperties": {
+            "$ref": "#/definitions/SchemaField"
+          }
+        }
+      },
+      "required": [
+        "type",
+        "schema"
+      ]
+    },
+    "TriggerBinding": {
+      "type": "object",
+      "description": "A trigger binding definition",
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/Expression"
+          }
+        }
+      },
+      "required": [
+        "parameters"
+      ]
     }
   }
 }
