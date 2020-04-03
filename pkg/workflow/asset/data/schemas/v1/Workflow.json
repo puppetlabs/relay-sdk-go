@@ -185,23 +185,10 @@
       "type": "object",
       "description": "A workflow trigger source definition",
       "oneOf": [
-        { "$ref": "#/definitions/WebhookTriggerSource" },
         { "$ref": "#/definitions/ScheduleTriggerSource" },
-        { "$ref": "#/definitions/PushTriggerSource" }
+        { "$ref": "#/definitions/PushTriggerSource" },
+        { "$ref": "#/definitions/WebhookTriggerSource" }
       ]
-    },
-    "WebhookTriggerSource": {
-      "type": "object",
-      "description": "A webhook trigger source definition",
-      "properties": {
-        "type": {
-          "const": "webhook"
-        }
-      },
-      "allOf": [
-        { "$ref": "#/definitions/ContainerMixin" }
-      ],
-      "required": ["type"]
     },
     "ScheduleTriggerSource": {
       "type": "object",
@@ -239,6 +226,19 @@
         "type",
         "schema"
       ]
+    },
+    "WebhookTriggerSource": {
+      "type": "object",
+      "description": "A webhook trigger source definition",
+      "properties": {
+        "type": {
+          "const": "webhook"
+        }
+      },
+      "allOf": [
+        { "$ref": "#/definitions/ContainerMixin" }
+      ],
+      "required": ["type"]
     },
     "TriggerBinding": {
       "type": "object",
