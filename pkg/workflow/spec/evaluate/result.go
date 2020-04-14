@@ -7,6 +7,10 @@ import (
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/resolve"
 )
 
+type UnresolvableData struct {
+	Query string
+}
+
 type UnresolvableSecret struct {
 	Name string
 }
@@ -67,6 +71,7 @@ func (s unresolvableInvocationSort) Less(i, j int) bool {
 func (s unresolvableInvocationSort) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 
 type Unresolvable struct {
+	Data        []UnresolvableData
 	Secrets     []UnresolvableSecret
 	Outputs     []UnresolvableOutput
 	Parameters  []UnresolvableParameter
@@ -76,6 +81,10 @@ type Unresolvable struct {
 
 func (u *Unresolvable) AsError() error {
 	err := &UnresolvableError{}
+
+	for _, d := range u.Data {
+		err.Causes = append(err.Causes, &resolve.DataNotFoundError{Query: d.Query})
+	}
 
 	for _, s := range u.Secrets {
 		err.Causes = append(err.Causes, &resolve.SecretNotFoundError{Name: s.Name})
@@ -105,6 +114,21 @@ func (u *Unresolvable) AsError() error {
 }
 
 func (u *Unresolvable) extends(other Unresolvable) {
+	// Data
+	if len(u.Data) == 0 {
+		u.Data = append(u.Data, other.Data...)
+	} else if len(other.Data) != 0 {
+		set := datastructure.NewHashSet()
+		for _, d := range u.Data {
+			set.Add(d)
+		}
+		for _, d := range other.Data {
+			set.Add(d)
+		}
+		u.Data = nil
+		set.ValuesInto(&u.Data)
+	}
+
 	// Secrets
 	if len(u.Secrets) == 0 {
 		u.Secrets = append(u.Secrets, other.Secrets...)

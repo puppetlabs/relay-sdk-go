@@ -1,6 +1,16 @@
 package resolve
 
-import "fmt"
+import (
+	"fmt"
+)
+
+type DataNotFoundError struct {
+	Query string
+}
+
+func (e *DataNotFoundError) Error() string {
+	return fmt.Sprintf("resolve: data query %q could not be processed", e.Query)
+}
 
 type SecretNotFoundError struct {
 	Name string

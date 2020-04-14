@@ -7,6 +7,25 @@ import (
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fnlib"
 )
 
+type MemoryDataTypeResolver struct {
+	m map[string]interface{}
+}
+
+var _ DataTypeResolver = &MemoryDataTypeResolver{}
+
+func (mr *MemoryDataTypeResolver) ResolveData(ctx context.Context, query string) (interface{}, error) {
+	d, ok := mr.m[query]
+	if !ok {
+		return "", &DataNotFoundError{Query: query}
+	}
+
+	return d, nil
+}
+
+func NewMemoryDataTypeResolver(m map[string]interface{}) *MemoryDataTypeResolver {
+	return &MemoryDataTypeResolver{m: m}
+}
+
 type MemorySecretTypeResolver struct {
 	m map[string]string
 }
