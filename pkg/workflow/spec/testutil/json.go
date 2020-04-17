@@ -6,6 +6,10 @@ import (
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 )
 
+func JSONData(query string) map[string]interface{} {
+	return map[string]interface{}{"$type": "Data", "query": query}
+}
+
 func JSONSecret(name string) map[string]interface{} {
 	return map[string]interface{}{"$type": "Secret", "name": name}
 }

@@ -1,6 +1,31 @@
 package resolve
 
-import "context"
+import (
+	"context"
+)
+
+type chainDataTypeResolvers struct {
+	resolvers []DataTypeResolver
+}
+
+func (cr *chainDataTypeResolvers) ResolveData(ctx context.Context, query string) (interface{}, error) {
+	for _, r := range cr.resolvers {
+		s, err := r.ResolveData(ctx, query)
+		if _, ok := err.(*DataNotFoundError); ok {
+			continue
+		} else if err != nil {
+			return "", err
+		}
+
+		return s, nil
+	}
+
+	return "", &DataNotFoundError{Query: query}
+}
+
+func ChainDataTypeResolvers(resolvers ...DataTypeResolver) DataTypeResolver {
+	return &chainDataTypeResolvers{resolvers: resolvers}
+}
 
 type chainSecretTypeResolvers struct {
 	resolvers []SecretTypeResolver

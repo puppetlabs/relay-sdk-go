@@ -2,10 +2,34 @@ package resolve
 
 import (
 	"context"
-
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fn"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fnlib"
+	gval "github.com/puppetlabs/paesslerag-gval"
 )
+
+type MemoryDataTypeResolver struct {
+	m map[string]interface{}
+}
+
+var _ DataTypeResolver = &MemoryDataTypeResolver{}
+
+func (mr *MemoryDataTypeResolver) ResolveData(ctx context.Context, query string) (interface{}, error) {
+	pl, err := gval.NewLanguage(gval.Base()).NewEvaluable(query)
+	if err != nil {
+		return "", &DataQueryError{Query: query}
+	}
+
+	v, err := pl(ctx, mr.m)
+	if err != nil {
+		return "", &DataNotFoundError{Query: query}
+	}
+
+	return v, nil
+}
+
+func NewMemoryDataTypeResolver(m map[string]interface{}) *MemoryDataTypeResolver {
+	return &MemoryDataTypeResolver{m: m}
+}
 
 type MemorySecretTypeResolver struct {
 	m map[string]string

@@ -4,6 +4,12 @@ import "github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/resolve"
 
 type Option func(e *Evaluator)
 
+func WithDataTypeResolver(resolver resolve.DataTypeResolver) Option {
+	return func(e *Evaluator) {
+		e.dataTypeResolver = resolver
+	}
+}
+
 func WithSecretTypeResolver(resolver resolve.SecretTypeResolver) Option {
 	return func(e *Evaluator) {
 		e.secretTypeResolver = resolver

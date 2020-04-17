@@ -122,6 +122,18 @@ func TestEvaluate(t *testing.T) {
 			ExpectedValue: map[string]interface{}{"foo": "bar"},
 		},
 		{
+			Name: "unresolvable data",
+			Data: `{"baz": {"$type": "Data", "query": "foo.bar"}}`,
+			ExpectedValue: map[string]interface{}{
+				"baz": testutil.JSONData("foo.bar"),
+			},
+			ExpectedUnresolvable: evaluate.Unresolvable{
+				Data: []evaluate.UnresolvableData{
+					{Query: "foo.bar"},
+				},
+			},
+		},
+		{
 			Name: "unresolvable secret",
 			Data: `{"foo": {"$type": "Secret", "name": "bar"}}`,
 			ExpectedValue: map[string]interface{}{
@@ -154,6 +166,20 @@ func TestEvaluate(t *testing.T) {
 			ExpectedUnresolvable: evaluate.Unresolvable{
 				Parameters: []evaluate.UnresolvableParameter{
 					{Name: "bar"},
+				},
+			},
+		},
+		{
+			Name: "invalid data",
+			Data: `{"foo": [{"$type": "Data"}]}`,
+			ExpectedError: &evaluate.PathEvaluationError{
+				Path: "foo",
+				Cause: &evaluate.PathEvaluationError{
+					Path: "0",
+					Cause: &evaluate.InvalidTypeError{
+						Type:  "Data",
+						Cause: &evaluate.FieldNotFoundError{Name: "query"},
+					},
 				},
 			},
 		},
@@ -214,6 +240,26 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "data query error",
+			Data: `{
+				"data": {"$type": "Data", "query": "fo{o.b}ar"}
+			}`,
+			Opts: []evaluate.Option{
+				evaluate.WithDataTypeResolver(resolve.NewMemoryDataTypeResolver(
+					map[string]interface{}{"foo": map[string]string{"bar": "baz"}},
+				)),
+			},
+			ExpectedError: &evaluate.PathEvaluationError{
+				Path: "data",
+				Cause: &evaluate.InvalidTypeError{
+					Type: "Data",
+					Cause: &resolve.DataQueryError{
+						Query: "fo{o.b}ar",
+					},
+				},
+			},
+		},
+		{
 			Name: "unresolvable invocation",
 			Data: `{"foo": {"$fn.foo": "bar"}}`,
 			ExpectedValue: map[string]interface{}{
@@ -233,7 +279,8 @@ func TestEvaluate(t *testing.T) {
 				"c": {"$type": "Parameter", "name": "quux"},
 				"d": {"$fn.foo": "bar"},
 				"e": "hello",
-				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"}
+				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"},
+				"g": {"$type": "Data", "query": "foo.bar"}
 			}`,
 			ExpectedValue: map[string]interface{}{
 				"a": testutil.JSONSecret("foo"),
@@ -242,6 +289,7 @@ func TestEvaluate(t *testing.T) {
 				"d": testutil.JSONInvocation("foo", "bar"),
 				"e": "hello",
 				"f": testutil.JSONAnswer("baz", "bar"),
+				"g": testutil.JSONData("foo.bar"),
 			},
 			ExpectedUnresolvable: evaluate.Unresolvable{
 				Secrets: []evaluate.UnresolvableSecret{
@@ -258,6 +306,9 @@ func TestEvaluate(t *testing.T) {
 				},
 				Answers: []evaluate.UnresolvableAnswer{
 					{AskRef: "baz", Name: "bar"},
+				},
+				Data: []evaluate.UnresolvableData{
+					{Query: "foo.bar"},
 				},
 			},
 		},
@@ -293,7 +344,8 @@ func TestEvaluate(t *testing.T) {
 				"c": {"$type": "Parameter", "name": "quux"},
 				"d": {"$fn.foo": "bar"},
 				"e": "hello",
-				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"}
+				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"},
+				"g": {"$type": "Data", "query": "foo.bar"}
 			}`,
 			Opts: []evaluate.Option{
 				evaluate.WithSecretTypeResolver(resolve.NewMemorySecretTypeResolver(
@@ -313,6 +365,9 @@ func TestEvaluate(t *testing.T) {
 						{AskRef: "baz", Name: "bar"}: "approved",
 					},
 				)),
+				evaluate.WithDataTypeResolver(resolve.NewMemoryDataTypeResolver(
+					map[string]interface{}{"foo": map[string]string{"bar": "baz"}},
+				)),
 			},
 			ExpectedValue: map[string]interface{}{
 				"a": "v3ry s3kr3t!",
@@ -321,6 +376,7 @@ func TestEvaluate(t *testing.T) {
 				"d": "~~[bar]~~",
 				"e": "hello",
 				"f": "approved",
+				"g": "baz",
 			},
 		},
 		{

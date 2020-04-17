@@ -31,6 +31,7 @@ type Evaluator struct {
 	lang                  Language
 	invoke                InvokeFunc
 	resultMapper          ResultMapper
+	dataTypeResolver      resolve.DataTypeResolver
 	secretTypeResolver    resolve.SecretTypeResolver
 	outputTypeResolver    resolve.OutputTypeResolver
 	parameterTypeResolver resolve.ParameterTypeResolver
@@ -134,6 +135,25 @@ func (e *Evaluator) EvaluateQuery(ctx context.Context, tree parse.Tree, query st
 
 func (e *Evaluator) evaluateType(ctx context.Context, tm map[string]interface{}) (*Result, error) {
 	switch tm["$type"] {
+	case "Data":
+		query, ok := tm["query"].(string)
+		if !ok {
+			return nil, &InvalidTypeError{Type: "Data", Cause: &FieldNotFoundError{Name: "query"}}
+		}
+
+		value, err := e.dataTypeResolver.ResolveData(ctx, query)
+		if serr, ok := err.(*resolve.DataNotFoundError); ok {
+			return &Result{
+				Value: tm,
+				Unresolvable: Unresolvable{Data: []UnresolvableData{
+					{Query: serr.Query},
+				}},
+			}, nil
+		} else if err != nil {
+			return nil, &InvalidTypeError{Type: "Data", Cause: err}
+		}
+
+		return &Result{Value: value}, nil
 	case "Secret":
 		name, ok := tm["name"].(string)
 		if !ok {
@@ -391,6 +411,7 @@ func NewEvaluator(opts ...Option) *Evaluator {
 		lang:                  LanguagePath,
 		invoke:                func(ctx context.Context, i fn.Invoker) (interface{}, error) { return i.Invoke(ctx) },
 		resultMapper:          IdentityResultMapper,
+		dataTypeResolver:      resolve.NoOpDataTypeResolver,
 		secretTypeResolver:    resolve.NoOpSecretTypeResolver,
 		outputTypeResolver:    resolve.NoOpOutputTypeResolver,
 		parameterTypeResolver: resolve.NoOpParameterTypeResolver,
