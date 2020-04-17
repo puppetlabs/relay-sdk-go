@@ -2,9 +2,9 @@ package resolve
 
 import (
 	"context"
-
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fn"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/fnlib"
+	gval "github.com/puppetlabs/paesslerag-gval"
 )
 
 type MemoryDataTypeResolver struct {
@@ -14,12 +14,17 @@ type MemoryDataTypeResolver struct {
 var _ DataTypeResolver = &MemoryDataTypeResolver{}
 
 func (mr *MemoryDataTypeResolver) ResolveData(ctx context.Context, query string) (interface{}, error) {
-	d, ok := mr.m[query]
-	if !ok {
+	pl, err := gval.NewLanguage(gval.Base()).NewEvaluable(query)
+	if err != nil {
+		return "", &DataQueryError{Query: query}
+	}
+
+	v, err := pl(ctx, mr.m)
+	if err != nil {
 		return "", &DataNotFoundError{Query: query}
 	}
 
-	return d, nil
+	return v, nil
 }
 
 func NewMemoryDataTypeResolver(m map[string]interface{}) *MemoryDataTypeResolver {

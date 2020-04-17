@@ -240,6 +240,26 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "data query error",
+			Data: `{
+				"data": {"$type": "Data", "query": "fo{o.b}ar"}
+			}`,
+			Opts: []evaluate.Option{
+				evaluate.WithDataTypeResolver(resolve.NewMemoryDataTypeResolver(
+					map[string]interface{}{"foo": map[string]string{"bar": "baz"}},
+				)),
+			},
+			ExpectedError: &evaluate.PathEvaluationError{
+				Path: "data",
+				Cause: &evaluate.InvalidTypeError{
+					Type: "Data",
+					Cause: &resolve.DataQueryError{
+						Query: "fo{o.b}ar",
+					},
+				},
+			},
+		},
+		{
 			Name: "unresolvable invocation",
 			Data: `{"foo": {"$fn.foo": "bar"}}`,
 			ExpectedValue: map[string]interface{}{
@@ -346,9 +366,7 @@ func TestEvaluate(t *testing.T) {
 					},
 				)),
 				evaluate.WithDataTypeResolver(resolve.NewMemoryDataTypeResolver(
-					map[string]interface{}{
-						"foo.bar": "baz",
-					},
+					map[string]interface{}{"foo": map[string]string{"bar": "baz"}},
 				)),
 			},
 			ExpectedValue: map[string]interface{}{

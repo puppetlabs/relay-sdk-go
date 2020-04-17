@@ -39,7 +39,6 @@
     "triggers": {
       "type": "array",
       "description": "List of workflow triggers",
-      "minItems": 0,
       "items": {
         "$ref": "#/definitions/Trigger"
       }
