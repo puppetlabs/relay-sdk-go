@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Add: Add trigger definition to the Workflow schema.
+* Add: Add !Data handling to resolve external data against a query path.
+
 ## [1.9.2]
 
 ### Changed
