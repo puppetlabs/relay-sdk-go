@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.10.0]
+
 * Add: Add trigger definition to the Workflow schema.
 * Add: Add !Data handling to resolve external data against a query path.
 
@@ -130,7 +132,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.2...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.10.0...HEAD
+[1.10.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.2...v1.10.0
 [1.9.2]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.1...v1.9.2
 [1.9.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.0...v1.9.1
 [1.9.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.8.1...v1.9.0
