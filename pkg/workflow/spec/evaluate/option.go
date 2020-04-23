@@ -16,6 +16,12 @@ func WithSecretTypeResolver(resolver resolve.SecretTypeResolver) Option {
 	}
 }
 
+func WithConnectionTypeResolver(resolver resolve.ConnectionTypeResolver) Option {
+	return func(e *Evaluator) {
+		e.connectionTypeResolver = resolver
+	}
+}
+
 func WithOutputTypeResolver(resolver resolve.OutputTypeResolver) Option {
 	return func(e *Evaluator) {
 		e.outputTypeResolver = resolver

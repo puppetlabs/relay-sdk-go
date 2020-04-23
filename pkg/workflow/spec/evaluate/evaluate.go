@@ -28,15 +28,16 @@ const (
 type InvokeFunc func(ctx context.Context, i fn.Invoker) (interface{}, error)
 
 type Evaluator struct {
-	lang                  Language
-	invoke                InvokeFunc
-	resultMapper          ResultMapper
-	dataTypeResolver      resolve.DataTypeResolver
-	secretTypeResolver    resolve.SecretTypeResolver
-	outputTypeResolver    resolve.OutputTypeResolver
-	parameterTypeResolver resolve.ParameterTypeResolver
-	answerTypeResolver    resolve.AnswerTypeResolver
-	invocationResolver    resolve.InvocationResolver
+	lang                   Language
+	invoke                 InvokeFunc
+	resultMapper           ResultMapper
+	dataTypeResolver       resolve.DataTypeResolver
+	secretTypeResolver     resolve.SecretTypeResolver
+	connectionTypeResolver resolve.ConnectionTypeResolver
+	outputTypeResolver     resolve.OutputTypeResolver
+	parameterTypeResolver  resolve.ParameterTypeResolver
+	answerTypeResolver     resolve.AnswerTypeResolver
+	invocationResolver     resolve.InvocationResolver
 }
 
 func (e *Evaluator) ScopeTo(tree parse.Tree) *ScopedEvaluator {
@@ -170,6 +171,30 @@ func (e *Evaluator) evaluateType(ctx context.Context, tm map[string]interface{})
 			}, nil
 		} else if err != nil {
 			return nil, &InvalidTypeError{Type: "Secret", Cause: err}
+		}
+
+		return &Result{Value: value}, nil
+	case "Connection":
+		connectionType, ok := tm["type"].(string)
+		if !ok {
+			return nil, &InvalidTypeError{Type: "Connection", Cause: &FieldNotFoundError{Name: "type"}}
+		}
+
+		name, ok := tm["name"].(string)
+		if !ok {
+			return nil, &InvalidTypeError{Type: "Connection", Cause: &FieldNotFoundError{Name: "name"}}
+		}
+
+		value, err := e.connectionTypeResolver.ResolveConnection(ctx, connectionType, name)
+		if oerr, ok := err.(*resolve.ConnectionNotFoundError); ok {
+			return &Result{
+				Value: tm,
+				Unresolvable: Unresolvable{Connections: []UnresolvableConnection{
+					{Type: oerr.Type, Name: oerr.Name},
+				}},
+			}, nil
+		} else if err != nil {
+			return nil, &InvalidTypeError{Type: "Connection", Cause: err}
 		}
 
 		return &Result{Value: value}, nil
@@ -408,15 +433,16 @@ func (e *Evaluator) evaluate(ctx context.Context, v interface{}, depth int) (*Re
 
 func NewEvaluator(opts ...Option) *Evaluator {
 	e := &Evaluator{
-		lang:                  LanguagePath,
-		invoke:                func(ctx context.Context, i fn.Invoker) (interface{}, error) { return i.Invoke(ctx) },
-		resultMapper:          IdentityResultMapper,
-		dataTypeResolver:      resolve.NoOpDataTypeResolver,
-		secretTypeResolver:    resolve.NoOpSecretTypeResolver,
-		outputTypeResolver:    resolve.NoOpOutputTypeResolver,
-		parameterTypeResolver: resolve.NoOpParameterTypeResolver,
-		answerTypeResolver:    resolve.NoOpAnswerTypeResolver,
-		invocationResolver:    resolve.NewDefaultMemoryInvocationResolver(),
+		lang:                   LanguagePath,
+		invoke:                 func(ctx context.Context, i fn.Invoker) (interface{}, error) { return i.Invoke(ctx) },
+		resultMapper:           IdentityResultMapper,
+		dataTypeResolver:       resolve.NoOpDataTypeResolver,
+		secretTypeResolver:     resolve.NoOpSecretTypeResolver,
+		connectionTypeResolver: resolve.NoOpConnectionTypeResolver,
+		outputTypeResolver:     resolve.NoOpOutputTypeResolver,
+		parameterTypeResolver:  resolve.NoOpParameterTypeResolver,
+		answerTypeResolver:     resolve.NoOpAnswerTypeResolver,
+		invocationResolver:     resolve.NewDefaultMemoryInvocationResolver(),
 	}
 
 	for _, opt := range opts {

@@ -30,6 +30,18 @@ func (f SecretTypeResolverFunc) ResolveSecret(ctx context.Context, name string) 
 	return f(ctx, name)
 }
 
+type ConnectionTypeResolver interface {
+	ResolveConnection(ctx context.Context, connectionType, name string) (interface{}, error)
+}
+
+type ConnectionTypeResolverFunc func(ctx context.Context, connectionType, name string) (interface{}, error)
+
+var _ ConnectionTypeResolver = ConnectionTypeResolverFunc(nil)
+
+func (f ConnectionTypeResolverFunc) ResolveConnection(ctx context.Context, connectionType, name string) (interface{}, error) {
+	return f(ctx, connectionType, name)
+}
+
 type OutputTypeResolver interface {
 	ResolveOutput(ctx context.Context, from, name string) (interface{}, error)
 }

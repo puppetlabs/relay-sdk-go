@@ -28,6 +28,15 @@ func (e *SecretNotFoundError) Error() string {
 	return fmt.Sprintf("resolve: secret %q could not be found", e.Name)
 }
 
+type ConnectionNotFoundError struct {
+	Type string
+	Name string
+}
+
+func (e *ConnectionNotFoundError) Error() string {
+	return fmt.Sprintf("resolve: connection type %q with name %q could not be found", e.Type, e.Name)
+}
+
 type OutputNotFoundError struct {
 	From string
 	Name string
