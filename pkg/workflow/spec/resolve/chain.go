@@ -50,6 +50,29 @@ func ChainSecretTypeResolvers(resolvers ...SecretTypeResolver) SecretTypeResolve
 	return &chainSecretTypeResolvers{resolvers: resolvers}
 }
 
+type chainConnectionTypeResolvers struct {
+	resolvers []ConnectionTypeResolver
+}
+
+func (cr *chainConnectionTypeResolvers) ResolveConnection(ctx context.Context, connectionType, name string) (interface{}, error) {
+	for _, r := range cr.resolvers {
+		o, err := r.ResolveConnection(ctx, connectionType, name)
+		if _, ok := err.(*ConnectionNotFoundError); ok {
+			continue
+		} else if err != nil {
+			return "", err
+		}
+
+		return o, nil
+	}
+
+	return "", &ConnectionNotFoundError{Type: connectionType, Name: name}
+}
+
+func ChainConnectionTypeResolvers(resolvers ...ConnectionTypeResolver) ConnectionTypeResolver {
+	return &chainConnectionTypeResolvers{resolvers: resolvers}
+}
+
 type chainOutputTypeResolvers struct {
 	resolvers []OutputTypeResolver
 }

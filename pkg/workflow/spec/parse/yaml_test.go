@@ -131,6 +131,38 @@ func TestYAML(t *testing.T) {
 			}),
 		},
 		{
+			Name: "connection sequence",
+			Data: yaml(`
+				aws:
+					accessKeyID: foo
+					region: us-west-2
+				op: !Connection [aws, test-creds]
+			`),
+			ExpectedTree: parse.Tree(map[string]interface{}{
+				"aws": map[string]interface{}{
+					"accessKeyID": "foo",
+					"region":      "us-west-2",
+				},
+				"op": testutil.JSONConnection("aws", "test-creds"),
+			}),
+		},
+		{
+			Name: "connection mapping",
+			Data: yaml(`
+				aws:
+					accessKeyID: foo
+					region: us-west-2
+				op: !Connection {type: aws, name: test-creds}
+			`),
+			ExpectedTree: parse.Tree(map[string]interface{}{
+				"aws": map[string]interface{}{
+					"accessKeyID": "foo",
+					"region":      "us-west-2",
+				},
+				"op": testutil.JSONConnection("aws", "test-creds"),
+			}),
+		},
+		{
 			Name: "output sequence",
 			Data: yaml(`
 				aws:

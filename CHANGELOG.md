@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Add: Connection workflow spec
+
 ## [1.10.0]
 
 * Add: Add trigger definition to the Workflow schema.

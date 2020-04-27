@@ -21,6 +21,19 @@ func (s unresolvableSecretSort) Len() int           { return len(s) }
 func (s unresolvableSecretSort) Less(i, j int) bool { return s[i].Name < s[j].Name }
 func (s unresolvableSecretSort) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
+type UnresolvableConnection struct {
+	Type string
+	Name string
+}
+
+type unresolvableConnectionSort []UnresolvableConnection
+
+func (s unresolvableConnectionSort) Len() int { return len(s) }
+func (s unresolvableConnectionSort) Less(i, j int) bool {
+	return s[i].Type < s[j].Type || (s[i].Type == s[j].Type && s[i].Name < s[j].Name)
+}
+func (s unresolvableConnectionSort) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
+
 type UnresolvableOutput struct {
 	From string
 	Name string
@@ -73,6 +86,7 @@ func (s unresolvableInvocationSort) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
 type Unresolvable struct {
 	Data        []UnresolvableData
 	Secrets     []UnresolvableSecret
+	Connections []UnresolvableConnection
 	Outputs     []UnresolvableOutput
 	Parameters  []UnresolvableParameter
 	Answers     []UnresolvableAnswer
@@ -88,6 +102,10 @@ func (u *Unresolvable) AsError() error {
 
 	for _, s := range u.Secrets {
 		err.Causes = append(err.Causes, &resolve.SecretNotFoundError{Name: s.Name})
+	}
+
+	for _, c := range u.Connections {
+		err.Causes = append(err.Causes, &resolve.ConnectionNotFoundError{Type: c.Type, Name: c.Name})
 	}
 
 	for _, o := range u.Outputs {
@@ -143,6 +161,22 @@ func (u *Unresolvable) extends(other Unresolvable) {
 		u.Secrets = nil
 		set.ValuesInto(&u.Secrets)
 		sort.Sort(unresolvableSecretSort(u.Secrets))
+	}
+
+	// Connections
+	if len(u.Connections) == 0 {
+		u.Connections = append(u.Connections, other.Connections...)
+	} else if len(other.Connections) != 0 {
+		set := datastructure.NewHashSet()
+		for _, o := range u.Connections {
+			set.Add(o)
+		}
+		for _, o := range other.Connections {
+			set.Add(o)
+		}
+		u.Connections = nil
+		set.ValuesInto(&u.Connections)
+		sort.Sort(unresolvableConnectionSort(u.Connections))
 	}
 
 	// Outputs

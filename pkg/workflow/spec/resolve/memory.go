@@ -50,6 +50,30 @@ func NewMemorySecretTypeResolver(m map[string]string) *MemorySecretTypeResolver 
 	return &MemorySecretTypeResolver{m: m}
 }
 
+type MemoryConnectionKey struct {
+	Type string
+	Name string
+}
+
+type MemoryConnectionTypeResolver struct {
+	m map[MemoryConnectionKey]interface{}
+}
+
+var _ ConnectionTypeResolver = &MemoryConnectionTypeResolver{}
+
+func (mr *MemoryConnectionTypeResolver) ResolveConnection(ctx context.Context, connectionType, name string) (interface{}, error) {
+	o, ok := mr.m[MemoryConnectionKey{Type: connectionType, Name: name}]
+	if !ok {
+		return "", &ConnectionNotFoundError{Type: connectionType, Name: name}
+	}
+
+	return o, nil
+}
+
+func NewMemoryConnectionTypeResolver(m map[MemoryConnectionKey]interface{}) *MemoryConnectionTypeResolver {
+	return &MemoryConnectionTypeResolver{m: m}
+}
+
 type MemoryOutputKey struct {
 	From string
 	Name string

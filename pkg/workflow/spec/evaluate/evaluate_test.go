@@ -146,6 +146,18 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "unresolvable connection",
+			Data: `{"foo": {"$type": "Connection", "type": "blort", "name": "bar"}}`,
+			ExpectedValue: map[string]interface{}{
+				"foo": testutil.JSONConnection("blort", "bar"),
+			},
+			ExpectedUnresolvable: evaluate.Unresolvable{
+				Connections: []evaluate.UnresolvableConnection{
+					{Type: "blort", Name: "bar"},
+				},
+			},
+		},
+		{
 			Name: "unresolvable output",
 			Data: `{"foo": {"$type": "Output", "from": "baz", "name": "bar"}}`,
 			ExpectedValue: map[string]interface{}{
@@ -193,6 +205,20 @@ func TestEvaluate(t *testing.T) {
 					Cause: &evaluate.InvalidTypeError{
 						Type:  "Secret",
 						Cause: &evaluate.FieldNotFoundError{Name: "name"},
+					},
+				},
+			},
+		},
+		{
+			Name: "invalid connection",
+			Data: `{"foo": [{"$type": "Connection", "name": "foo"}]}`,
+			ExpectedError: &evaluate.PathEvaluationError{
+				Path: "foo",
+				Cause: &evaluate.PathEvaluationError{
+					Path: "0",
+					Cause: &evaluate.InvalidTypeError{
+						Type:  "Connection",
+						Cause: &evaluate.FieldNotFoundError{Name: "type"},
 					},
 				},
 			},
@@ -280,7 +306,8 @@ func TestEvaluate(t *testing.T) {
 				"d": {"$fn.foo": "bar"},
 				"e": "hello",
 				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"},
-				"g": {"$type": "Data", "query": "foo.bar"}
+				"g": {"$type": "Data", "query": "foo.bar"},
+				"h": {"$type": "Connection", "type": "blort", "name": "bar"}
 			}`,
 			ExpectedValue: map[string]interface{}{
 				"a": testutil.JSONSecret("foo"),
@@ -290,6 +317,7 @@ func TestEvaluate(t *testing.T) {
 				"e": "hello",
 				"f": testutil.JSONAnswer("baz", "bar"),
 				"g": testutil.JSONData("foo.bar"),
+				"h": testutil.JSONConnection("blort", "bar"),
 			},
 			ExpectedUnresolvable: evaluate.Unresolvable{
 				Secrets: []evaluate.UnresolvableSecret{
@@ -309,6 +337,9 @@ func TestEvaluate(t *testing.T) {
 				},
 				Data: []evaluate.UnresolvableData{
 					{Query: "foo.bar"},
+				},
+				Connections: []evaluate.UnresolvableConnection{
+					{Type: "blort", Name: "bar"},
 				},
 			},
 		},
@@ -345,7 +376,8 @@ func TestEvaluate(t *testing.T) {
 				"d": {"$fn.foo": "bar"},
 				"e": "hello",
 				"f": {"$type": "Answer", "askRef": "baz", "name": "bar"},
-				"g": {"$type": "Data", "query": "foo.bar"}
+				"g": {"$type": "Data", "query": "foo.bar"},
+				"h": {"$type": "Connection", "type": "blort", "name": "bar"}
 			}`,
 			Opts: []evaluate.Option{
 				evaluate.WithSecretTypeResolver(resolve.NewMemorySecretTypeResolver(
@@ -368,6 +400,11 @@ func TestEvaluate(t *testing.T) {
 				evaluate.WithDataTypeResolver(resolve.NewMemoryDataTypeResolver(
 					map[string]interface{}{"foo": map[string]string{"bar": "baz"}},
 				)),
+				evaluate.WithConnectionTypeResolver(resolve.NewMemoryConnectionTypeResolver(
+					map[resolve.MemoryConnectionKey]interface{}{
+						{Type: "blort", Name: "bar"}: map[string]string{"bar": "blort"},
+					},
+				)),
 			},
 			ExpectedValue: map[string]interface{}{
 				"a": "v3ry s3kr3t!",
@@ -377,6 +414,7 @@ func TestEvaluate(t *testing.T) {
 				"e": "hello",
 				"f": "approved",
 				"g": "baz",
+				"h": map[string]string{"bar": "blort"},
 			},
 		},
 		{
