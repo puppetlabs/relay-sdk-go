@@ -1,12 +1,17 @@
 package testutil
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
+	"github.com/stretchr/testify/require"
 )
 
 type MockSecret struct {
@@ -49,9 +54,25 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 
 			s, found := opts.Specs[name]
 			if found {
-				if err := json.NewEncoder(w).Encode(s.ResponseObject); err != nil {
-					panic(err)
+				// That is no mock...
+				spec, _ := json.Marshal(s.ResponseObject)
+				tree, _ := parse.ParseJSONString(string(spec))
+
+				ev := evaluate.NewEvaluator(
+					evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
+				).ScopeTo(tree)
+
+				var rv *evaluate.Result
+				var err error
+				ctx := context.Background()
+				if query := r.URL.Query().Get("q"); query != "" {
+					rv, err = ev.EvaluateQuery(ctx, query)
+				} else {
+					rv, err = ev.EvaluateAll(ctx)
 				}
+				require.NoError(t, err)
+				err = json.NewEncoder(w).Encode(rv.Value)
+				require.NoError(t, err)
 
 				return
 			}

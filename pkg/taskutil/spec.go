@@ -123,12 +123,6 @@ func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluato
 	var loader SpecLoader
 
 	switch u.Scheme {
-	case "file":
-		if u.Host != "" {
-			return nil, errors.New("unable to read from remote host in file URL")
-		}
-
-		loader = NewLocalSpecLoader(u.Path)
 	case "http", "https":
 		loader = NewRemoteSpecLoader(u, opts.Client)
 	default:

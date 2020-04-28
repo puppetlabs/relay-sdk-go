@@ -1,6 +1,7 @@
 package task
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"strconv"
@@ -47,5 +48,10 @@ func TestGetOutput(t *testing.T) {
 
 		output, _ = task.ReadData("{.data[1]}")
 		require.Equal(t, testSpec.Data[1], string(output))
+
+		output, _ = task.ReadData("")
+		var outputSpec *TestGetSpec
+		json.Unmarshal(output, &outputSpec)
+		require.Equal(t, testSpec, outputSpec)
 	}, opts)
 }
