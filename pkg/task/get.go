@@ -1,10 +1,12 @@
 package task
 
 import (
-	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 )
 
 func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
@@ -39,12 +41,15 @@ func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
 	}
 
 	var ret string
+	a := transfer.JSONInterface{}
+	_ = a.UnmarshalJSON(body)
 	if path != "" {
-		// If no path is specified, ni get returns the full json
-		err = json.Unmarshal(body, &ret)
+		// If a path is specified, `ni get` returns the single value, not json
+		ret = fmt.Sprintf("%s", a.Data)
 	} else {
-		// If a path is specified, ni get returns the single value
-		ret = string(body)
+		// If no path is specified, `ni get` returns the full encoded json
+		data, _ := a.MarshalJSON()
+		ret = string(data)
 	}
 
 	return []byte(ret), nil

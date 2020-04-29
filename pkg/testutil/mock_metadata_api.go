@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
 	"github.com/stretchr/testify/require"
@@ -49,6 +50,9 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handler, rest := shiftPath(r.URL.Path)
 		switch handler {
+		case "spec":
+			// TODO with the envelope.NewJSONResultEnvelope
+			return
 		case "specs":
 			name, _ := shiftPath(rest)
 
@@ -56,6 +60,7 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 			if found {
 				// That is no mock...
 				spec, _ := json.Marshal(s.ResponseObject)
+				// This returns a Tree which is an interface{} we don't want that
 				tree, _ := parse.ParseJSONString(string(spec))
 
 				ev := evaluate.NewEvaluator(
@@ -65,13 +70,14 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 				var rv *evaluate.Result
 				var err error
 				ctx := context.Background()
-				if query := r.URL.Query().Get("q"); query != "" {
+				query := r.URL.Query().Get("q")
+				if query != "" {
 					rv, err = ev.EvaluateQuery(ctx, query)
 				} else {
 					rv, err = ev.EvaluateAll(ctx)
 				}
 				require.NoError(t, err)
-				err = json.NewEncoder(w).Encode(rv.Value)
+				err = json.NewEncoder(w).Encode(transfer.JSONInterface{Data: rv.Value})
 				require.NoError(t, err)
 
 				return
