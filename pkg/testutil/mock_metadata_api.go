@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
 	"github.com/stretchr/testify/require"
@@ -35,14 +34,12 @@ type MockSpec struct {
 type MockMetadataAPIOptions struct {
 	Secrets map[string]MockSecret
 	Outputs map[MockOutputKey]MockOutput
-	Specs   map[string]MockSpec
+	Spec    MockSpec
 }
 
 func SingleSpecMockMetadataAPIOptions(name string, spec MockSpec) MockMetadataAPIOptions {
 	return MockMetadataAPIOptions{
-		Specs: map[string]MockSpec{
-			name: spec,
-		},
+		Spec: spec,
 	}
 }
 
@@ -51,37 +48,32 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 		handler, rest := shiftPath(r.URL.Path)
 		switch handler {
 		case "spec":
-			// TODO with the envelope.NewJSONResultEnvelope
-			return
-		case "specs":
-			name, _ := shiftPath(rest)
+			// That is no mock...
+			spec, _ := json.Marshal(opts.Spec.ResponseObject)
+			// This returns a Tree which is an interface{} we don't want that
+			tree, _ := parse.ParseJSONString(string(spec))
 
-			s, found := opts.Specs[name]
-			if found {
-				// That is no mock...
-				spec, _ := json.Marshal(s.ResponseObject)
-				// This returns a Tree which is an interface{} we don't want that
-				tree, _ := parse.ParseJSONString(string(spec))
+			ev := evaluate.NewEvaluator(
+				evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
+			).ScopeTo(tree)
 
-				ev := evaluate.NewEvaluator(
-					evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
-				).ScopeTo(tree)
-
-				var rv *evaluate.Result
-				var err error
-				ctx := context.Background()
-				query := r.URL.Query().Get("q")
-				if query != "" {
-					rv, err = ev.EvaluateQuery(ctx, query)
-				} else {
-					rv, err = ev.EvaluateAll(ctx)
-				}
-				require.NoError(t, err)
-				err = json.NewEncoder(w).Encode(transfer.JSONInterface{Data: rv.Value})
-				require.NoError(t, err)
-
+			var rv *evaluate.Result
+			var err error
+			ctx := context.Background()
+			query := r.URL.Query().Get("q")
+			if query != "" {
+				rv, err = ev.EvaluateQuery(ctx, query)
+			} else {
+				rv, err = ev.EvaluateAll(ctx)
+			}
+			if err != nil {
+				w.WriteHeader(http.StatusUnprocessableEntity)
 				return
 			}
+			err = json.NewEncoder(w).Encode(evaluate.NewJSONResultEnvelope(rv))
+			require.NoError(t, err)
+
+			return
 		case "secrets":
 			name, _ := shiftPath(rest)
 

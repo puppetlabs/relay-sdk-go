@@ -1,12 +1,14 @@
 package task
 
 import (
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 )
 
 func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
@@ -32,25 +34,32 @@ func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errors.New("the spec was not found")
+	}
+	if resp.StatusCode == http.StatusInternalServerError {
+		return nil, errors.New("an unexpected server error was encountered when retrieving the spec")
+	}
+	if resp.StatusCode == http.StatusUnprocessableEntity {
+		// Spec evaluation failed
+		return nil, nil
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	if resp.StatusCode/100 != 2 {
-		return nil, nil
-	}
 
-	var ret string
-	a := transfer.JSONInterface{}
-	_ = a.UnmarshalJSON(body)
+	var output []byte
+
+	var result evaluate.JSONResultEnvelope
+	err = json.Unmarshal(body, &result)
 	if path != "" {
 		// If a path is specified, `ni get` returns the single value, not json
-		ret = fmt.Sprintf("%s", a.Data)
+		output = []byte(fmt.Sprintf("%s", result.Value.Data))
 	} else {
 		// If no path is specified, `ni get` returns the full encoded json
-		data, _ := a.MarshalJSON()
-		ret = string(data)
+		output, _ = result.Value.MarshalJSON()
 	}
 
-	return []byte(ret), nil
+	return output, nil
 }

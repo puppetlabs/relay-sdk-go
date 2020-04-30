@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/puppetlabs/nebula-sdk/pkg/task"
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/spf13/cobra"
@@ -29,7 +27,7 @@ func NewGitCloneCommand() *cobra.Command {
 			directory, _ := cmd.Flags().GetString("directory")
 			revision, _ := cmd.Flags().GetString("revision")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: os.Getenv(taskutil.SpecURLEnvName)}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
 			task := task.NewTaskInterface(planOpts)
 			return task.CloneRepository(revision, directory)
 		},

@@ -28,7 +28,7 @@ func TestClusterOutput(t *testing.T) {
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
 			Client:  ts.Client(),
-			SpecURL: fmt.Sprintf("%s/specs/test1", ts.URL),
+			SpecURL: fmt.Sprintf("%s/spec", ts.URL),
 		}
 
 		task := NewTaskInterface(opts)

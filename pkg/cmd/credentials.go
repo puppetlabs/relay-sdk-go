@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/puppetlabs/nebula-sdk/pkg/task"
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/spf13/cobra"
@@ -28,7 +26,7 @@ func NewCredentialsConfigCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directory, _ := cmd.Flags().GetString("directory")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: os.Getenv(taskutil.SpecURLEnvName)}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
 			task := task.NewTaskInterface(planOpts)
 			return task.ProcessCredentials(directory)
 		},

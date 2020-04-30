@@ -1,8 +1,6 @@
 package cmd
 
 import (
-	"os"
-
 	"github.com/puppetlabs/nebula-sdk/pkg/task"
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/spf13/cobra"
@@ -18,7 +16,7 @@ func NewFileCommand() *cobra.Command {
 			path, _ := cmd.Flags().GetString("path")
 			output, _ := cmd.Flags().GetString("output")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: os.Getenv(taskutil.SpecURLEnvName)}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
 			task := task.NewTaskInterface(planOpts)
 			return task.WriteFile(file, path, output)
 		},
