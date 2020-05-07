@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.0]
+
+* Change: ni get uses the new /api/spec endpoint instead of /api/specs/:id
+* Change: The API host is now looked up from the `$METADATA_API_URL`
+  environment variable instead of `$SPEC_URL`
+
 ## [1.11.0]
 
 * Add: Connection workflow spec
@@ -136,7 +142,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.11.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.0...HEAD
+[1.12.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.2...v1.10.0
 [1.9.2]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.1...v1.9.2
