@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.12.1]
+
 * Fix: Handle setting the metadata spec url correctly
 
 ## [1.12.0]
@@ -143,7 +146,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.9.2...v1.10.0
