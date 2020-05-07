@@ -10,12 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"path"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
 )
 
-const SpecURLEnvName = "SPEC_URL"
+const MetadataAPIURLEnvName = "METADATA_API_URL"
 
 // SpecLoader returns an io.Reader containing the bytes
 // of a task spec. This is used as input to a spec unmarshaler.
@@ -89,15 +90,25 @@ type DefaultPlanOptions struct {
 	SpecURL string
 }
 
+func MetadataSpecURL() string {
+	if u := os.Getenv(MetadataAPIURLEnvName); u != "" {
+		return path.Join(u, "spec")
+	}
+	return ""
+}
+
 func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) error {
 	eval, err := EvaluatorFromDefaultPlan(opts)
 	if err != nil {
 		return err
 	}
 
+	resultTarget := evaluate.Result{
+		Value: target,
+	}
 	// The existing behavior is to substitute empty strings where secrets,
 	// outputs, etc. are currently missing. We should revisit this.
-	_, err = eval.EvaluateInto(context.Background(), &target)
+	_, err = eval.EvaluateInto(context.Background(), &resultTarget)
 	if err != nil {
 		return err
 	}
@@ -109,26 +120,20 @@ func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluato
 	location := opts.SpecURL
 
 	if location == "" {
-		location := os.Getenv(SpecURLEnvName)
+		location = MetadataSpecURL()
 		if location == "" {
-			return nil, errors.New("SPEC_URL was empty")
+			return nil, errors.New(fmt.Sprintf("%s was empty", MetadataAPIURLEnvName))
 		}
 	}
 
 	u, err := url.Parse(location)
 	if err != nil {
-		return nil, fmt.Errorf("parsing SPEC_URL failed: %+v", err)
+		return nil, fmt.Errorf("parsing spec URL %s failed: %+v", location, err)
 	}
 
 	var loader SpecLoader
 
 	switch u.Scheme {
-	case "file":
-		if u.Host != "" {
-			return nil, errors.New("unable to read from remote host in file URL")
-		}
-
-		loader = NewLocalSpecLoader(u.Path)
 	case "http", "https":
 		loader = NewRemoteSpecLoader(u, opts.Client)
 	default:

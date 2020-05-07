@@ -35,7 +35,7 @@ func TestDefaultSpecPlan(t *testing.T) {
 
 		opts := DefaultPlanOptions{
 			Client:  ts.Client(),
-			SpecURL: fmt.Sprintf("%s/specs/test1", ts.URL),
+			SpecURL: fmt.Sprintf("%s/spec", ts.URL),
 		}
 
 		require.NoError(t, PopulateSpecFromDefaultPlan(&testSpec, opts))

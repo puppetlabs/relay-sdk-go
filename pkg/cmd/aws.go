@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -32,7 +31,7 @@ func NewAWSConfigCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directory, _ := cmd.Flags().GetString("directory")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: os.Getenv(taskutil.SpecURLEnvName)}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
 			task := task.NewTaskInterface(planOpts)
 			return task.ProcessAWS(directory)
 		},
