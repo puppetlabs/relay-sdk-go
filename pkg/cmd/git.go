@@ -27,7 +27,11 @@ func NewGitCloneCommand() *cobra.Command {
 			directory, _ := cmd.Flags().GetString("directory")
 			revision, _ := cmd.Flags().GetString("revision")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
+			u, err := taskutil.MetadataSpecURL()
+			if err != nil {
+				return err
+			}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: u}
 			task := task.NewTaskInterface(planOpts)
 			return task.CloneRepository(revision, directory)
 		},

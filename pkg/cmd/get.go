@@ -14,7 +14,11 @@ func NewGetCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			path, _ := cmd.Flags().GetString("path")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
+			u, err := taskutil.MetadataSpecURL()
+			if err != nil {
+				return err
+			}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: u}
 			task := task.NewTaskInterface(planOpts)
 			data, err := task.ReadData(path)
 

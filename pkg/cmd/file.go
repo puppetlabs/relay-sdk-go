@@ -16,7 +16,11 @@ func NewFileCommand() *cobra.Command {
 			path, _ := cmd.Flags().GetString("path")
 			output, _ := cmd.Flags().GetString("output")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
+			u, err := taskutil.MetadataSpecURL()
+			if err != nil {
+				return err
+			}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: u}
 			task := task.NewTaskInterface(planOpts)
 			return task.WriteFile(file, path, output)
 		},

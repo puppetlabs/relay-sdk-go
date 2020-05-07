@@ -31,7 +31,11 @@ func NewAWSConfigCommand() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directory, _ := cmd.Flags().GetString("directory")
 
-			planOpts := taskutil.DefaultPlanOptions{SpecURL: taskutil.MetadataSpecURL()}
+			u, err := taskutil.MetadataSpecURL()
+			if err != nil {
+				return err
+			}
+			planOpts := taskutil.DefaultPlanOptions{SpecURL: u}
 			task := task.NewTaskInterface(planOpts)
 			return task.ProcessAWS(directory)
 		},

@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"path"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
@@ -90,11 +89,16 @@ type DefaultPlanOptions struct {
 	SpecURL string
 }
 
-func MetadataSpecURL() string {
-	if u := os.Getenv(MetadataAPIURLEnvName); u != "" {
-		return path.Join(u, "spec")
+func MetadataSpecURL() (string, error) {
+	if e := os.Getenv(MetadataAPIURLEnvName); e != "" {
+		u, err := url.Parse(e)
+		if err != nil {
+			return "", fmt.Errorf("could not parse %s value as url: %s", MetadataAPIURLEnvName, e)
+		}
+		u = u.ResolveReference(&url.URL{Path: "spec"})
+		return u.String(), nil
 	}
-	return ""
+	return "", nil
 }
 
 func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) error {
@@ -118,9 +122,13 @@ func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) er
 
 func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluator, error) {
 	location := opts.SpecURL
+	var err error
 
 	if location == "" {
-		location = MetadataSpecURL()
+		location, err = MetadataSpecURL()
+		if err != nil {
+			return nil, err
+		}
 		if location == "" {
 			return nil, errors.New(fmt.Sprintf("%s was empty", MetadataAPIURLEnvName))
 		}

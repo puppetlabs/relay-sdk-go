@@ -3,6 +3,7 @@ package taskutil
 import (
 	"fmt"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
@@ -15,6 +16,8 @@ type TestSpec struct {
 	SomeNum   int
 	SomeValue string `spec:"someEncodedValue"`
 }
+
+var EnvProvider map[string]string
 
 func TestDefaultSpecPlan(t *testing.T) {
 	encodedValue, _ := transfer.EncodeJSON([]byte("Hello, \x90!"))
@@ -43,4 +46,24 @@ func TestDefaultSpecPlan(t *testing.T) {
 		require.Equal(t, 12, testSpec.SomeNum)
 		require.Equal(t, "Hello, \x90!", testSpec.SomeValue)
 	}, opts)
+}
+
+func TestValidMetadataURL(t *testing.T) {
+	os.Setenv(MetadataAPIURLEnvName, "http://10.20.30.40")
+	u, err := MetadataSpecURL()
+	require.NoError(t, err)
+	require.Equal(t, "http://10.20.30.40/spec", u)
+}
+
+func TestInvalidMetadataURL(t *testing.T) {
+	os.Setenv(MetadataAPIURLEnvName, " http://ip")
+	_, err := MetadataSpecURL()
+	require.Error(t, err)
+}
+
+func TestUnsetMetadataURL(t *testing.T) {
+	os.Unsetenv(MetadataAPIURLEnvName)
+	u, err := MetadataSpecURL()
+	require.NoError(t, err)
+	require.Equal(t, "", u)
 }
