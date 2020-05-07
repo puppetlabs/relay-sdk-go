@@ -44,6 +44,10 @@ func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
 		// Spec evaluation failed
 		return nil, nil
 	}
+	if resp.StatusCode/100 != 2 {
+		// This will be a non-200 code other than 404, 422, or 500
+		return nil, errors.New(fmt.Sprintf("an unexpected response %d was encountered when retrieving the spec", resp.StatusCode))
+	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err

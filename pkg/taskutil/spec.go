@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
+	"path"
 
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
@@ -92,7 +92,7 @@ type DefaultPlanOptions struct {
 
 func MetadataSpecURL() string {
 	if u := os.Getenv(MetadataAPIURLEnvName); u != "" {
-		return strings.Join([]string{strings.TrimSuffix(u, "/"), "spec"}, "/")
+		return path.Join(u, "spec")
 	}
 	return ""
 }
