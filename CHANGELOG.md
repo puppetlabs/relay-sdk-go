@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.2]
+
+* Fix: Provide information about connection unresolvables in expression JSON
+  result envelope.
+
 ## [1.12.1]
 
 * Fix: Handle setting the metadata spec url correctly
@@ -146,7 +151,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.1...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.2...HEAD
+[1.12.2]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.10.0...v1.11.0
