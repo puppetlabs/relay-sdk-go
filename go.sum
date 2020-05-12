@@ -132,8 +132,8 @@ github.com/puppetlabs/horsehead/v2 v2.7.0 h1:ue7bP92j8+ikdG4gg1ayx0BgrclLN5tmTMm
 github.com/puppetlabs/horsehead/v2 v2.7.0/go.mod h1:S2DMCdNIHfEBZmy463I8vpM3UUKuxau1JrMj6uIv1t8=
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b h1:L3KBXqsUZK0OsVAN6DQ99OzI18BvtP+uVtX0oTjCxhQ=
 github.com/puppetlabs/paesslerag-gval v1.0.2-0.20191119012647-d2c694821b5b/go.mod h1:+fTpFaf5D42b+LP12OkDl9tYbLdn36H+fvBauW4KIR4=
-github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641 h1:qGAe9FVzhkLON7icGlVWmvHFAAQQYJFczZRl7mlv00Y=
-github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20191119013138-25b86105f641/go.mod h1:fU2lLssuZDiOPlZS0sPObg4WPO1Cg1QSGJD3QTbjH7g=
+github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e h1:fWEPaND52rBrkqNIwEcNEdIE9Z42tPqrMaMdxM74QEM=
+github.com/puppetlabs/paesslerag-jsonpath v0.1.2-0.20200512062544-1e26d7ca225e/go.mod h1:fU2lLssuZDiOPlZS0sPObg4WPO1Cg1QSGJD3QTbjH7g=
 github.com/reflect/raymond v0.0.0-20190227215356-5fa3955f4a50/go.mod h1:Bmc/S4QVVTw9ZH5y5JLDKbgeykqJLnSiUqtQ9SaHjmQ=
 github.com/reflect/xparse v0.0.0-20171128034418-ab29bdc5e11c/go.mod h1:tqAg+37u8qXKZZ1QaXWnJ18evc8C6euGUAa4dQpC1gk=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
