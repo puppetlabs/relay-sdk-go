@@ -3,6 +3,7 @@ package evaluate_test
 import (
 	"context"
 	"fmt"
+	"reflect"
 	"sort"
 	"testing"
 
@@ -402,7 +403,7 @@ func TestEvaluate(t *testing.T) {
 				)),
 				evaluate.WithConnectionTypeResolver(resolve.NewMemoryConnectionTypeResolver(
 					map[resolve.MemoryConnectionKey]interface{}{
-						{Type: "blort", Name: "bar"}: map[string]string{"bar": "blort"},
+						{Type: "blort", Name: "bar"}: map[string]interface{}{"bar": "blort"},
 					},
 				)),
 			},
@@ -414,7 +415,7 @@ func TestEvaluate(t *testing.T) {
 				"e": "hello",
 				"f": "approved",
 				"g": "baz",
-				"h": map[string]string{"bar": "blort"},
+				"h": map[string]interface{}{"bar": "blort"},
 			},
 		},
 		{
@@ -751,6 +752,55 @@ func TestEvaluateQuery(t *testing.T) {
 				evaluate.WithLanguage(evaluate.LanguageJSONPath),
 			},
 			ExpectedValue: randomOrder{"aa", "bb"},
+		},
+		{
+			Name: "type resolver returns an unsupported type",
+			Data: `{
+				"a": {"$type": "Parameter", "name": "foo"}
+			}`,
+			Query: "a.inner",
+			Opts: []evaluate.Option{
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(map[string]interface{}{
+					"foo": map[string]string{"inner": "test"},
+				})),
+			},
+			ExpectedError: &evaluate.UnsupportedValueError{
+				Type: reflect.TypeOf(map[string]string(nil)),
+			},
+		},
+		{
+			Name: "type resolver returns an unsupported type in JSONPath",
+			Data: `{
+				"a": {"$type": "Parameter", "name": "foo"},
+				"b": {"$type": "Parameter", "name": "bar"}
+			}`,
+			Query: "$.a.inner",
+			Opts: []evaluate.Option{
+				evaluate.WithLanguage(evaluate.LanguageJSONPath),
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(map[string]interface{}{
+					"foo": map[string]string{"inner": "test"},
+					"bar": map[string]interface{}{"inner": "test"},
+				})),
+			},
+			ExpectedError: &evaluate.UnsupportedValueError{
+				Type: reflect.TypeOf(map[string]string(nil)),
+			},
+		},
+		{
+			Name: "type resolver returns an unsupported type in JSONPath template",
+			Data: `{
+				"a": {"$type": "Parameter", "name": "foo"}
+			}`,
+			Query: "{.a.inner}",
+			Opts: []evaluate.Option{
+				evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
+				evaluate.WithParameterTypeResolver(resolve.NewMemoryParameterTypeResolver(map[string]interface{}{
+					"foo": map[string]string{"inner": "test"},
+				})),
+			},
+			ExpectedError: &evaluate.UnsupportedValueError{
+				Type: reflect.TypeOf(map[string]string(nil)),
+			},
 		},
 	}.RunAll(t)
 }
