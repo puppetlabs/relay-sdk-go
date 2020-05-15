@@ -62,8 +62,8 @@ steps:
         $type: Secret
         name: credentials
     git:
-      name: nebula-workflow-examples
-      repository: https://github.com/puppetlabs/nebula-workflow-examples.git
+      name: relay-workflow-examples
+      repository: https://github.com/puppetlabs/relay-workflow-examples.git
 - name: deploy-to-gke
   dependsOn: provision-gke-with-terraform
   image: projectnebula/kubectl
@@ -86,8 +86,8 @@ steps:
         name: k8s_current_access_token
         taskName: provision-gke-with-terraform
     git:
-      name: nebula-workflow-examples
-      repository: https://github.com/puppetlabs/nebula-workflow-examples.git
+      name: relay-workflow-examples
+      repository: https://github.com/puppetlabs/relay-workflow-examples.git
 - name: slack-notify
   dependsOn:
     - deploy-to-gke
