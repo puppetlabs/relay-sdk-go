@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.4]
+
+* Change: Support common YAML scalar types in addition to JSON types in
+  expression evaluation.
+
 ## [1.12.3]
 
 * Fix: Correctly propagate incompatible type information from JSONPath
