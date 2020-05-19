@@ -1,5 +1,6 @@
 import datetime
 import json
+from typing import Any
 
 import pytest
 from nebula_sdk.util import JSONEncoder, json_object_hook
@@ -19,11 +20,11 @@ from nebula_sdk.util import JSONEncoder, json_object_hook
         ),
     ],
 )
-def test_json_encoding(test_input, expected):
+def test_json_encoding(test_input: Any, expected: Any) -> None:
     assert json.dumps(test_input, cls=JSONEncoder, sort_keys=True) == expected
 
 
-def test_json_decoding():
+def test_json_decoding() -> None:
     assert json.loads(
         r'{"$encoding": "base64", "data": "kA=="}',
         object_hook=json_object_hook,

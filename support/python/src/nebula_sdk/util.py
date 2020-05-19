@@ -2,12 +2,13 @@ import base64
 import datetime
 import functools
 import json
+from typing import Any, Callable, Mapping, Union
 
 
-def json_object_hook(dct):
+def json_object_hook(dct: Mapping[str, Any]) -> Any:
     if '$encoding' in dct:
         try:
-            decoder = {
+            decoder: Callable[[str], str] = {
                 'base64': base64.standard_b64decode,
                 '': lambda data: data,
             }[dct['$encoding']]
@@ -23,7 +24,7 @@ def json_object_hook(dct):
 class JSONEncoder(json.JSONEncoder):
 
     @functools.singledispatchmethod
-    def default(self, obj):
+    def default(self, obj: Any) -> Any:  # type: ignore[override]
         try:
             it = iter(obj)
         except TypeError:
@@ -34,11 +35,11 @@ class JSONEncoder(json.JSONEncoder):
         return super(JSONEncoder, self).default(obj)
 
     @default.register
-    def _(self, obj: datetime.datetime):
+    def _datetime(self, obj: datetime.datetime) -> str:
         return obj.isoformat()
 
     @default.register
-    def _(self, obj: bytes):
+    def _bytes(self, obj: bytes) -> Union[str, Mapping[str, Any]]:
         try:
             return obj.decode('utf-8')
         except UnicodeDecodeError:

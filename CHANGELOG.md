@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Add: Support emitting events in the Python SDK.
+
 ## [1.12.4]
 
 * Change: Support common YAML scalar types in addition to JSON types in
