@@ -68,7 +68,7 @@ class TestSignalTerminationPolicy:
         completion_event = asyncio.Event()
 
         async def run() -> None:
-            waiter = pol.apply()
+            waiter = await pol.attach()
             assert waiter is not None
             ready_event.set()
 
@@ -92,7 +92,7 @@ class TestSignalTerminationPolicy:
         ready_event = asyncio.Event()
 
         async def run() -> None:
-            waiter = pol.apply()
+            waiter = await pol.attach()
             assert waiter is not None
             ready_event.set()
 

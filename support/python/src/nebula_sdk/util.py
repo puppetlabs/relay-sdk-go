@@ -1,10 +1,14 @@
+from __future__ import annotations
+
 import asyncio
 import base64
+import concurrent.futures
 import datetime
 import functools
 import inspect
 import json
 import signal
+import weakref
 from typing import (Any, Awaitable, Callable, Iterable, Mapping, Optional,
                     Protocol, Union)
 
@@ -63,46 +67,66 @@ def is_async_callable(obj: Any) -> bool:
     )
 
 
+TerminationEvent = Callable[[], Awaitable[None]]
+
+
 class TerminationPolicy(Protocol):
 
-    def apply(self) -> Optional[Callable[..., Awaitable[None]]]: ...
+    async def attach(self) -> Optional[TerminationEvent]: ...
 
 
 class NoTerminationPolicy(TerminationPolicy):
 
-    def apply(self) -> Optional[Callable[..., Awaitable[None]]]:
+    async def attach(self) -> Optional[TerminationEvent]:
         return None
 
 
 class SoftTerminationPolicy(TerminationPolicy):
 
-    _event: asyncio.Event
+    _tasks: weakref.WeakKeyDictionary[asyncio.Task[Any], asyncio.Event]
     _timeout_sec: Optional[float]
 
     def __init__(self, *, timeout_sec: Optional[float] = None):
-        self._event = asyncio.Event()
+        self._tasks = weakref.WeakKeyDictionary()
         self._timeout_sec = timeout_sec
 
-    async def terminate(self) -> None:
-        self._event.set()
+    async def terminate_task(self, task: asyncio.Task[Any]) -> None:
+        event = self._tasks.get(task)
+        if event is not None:
+            event.set()
 
-        termination_task = asyncio.current_task()
-        other_tasks = asyncio.gather(*filter(
-            lambda t: t != termination_task,
-            asyncio.all_tasks(),
-        ), return_exceptions=True)
+        if task.done():
+            return
 
         if self._timeout_sec is not None:
             try:
-                await asyncio.wait_for(other_tasks, self._timeout_sec)
+                await asyncio.wait_for(task, self._timeout_sec)
             except asyncio.TimeoutError:
-                other_tasks.cancel()
+                task.cancel()
 
-        await other_tasks
+        await task
 
-    def apply(self) -> Optional[Callable[..., Awaitable[None]]]:
+    def terminate_all(self) -> None:
+        futs = [
+            asyncio.run_coroutine_threadsafe(
+                self.terminate_task(t),
+                t.get_loop(),
+            ) for t in self._tasks
+        ]
+        concurrent.futures.wait(futs)
+
+    async def attach(self) -> Optional[TerminationEvent]:
+        task = asyncio.current_task()
+        assert task is not None
+
+        try:
+            event = self._tasks[task]
+        except KeyError:
+            event = asyncio.Event()
+            self._tasks[task] = event
+
         async def wait() -> None:
-            await self._event.wait()
+            await event.wait()
 
         return wait
 
@@ -121,14 +145,13 @@ class SignalTerminationPolicy(TerminationPolicy):
         self._signals = signals
         self._delegate = SoftTerminationPolicy(timeout_sec=timeout_sec)
 
-    def apply(self) -> Optional[Callable[..., Awaitable[None]]]:
-        loop = asyncio.get_event_loop()
-        wait = self._delegate.apply()
+    async def attach(self) -> Optional[TerminationEvent]:
+        loop = asyncio.get_running_loop()
+        task = asyncio.current_task()
+        assert task is not None
 
+        term = self._delegate.terminate_task(task)
         for sig in self._signals:
-            loop.add_signal_handler(
-                sig,
-                lambda: loop.create_task(self._delegate.terminate()),
-            )
+            loop.add_signal_handler(sig, lambda: loop.create_task(term))
 
-        return wait
+        return await self._delegate.attach()

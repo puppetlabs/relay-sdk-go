@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Fix: Ensure `SignalTerminationPolicy` and `SoftTerminationPolicy` work with
+  the Python webhook server's `serve_forever` method.
+
 ## [1.13.0]
 
 * Add: Support emitting events in the Python SDK.

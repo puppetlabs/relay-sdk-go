@@ -55,7 +55,7 @@ class WebhookServer:
         return self._sockets.insecure_sockets[0].getsockname()[1]
 
     async def serve(self) -> None:
-        shutdown_trigger = self._termination_policy.apply()
+        shutdown_trigger = await self._termination_policy.attach()
 
         await worker_serve(self._app, self._config,
                            sockets=self._sockets,
