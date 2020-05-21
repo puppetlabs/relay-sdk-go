@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0]
+
 * Add: Support emitting events in the Python SDK.
 * Add: Provide a simple HTTP server preconfigured for our webhook environment
   that can run WSGI and ASGI applications.
@@ -165,7 +167,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.3...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.4...v1.13.0
+[1.12.4]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.3...v1.12.4
 [1.12.3]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.2...v1.12.3
 [1.12.2]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.1...v1.12.2
 [1.12.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.0...v1.12.1
