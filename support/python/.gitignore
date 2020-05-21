@@ -4,6 +4,7 @@ __pycache__
 .coverage
 MANIFEST
 /.eggs/
+/.mypy_cache/
 /.tox/
 /build/
 /dist/

@@ -1,10 +1,11 @@
 from nebula_sdk.client import new_session
 from nebula_sdk.outputs import Outputs
+from requests_mock import Adapter
 
 
-class TestOutputs(object):
+class TestOutputs:
 
-    def test_set(self, requests_mock):
+    def test_set(self, requests_mock: Adapter) -> None:
         requests_mock.register_uri(
             'PUT', 'http+api://api/outputs/foo',
             text='OK',
