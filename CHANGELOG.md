@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 * Add: Support emitting events in the Python SDK.
+* Add: Provide a simple HTTP server preconfigured for our webhook environment
+  that can run WSGI and ASGI applications.
 
 ## [1.12.4]
 
