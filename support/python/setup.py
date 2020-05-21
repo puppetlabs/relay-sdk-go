@@ -17,6 +17,8 @@ setuptools.setup(
         'setuptools_scm',
     ],
     install_requires=[
+        'asgiref>=3.2.7',
+        'hypercorn>=0.9.5',
         'requests>=2.23',
     ],
     classifiers=[
