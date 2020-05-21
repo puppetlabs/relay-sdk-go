@@ -1,9 +1,11 @@
 import os
-from typing import Container, Mapping, Optional, Text, Tuple, Union
+from typing import Mapping, Optional, Union
 from urllib.parse import urljoin, urlsplit, urlunsplit
 
 from requests import PreparedRequest, Response, Session
 from requests.adapters import HTTPAdapter
+
+from .typing import HTTPClientCertificate, HTTPTimeout
 
 
 class MetadataAPIAdapter(HTTPAdapter):
@@ -17,13 +19,9 @@ class MetadataAPIAdapter(HTTPAdapter):
         super(MetadataAPIAdapter, self).__init__()
 
     def send(self, request: PreparedRequest, stream: bool = False,
-             timeout: Optional[Union[
-                 float, Tuple[float, float], Tuple[float, None]]
-             ] = None,
+             timeout: Optional[HTTPTimeout] = None,
              verify: Union[bool, str] = True,
-             cert: Optional[Union[
-                 bytes, Text, Container[Union[bytes, Text]]]
-             ] = None,
+             cert: Optional[HTTPClientCertificate] = None,
              proxies: Optional[Mapping[str, str]] = None) -> Response:
         (_, _, path, query, fragment) = urlsplit(request.url or '')
         request.prepare_url(
