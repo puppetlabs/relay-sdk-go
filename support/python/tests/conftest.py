@@ -1,4 +1,5 @@
 import asyncio
+from concurrent import futures
 from typing import Any, Dict, Iterable
 
 import pytest
@@ -19,3 +20,9 @@ def event_loop() -> Iterable[asyncio.AbstractEventLoop]:
     loop.set_exception_handler(event_loop_exception_handler)
     yield loop
     loop.close()
+
+
+@pytest.fixture
+def thread_pool_executor() -> Iterable[futures.Executor]:
+    with futures.ThreadPoolExecutor() as pool:
+        yield pool
