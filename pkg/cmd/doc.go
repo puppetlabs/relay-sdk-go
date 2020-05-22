@@ -1,9 +1,8 @@
-// go:generate go run generate_docs.go
-
 package cmd
 
 import (
 	"bytes"
+	"io/ioutil"
 
 	"github.com/spf13/cobra"
 )
@@ -16,6 +15,8 @@ func NewDocCommand() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  genDocs,
 	}
+
+	cmd.Flags().StringP("file", "f", "", "The path to a file to write the documentation to")
 
 	return cmd
 }
@@ -51,7 +52,13 @@ func genDocs(cmd *cobra.Command, args []string) error {
 		buf.WriteString("### Global flags\n```\n")
 		buf.WriteString(flags.FlagUsages() + "\n```\n")
 	}
-	rootcmd.OutOrStdout().Write(buf.Bytes())
+
+	file, nil := cmd.Flags().GetString("file")
+	if file == "" {
+		cmd.OutOrStdout().Write(buf.Bytes())
+	} else if err := ioutil.WriteFile(file, buf.Bytes(), 0644); err != nil {
+		return err
+	}
 
 	return nil
 
