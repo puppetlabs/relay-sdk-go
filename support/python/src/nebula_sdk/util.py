@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import asyncio
 import base64
-import concurrent.futures
 import datetime
 import functools
 import inspect
@@ -90,7 +89,7 @@ class SoftTerminationPolicy(TerminationPolicy):
         self._tasks = weakref.WeakKeyDictionary()
         self._timeout_sec = timeout_sec
 
-    async def terminate_task(self, task: asyncio.Task[Any]) -> None:
+    async def _terminate_task(self, task: asyncio.Task[Any]) -> None:
         event = self._tasks.get(task)
         if event is not None:
             event.set()
@@ -99,21 +98,18 @@ class SoftTerminationPolicy(TerminationPolicy):
             return
 
         if self._timeout_sec is not None:
-            try:
-                await asyncio.wait_for(task, self._timeout_sec)
-            except asyncio.TimeoutError:
-                task.cancel()
+            loop = asyncio.get_running_loop()
+            loop.call_later(self._timeout_sec, task.cancel)
 
-        await task
+    def terminate_task(self, task: asyncio.Task[Any]) -> None:
+        asyncio.run_coroutine_threadsafe(
+            self._terminate_task(task),
+            task.get_loop(),
+        )
 
     def terminate_all(self) -> None:
-        futs = [
-            asyncio.run_coroutine_threadsafe(
-                self.terminate_task(t),
-                t.get_loop(),
-            ) for t in self._tasks
-        ]
-        concurrent.futures.wait(futs)
+        for task in self._tasks:
+            self.terminate_task(task)
 
     async def attach(self) -> Optional[TerminationEvent]:
         task = asyncio.current_task()
@@ -150,8 +146,9 @@ class SignalTerminationPolicy(TerminationPolicy):
         task = asyncio.current_task()
         assert task is not None
 
-        term = self._delegate.terminate_task(task)
-        for sig in self._signals:
-            loop.add_signal_handler(sig, lambda: loop.create_task(term))
+        event = self._delegate.attach()
 
-        return await self._delegate.attach()
+        for sig in self._signals:
+            loop.add_signal_handler(sig, self._delegate.terminate_task, task)
+
+        return await event

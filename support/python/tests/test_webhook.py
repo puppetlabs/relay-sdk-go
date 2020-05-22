@@ -1,5 +1,6 @@
 import asyncio
 import threading
+from concurrent import futures
 from typing import TYPE_CHECKING, Any, Callable, Dict, Iterable, Mapping, Union
 
 import pytest
@@ -44,7 +45,7 @@ class TestWebhookServer:
         assert resp.json() == {'success': True}
 
         # Stop the server.
-        await term.terminate_task(srv_task)
+        term.terminate_task(srv_task)
 
         # Wait for everything to clean up and exit.
         await asyncio.wait_for(asyncio.gather(*filter(
@@ -111,23 +112,57 @@ class TestWebhookServer:
 
         await self._test_app(event_loop, application)
 
-    def test_serve_forever(self) -> None:
+    def test_serve_forever(self,
+                           thread_pool_executor: futures.Executor) -> None:
+        """This test ensures that the serve_forever() method runs correctly
+        and will allow outstanding connections to clean up cleanly before
+        exiting.
+        """
+
+        req_ev, term_ev = threading.Event(), threading.Event()
+
+        # This application waits for a termination event on the main thread
+        # before it allows itself to complete the request.
         def application(environ: Mapping[str, Any],
                         start_response: 'StartResponse') -> Iterable[bytes]:
-            raise NotImplementedError()
+            start_response('200 OK', [])
+
+            req_ev.set()
+            term_ev.wait()
+
+            yield b'OK'
 
         term = SoftTerminationPolicy()
 
+        # Run the server ("forever") in another thread.
         srv = WebhookServer(application, termination_policy=term, port=0)
-        t = threading.Thread(target=srv.serve_forever)
-        t.daemon = True
-        t.start()
+        srv_t = thread_pool_executor.submit(srv.serve_forever)
 
-        # Issue a request to the server; discard response.
-        session.get(f'http://localhost:{srv.port}')
+        def request() -> None:
+            resp = session.get(f'http://localhost:{srv.port}')
+            resp.raise_for_status()
+
+            assert resp.text == 'OK'
+
+        # Open a request to the server in a new thread. The request will block
+        # until we send our termination signal.
+        req_t = thread_pool_executor.submit(request)
+
+        # Wait for us to reach the request handler. After this the request will
+        # be held open.
+        req_ev.wait(timeout=30)
 
         # Request termination of server.
         term.terminate_all()
 
-        t.join(timeout=30)
-        assert not t.is_alive()
+        # Wait for listener to close.
+        while srv.listening():
+            pass
+
+        # Allow the request to complete.
+        term_ev.set()
+
+        # Make sure everything gets cleaned up. This will propagate assertion
+        # errors from each thread.
+        srv_t.result(timeout=30)
+        req_t.result(timeout=30)
