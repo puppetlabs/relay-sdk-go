@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.1]
+
 * Fix: Ensure `SignalTerminationPolicy` and `SoftTerminationPolicy` work with
   the Python webhook server's `serve_forever` method.
 
@@ -170,7 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.1...HEAD
+[1.13.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.4...v1.13.0
 [1.12.4]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.3...v1.12.4
 [1.12.3]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.2...v1.12.3
