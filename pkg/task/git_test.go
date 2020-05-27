@@ -1,9 +1,13 @@
 package task
 
 import (
+	"fmt"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
+	"github.com/puppetlabs/nebula-sdk/pkg/model"
+	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -33,6 +37,65 @@ func TestGitOutput(t *testing.T) {
 		// err := task.CloneRepository("master", "output")
 		// require.Nil(t, err, "err is not nil")
 	}, opts)
+}
+
+func TestGitSSHKeyBackwardCompatibility(t *testing.T) {
+	tests := []struct {
+		Spec           map[string]interface{}
+		ExpectedSSHKey string
+		ExpectedError  bool
+	}{
+		{
+			Spec: map[string]interface{}{
+				"ssh_key": "VEVTVCBLRVk=",
+			},
+			ExpectedSSHKey: "TEST KEY",
+		},
+		{
+			Spec: map[string]interface{}{},
+		},
+		{
+			Spec: map[string]interface{}{
+				"ssh_key": "invalid",
+			},
+			ExpectedError: true,
+		},
+		{
+			Spec: map[string]interface{}{
+				"connection": map[string]interface{}{
+					"sshKey": "TEST KEY",
+				},
+			},
+			ExpectedSSHKey: "TEST KEY",
+		},
+	}
+	for i, test := range tests {
+		t.Run(strconv.Itoa(i), func(t *testing.T) {
+			opts := testutil.SingleSpecMockMetadataAPIOptions(t.Name(), testutil.MockSpec{
+				ResponseObject: test.Spec,
+			})
+
+			testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
+				opts := taskutil.DefaultPlanOptions{
+					Client:  ts.Client(),
+					SpecURL: fmt.Sprintf("%s/spec", ts.URL),
+				}
+
+				var spec model.GitDetails
+				require.NoError(t, taskutil.PopulateSpecFromDefaultPlan(&spec, opts))
+
+				key, found, err := spec.ConfiguredSSHKey()
+				if test.ExpectedError {
+					require.Error(t, err)
+				} else if test.ExpectedSSHKey != "" {
+					require.True(t, found)
+					require.Equal(t, test.ExpectedSSHKey, key)
+				} else {
+					require.False(t, found)
+				}
+			}, opts)
+		})
+	}
 }
 
 func TestGitURLMatching(t *testing.T) {
