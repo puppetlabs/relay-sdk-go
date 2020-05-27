@@ -39,11 +39,8 @@ func (ti *TaskInterface) CloneRepository(revision string, directory string) erro
 		directory = DefaultPath
 	}
 
-	if resource.SSHKey != "" {
-		err := writeSSHConfig(resource)
-		if err != nil {
-			return err
-		}
+	if err := writeSSHConfig(resource); err != nil {
+		return err
 	}
 
 	err := taskutil.Fetch(resource.Branch, filepath.Join(directory, resource.Name), resource.Repository)
@@ -64,6 +61,11 @@ func gitURLComponents(url string) ([]string, error) {
 }
 
 func writeSSHConfig(resource *model.GitDetails) error {
+	sshKey, found, err := resource.ConfiguredSSHKey()
+	if err != nil || !found {
+		return err
+	}
+
 	gitConfig := taskutil.SSHConfig{}
 
 	matches, err := gitURLComponents(resource.Repository)
@@ -76,11 +78,6 @@ func writeSSHConfig(resource *model.GitDetails) error {
 	gitConfig.Order = make([]string, 0)
 	gitConfig.Order = append(gitConfig.Order, host)
 	gitConfig.Entries = make(map[string]taskutil.SSHEntry, 0)
-
-	sshKey, err := base64.StdEncoding.DecodeString(resource.SSHKey)
-	if err != nil {
-		return err
-	}
 
 	knownHosts, err := base64.StdEncoding.DecodeString(resource.KnownHosts)
 	if err != nil {
@@ -96,7 +93,7 @@ func writeSSHConfig(resource *model.GitDetails) error {
 
 	gitConfig.Entries[host] = taskutil.SSHEntry{
 		Name:       resource.Name,
-		PrivateKey: string(sshKey),
+		PrivateKey: sshKey,
 		KnownHosts: string(knownHosts),
 	}
 
