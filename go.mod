@@ -14,6 +14,7 @@ require (
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b // indirect
 	github.com/golang/protobuf v1.3.2 // indirect
+	github.com/gomarkdown/markdown v0.0.0-20200513213024-62c5e2c608cc
 	github.com/google/go-cmp v0.3.1 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/jedib0t/go-pretty v4.3.0+incompatible

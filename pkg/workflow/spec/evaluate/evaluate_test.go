@@ -502,6 +502,20 @@ func TestEvaluate(t *testing.T) {
 			},
 		},
 		{
+			Name: "successful invocation of fn.convertMarkdown to Jira syntax",
+			Data: `{
+				"foo": {
+					"$fn.convertMarkdown": [
+						"jira",` +
+				"\"--- `code` ---\"" + `
+					]
+				}
+			}`,
+			ExpectedValue: map[string]interface{}{
+				"foo": "\n----\n{code}code{code}\n----\n",
+			},
+		},
+		{
 			Name: "unresolved conditionals evaluation",
 			Data: `{
 				"conditions": [{"$fn.equals": [
