@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.14.1]
+
+* Add: Initial support for markdown conversion.
+
 ## [1.14.0]
 
 * Add: Support SSH private key connections in the Git helper.
@@ -176,7 +180,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.14.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/nebula-sdk/compare/v1.14.1...HEAD
+[1.14.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.14.0...v1.14.1
 [1.14.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.1...v1.14.0
 [1.13.1]: https://github.com/puppetlabs/nebula-sdk/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/puppetlabs/nebula-sdk/compare/v1.12.4...v1.13.0
