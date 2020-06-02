@@ -21,7 +21,7 @@ const (
 func ConvertMarkdown(ct ConvertType, md []byte) ([]byte, error) {
 	doc := markdown.Parse(md, nil)
 
-	renderer, err := NewRenderer(ct)
+	renderer, err := NewMarkdownRenderer(ct)
 	if err != nil {
 		return nil, err
 	}
@@ -29,7 +29,7 @@ func ConvertMarkdown(ct ConvertType, md []byte) ([]byte, error) {
 	return markdown.Render(doc, renderer), nil
 }
 
-func NewRenderer(ct ConvertType) (markdown.Renderer, error) {
+func NewMarkdownRenderer(ct ConvertType) (markdown.Renderer, error) {
 	switch ct {
 	case ConvertTypeHtml:
 		opts := html.RendererOptions{
