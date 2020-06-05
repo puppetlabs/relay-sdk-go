@@ -31,7 +31,7 @@ def json_object_hook(dct: Mapping[str, Any]) -> Any:
 class JSONEncoder(json.JSONEncoder):
 
     @functools.singledispatchmethod
-    def default(self, obj: Any) -> Any:  # type: ignore[override]
+    def default(self, obj: Any) -> Any:
         try:
             it = iter(obj)
         except TypeError:
