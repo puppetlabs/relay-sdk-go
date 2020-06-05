@@ -222,8 +222,7 @@
         }
       },
       "required": [
-        "type",
-        "schema"
+        "type"
       ]
     },
     "WebhookTriggerSource": {
