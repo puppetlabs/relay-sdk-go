@@ -7,9 +7,6 @@ triggers:
 - name: webhook
   source:
     type: webhook
-- name: push
-  source:
-    type: push
 
 steps:
 - name: execute

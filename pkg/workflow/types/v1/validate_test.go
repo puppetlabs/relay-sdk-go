@@ -79,12 +79,6 @@ func TestFixtureValidationForTriggers(t *testing.T) {
 						Description: "image is required",
 						Type:        "required",
 					},
-					{
-						Context:     "(root).triggers.2.source",
-						Field:       "triggers.2.source",
-						Description: "schema is required",
-						Type:        "required",
-					},
 				},
 			},
 		},
@@ -94,33 +88,21 @@ func TestFixtureValidationForTriggers(t *testing.T) {
 			ExpectedError: &typeutil.ValidationError{
 				FieldErrors: []*typeutil.FieldValidationError{
 					{
-						Context:     "(root).triggers.0.source",
-						Field:       "triggers.0.source",
-						Description: "image is required",
-						Type:        "required",
-					},
-					{
 						Context:     "(root).triggers.0.source.type",
 						Field:       "triggers.0.source.type",
-						Description: "triggers.0.source.type does not match: \"webhook\"",
+						Description: "triggers.0.source.type does not match: \"schedule\"",
 						Type:        "const",
 					},
 					{
 						Context:     "(root).triggers.1.source.type",
 						Field:       "triggers.1.source.type",
-						Description: "triggers.1.source.type does not match: \"schedule\"",
+						Description: "triggers.1.source.type does not match: \"push\"",
 						Type:        "const",
 					},
 					{
 						Context:     "(root).triggers.2.source.type",
 						Field:       "triggers.2.source.type",
-						Description: "triggers.2.source.type does not match: \"push\"",
-						Type:        "const",
-					},
-					{
-						Context:     "(root).triggers.3.source.type",
-						Field:       "triggers.3.source.type",
-						Description: "triggers.3.source.type does not match: \"webhook\"",
+						Description: "triggers.2.source.type does not match: \"webhook\"",
 						Type:        "const",
 					},
 				},
