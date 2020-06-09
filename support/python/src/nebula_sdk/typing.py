@@ -1,3 +1,4 @@
+"""Local data types"""
 from typing import Container, Text, Tuple, Union
 
 HTTPTimeout = Union[float, Tuple[float, float], Tuple[float, None]]

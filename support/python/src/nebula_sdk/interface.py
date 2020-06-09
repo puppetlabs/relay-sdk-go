@@ -1,3 +1,4 @@
+"The main class for a client to connect to the Relay service API"
 from __future__ import annotations
 
 import json
@@ -41,11 +42,23 @@ class Dynamic(metaclass=DynamicMetaclass):
 
 
 class Interface:
+    """An Interface object connects client code to the metadata service."""
 
     def __init__(self, api_url: Optional[str] = None):
         self._client = new_session(api_url=api_url)
 
     def get(self, q: Optional[Union[Dynamic, str]] = None) -> Any:
+        """Retrieve values from the metadata service
+
+        Args:
+            q: A particular parameter to query the value of.
+
+        Returns:
+            The value of the queried parameter as a string.
+            If no query was provided, all available parameters will be 
+            returned in a json map
+        """
+
         params = {}
         if q is not None:
             params['q'] = str(q)
@@ -61,8 +74,10 @@ class Interface:
 
     @property
     def events(self) -> Events:
+        """Accessor for Events methods"""
         return Events(self._client)
 
     @property
     def outputs(self) -> Outputs:
+        """Accessor for Outputs methods"""
         return Outputs(self._client)

@@ -1,3 +1,4 @@
+"""A helper class for building Trigger webhooks for Relay"""
 from __future__ import annotations
 
 import asyncio
@@ -23,6 +24,16 @@ class PortParseError(Exception):
 
 
 class WebhookServer:
+    """Instantiate a WebhookServer class to handle incoming webhook payloads
+    
+    Trigger webhook handlers should expect POST requests to the top level ('/')
+
+    They should use the serve_forever() startup method, because Relay 
+    will manage the lifecycle of the trigger container.
+
+    They should not expect any state to be preserved between requests,
+    nor rely on any persistence on the local container filesystem.
+    """
 
     _app: ASGIFramework
     _config: Config

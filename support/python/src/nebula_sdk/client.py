@@ -1,3 +1,4 @@
+"""Internal class for client sessions to interact with the Relay metadata service"""
 import os
 from typing import Mapping, Optional, Union
 from urllib.parse import urljoin, urlsplit, urlunsplit
@@ -24,6 +25,7 @@ class MetadataAPIAdapter(HTTPAdapter):
              cert: Optional[HTTPClientCertificate] = None,
              proxies: Optional[Mapping[str, str]] = None) -> Response:
         (_, _, path, query, fragment) = urlsplit(request.url or '')
+        """Sends a prepared http request to the metadata API server"""
         request.prepare_url(
             urljoin(
                 self._base_url,
@@ -43,6 +45,14 @@ class MetadataAPIAdapter(HTTPAdapter):
 
 
 def new_session(api_url: Optional[str] = None) -> Session:
+    """Create a new client session to the metadata API.
+
+    Args:
+        api_url: host and port to communicate with the api server (optional)
+
+    Returns:
+        a Session object connected to the api server
+    """
     sess = Session()
     sess.mount('http+api://', MetadataAPIAdapter(base_url=api_url))
     return sess
