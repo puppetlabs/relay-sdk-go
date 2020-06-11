@@ -10,8 +10,8 @@ setuptools.setup(
     author_email='project-nebula-support@puppet.com',
     description='SDK for interacting with Project Nebula',
     url='https://github.com/puppetlabs/nebula-sdk',
-    packages=setuptools.find_packages('nebula_sdk'),
-    package_dir={'': 'nebula_sdk'},
+    packages=setuptools.find_packages('src'),
+    package_dir={'': 'src'},
     python_requires='>=3.8',
     setup_requires=[
         'setuptools_scm',

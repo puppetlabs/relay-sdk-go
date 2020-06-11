@@ -9,7 +9,8 @@ from .util import JSONEncoder
 
 
 class Outputs:
-    "Use Outputs to write keys to the metadata service that later steps can retrieve"
+    """Use Outputs to write keys to the metadata service
+        that later steps can retrieve"""
     def __init__(self, client: Session) -> None:
         self._client = client
 

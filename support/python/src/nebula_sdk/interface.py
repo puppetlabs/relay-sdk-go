@@ -55,7 +55,7 @@ class Interface:
 
         Returns:
             The value of the queried parameter as a string.
-            If no query was provided, all available parameters will be 
+            If no query was provided, all available parameters will be
             returned in a json map
         """
 

@@ -1,4 +1,4 @@
-"""Internal class for client sessions to interact with the Relay metadata service"""
+"""Internal class for clients to interact with the metadata service"""
 import os
 from typing import Mapping, Optional, Union
 from urllib.parse import urljoin, urlsplit, urlunsplit

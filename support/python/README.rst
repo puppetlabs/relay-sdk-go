@@ -32,33 +32,43 @@ metadata service. Each container that runs in Relay has access to this service,
 which allows the container to read and write key-value data, emit events, and
 generate logs.
 
-Interface
----------
+Accessing Data from the step spec
+---------------------------------
 
-The `Interface class <./reference.html#module-nebula_sdk.interface>`_ is the primary way to interact with the SDK.
-Import it and instantiate an object, then call methods on that object to access metadata.
-Use the ``Dynamic`` class for getting data like connection credentials, 
-workflow-specific parameters, and secrets.
+The `Interface class <./reference.html#module-nebula_sdk.interface>`_ is the primary way to interact with the service.
+Import it and instantiate an object, then call methods on that object to access metadata,
+which comes from the ``spec`` section of the step and global Connection information.
+The ``Dynamic`` class provides syntactic sugar for getting data like connection credentials, 
+workflow-specific parameters, and secrets. It represents nested data structures as dot-separated
+method accessors.
 
 .. code-block:: python
 
   from nebula_sdk import Interface, Dynamic as D
 
   relay = Interface()
-  param = relay.get(D.worflowparam)
+  azuresecret = relay.get(D.azure.connection.secret) # using Dynamic
+  azureclient = relay.get('azure["connection"]["clientID"]') # same as above
   secret = relay.get(D.mysecret)
   relay.outputs.set("outputkey","This will be the value of outputkey")
 
-Webhooks
---------
+Webhook Triggers
+----------------
 
-The `Webhook class <./reference.html#module-nebula_sdk.webhook>`_ provides a
+The `WebhookServer class <./reference.html#module-nebula_sdk.webhook>`_ provides a
 helper that sets up a webserver to handle incoming requests for Trigger actions. 
 
-This example, from the `Dockerhub integration <https://github.com/relay-integrations/relay-dockerhub/>`_, makes use of
+This example, from the `Docker Hub integration <https://github.com/relay-integrations/relay-dockerhub/>`_, makes use of
 the Interface class to access the ``events.emit`` method, which will cause
 the workflow associated with this trigger to be run with the inline mapping
 of workflow parameters to values extracted from the webhook payload.
+
+The WebhookServer class can run any WSGI_ or ASGI_ application passed to it. The
+integrations the Relay team develops internally use the Quart_ web app framework.
+
+.. _WSGI: https://www.python.org/dev/peps/pep-3333/
+.. _ASGI: https://asgi.readthedocs.io/en/latest/specs/main.html
+.. _Quart: https://pgjones.gitlab.io/quart/index.html
 
 .. code-block:: python
 
