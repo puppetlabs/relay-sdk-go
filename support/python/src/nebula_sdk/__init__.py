@@ -1,3 +1,4 @@
+"""A SDK for interacting with the relay.sh infrastructure services"""
 from .interface import Dynamic, Interface, UnresolvableException
 from .util import (NoTerminationPolicy, SignalTerminationPolicy,
                    SoftTerminationPolicy, TerminationPolicy)
