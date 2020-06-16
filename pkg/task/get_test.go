@@ -1,7 +1,7 @@
 package task
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
 	"net/http/httptest"
 	"strconv"
@@ -10,37 +10,38 @@ import (
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
 	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
 	"github.com/stretchr/testify/require"
 )
 
-type TestGetSpec struct {
-	Name    string   `json:"name"`
-	SomeNum int      `json:"someNum"`
-	Data    []string `json:"data"`
+func mustTransferEncodeJSON(t *testing.T, data []byte) transfer.JSONOrStr {
+	j, err := transfer.EncodeJSON(data)
+	require.NoError(t, err)
+
+	return j
 }
 
 func TestGetOutput(t *testing.T) {
-	testSpec := &TestGetSpec{
-		Name:    "test1",
-		SomeNum: 12,
-		Data:    []string{"something", "else", "Hello, \x90!"},
+	testSpec := map[string]interface{}{
+		"name":    "test1",
+		"someNum": float64(12),
+		"data":    []interface{}{"something", "else", "Hello, \x90!"},
 	}
 
-	es := func(v ...string) (r []transfer.JSONOrStr) {
-		for i := range v {
-			a, _ := transfer.EncodeJSON([]byte(v[i]))
-			r = append(r, a)
-		}
-		return
-	}
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: map[string]interface{}{
-			"name":    "test1",
-			"someNum": 12,
-			"data":    es("something", "else", "Hello, \x90!"),
+	testSpecData, err := json.Marshal(transfer.JSONInterface{Data: testSpec})
+	require.NoError(t, err)
+
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": transfer.JSONInterface{Data: testSpec},
 		},
-	})
+		SpecQueryResponses: map[string]interface{}{
+			"{.name}":    map[string]interface{}{"value": testSpec["name"]},
+			"{.someNum}": map[string]interface{}{"value": testSpec["someNum"]},
+			"{.data[0]}": map[string]interface{}{"value": mustTransferEncodeJSON(t, []byte(testSpec["data"].([]interface{})[0].(string)))},
+			"{.data[1]}": map[string]interface{}{"value": mustTransferEncodeJSON(t, []byte(testSpec["data"].([]interface{})[1].(string)))},
+			"{.data[2]}": map[string]interface{}{"value": mustTransferEncodeJSON(t, []byte(testSpec["data"].([]interface{})[2].(string)))},
+		},
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
@@ -50,35 +51,45 @@ func TestGetOutput(t *testing.T) {
 
 		task := NewTaskInterface(opts)
 
-		output, _ := task.ReadData("{.name}")
-		require.Equal(t, testSpec.Name, string(output))
-
-		output, _ = task.ReadData("{.someNum}")
-		require.Equal(t, strconv.Itoa(testSpec.SomeNum), string(output))
-
-		output, _ = task.ReadData("{.data[0]}")
-		require.Equal(t, testSpec.Data[0], string(output))
-
-		output, _ = task.ReadData("{.data[1]}")
-		require.Equal(t, testSpec.Data[1], string(output))
-
-		output, _ = task.ReadData("{.data[2]}")
-		require.Equal(t, testSpec.Data[2], string(output))
-
-		output, err := task.ReadData("{.nothing}")
-		require.NoError(t, err)
-		require.Equal(t, "", string(output))
-
-		// Test the full spec
-		output, _ = task.ReadData("")
-		var outputSpec TestGetSpec
-		a := transfer.JSONInterface{}
-		err = a.UnmarshalJSON(output)
-		require.NoError(t, err)
-		e := evaluate.NewEvaluator()
-		_, err = e.EvaluateInto(context.Background(), a.Data, &outputSpec)
-		require.NoError(t, err)
-		require.Equal(t, testSpec.Data[2], outputSpec.Data[2])
-
+		tests := []struct {
+			Path     string
+			Expected string
+		}{
+			{
+				Path:     "{.name}",
+				Expected: testSpec["name"].(string),
+			},
+			{
+				Path:     "{.someNum}",
+				Expected: strconv.Itoa(int(testSpec["someNum"].(float64))),
+			},
+			{
+				Path:     "{.data[0]}",
+				Expected: testSpec["data"].([]interface{})[0].(string),
+			},
+			{
+				Path:     "{.data[1]}",
+				Expected: testSpec["data"].([]interface{})[1].(string),
+			},
+			{
+				Path:     "{.data[2]}",
+				Expected: testSpec["data"].([]interface{})[2].(string),
+			},
+			{
+				Path:     "{.nothing}",
+				Expected: "",
+			},
+			{
+				Path:     "",
+				Expected: string(testSpecData),
+			},
+		}
+		for _, test := range tests {
+			t.Run(test.Path, func(t *testing.T) {
+				output, err := task.ReadData(test.Path)
+				require.NoError(t, err)
+				require.Equal(t, test.Expected, string(output))
+			})
+		}
 	}, opts)
 }

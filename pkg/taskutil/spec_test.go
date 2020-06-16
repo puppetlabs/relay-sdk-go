@@ -25,13 +25,15 @@ func TestDefaultSpecPlan(t *testing.T) {
 	// Make sure that this will actually get encoded.
 	require.NotEqual(t, transfer.NoEncodingType, encodedValue.JSON.EncodingType)
 
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: map[string]interface{}{
-			"name":             "test1",
-			"someNum":          12,
-			"someEncodedValue": encodedValue,
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": map[string]interface{}{
+				"name":             "test1",
+				"someNum":          12,
+				"someEncodedValue": encodedValue,
+			},
 		},
-	})
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		testSpec := TestSpec{}

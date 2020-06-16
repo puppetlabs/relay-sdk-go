@@ -21,11 +21,13 @@ func TestCredentialOutput(t *testing.T) {
 	credentialSpec["ca.pem"] = data
 	credentialSpec["key.pem"] = data
 
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: map[string]interface{}{
-			"credentials": credentialSpec,
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": map[string]interface{}{
+				"credentials": credentialSpec,
+			},
 		},
-	})
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{

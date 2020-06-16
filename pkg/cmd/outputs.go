@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -19,7 +18,6 @@ func NewOutputCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(NewSetOutputCommand())
-	cmd.AddCommand(NewGetOutputCommand())
 
 	return cmd
 }
@@ -75,58 +73,6 @@ func NewSetOutputCommand() *cobra.Command {
 	cmd.Flags().StringP("key", "k", "", "the output key")
 	cmd.Flags().StringP("value", "v", "", "the output value")
 	cmd.Flags().Bool("json", false, "whether the value should be interpreted as a JSON string")
-
-	return cmd
-}
-
-func NewGetOutputCommand() *cobra.Command {
-	cmd := &cobra.Command{
-		Use:                   "get",
-		Short:                 "Get a value that a previous task stored",
-		DisableFlagsInUseLine: true,
-		RunE: func(cmd *cobra.Command, args []string) error {
-			client, err := outputsclient.NewDefaultOutputsClientFromNebulaEnv()
-			if err != nil {
-				return err
-			}
-
-			taskName, err := cmd.Flags().GetString("task-name")
-			if err != nil {
-				return err
-			}
-
-			key, err := cmd.Flags().GetString("key")
-			if err != nil {
-				return err
-			}
-
-			asJSON, err := cmd.Flags().GetBool("json")
-			if err != nil {
-				return err
-			}
-
-			value, err := client.GetOutput(context.Background(), taskName, key)
-			if err != nil {
-				return err
-			}
-
-			if valueString, ok := value.(string); !ok || asJSON {
-				return json.NewEncoder(cmd.OutOrStdout()).Encode(transfer.JSONInterface{Data: value})
-			} else {
-				buf := bytes.NewBufferString(valueString)
-
-				if _, err := buf.WriteTo(cmd.OutOrStdout()); err != nil {
-					return err
-				}
-			}
-
-			return nil
-		},
-	}
-
-	cmd.Flags().StringP("task-name", "n", "", "the name of the task")
-	cmd.Flags().StringP("key", "k", "", "the output key")
-	cmd.Flags().Bool("json", false, "whether to always provide the output as JSON, even if it is a string")
 
 	return cmd
 }

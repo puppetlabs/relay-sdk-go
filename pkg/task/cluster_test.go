@@ -14,16 +14,18 @@ import (
 func TestClusterOutput(t *testing.T) {
 	data := base64.StdEncoding.EncodeToString([]byte("cadata"))
 
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: map[string]interface{}{
-			"cluster": map[string]interface{}{
-				"name":   "test1",
-				"token":  "tokendata",
-				"cadata": data,
-				"url":    "url",
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": map[string]interface{}{
+				"cluster": map[string]interface{}{
+					"name":   "test1",
+					"token":  "tokendata",
+					"cadata": data,
+					"url":    "url",
+				},
 			},
 		},
-	})
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{

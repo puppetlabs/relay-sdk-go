@@ -33,9 +33,11 @@ func TestGetFileOutput(t *testing.T) {
 		},
 	}
 
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: testSpec,
-	})
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": testSpec,
+		},
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{

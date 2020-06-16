@@ -8,13 +8,7 @@ GO_DIST_PROGRAMS=( $( nebula::sdk::default_programs ) )
 
 for PROGRAM in "${GO_DIST_PROGRAMS[@]}"; do
   for OS_ARCH in "${GO_DIST_OS_ARCHES[@]}"; do
-    echo "# dist (go): ${PROGRAM} ${OS_ARCH}"
+    echo "# dist: ${PROGRAM} ${OS_ARCH}"
     GOOS="${OS_ARCH%-*}" GOARCH="${OS_ARCH##*-}" scripts/dist "${PROGRAM}"
   done
 done
-
-echo "# dist (python)"
-(
-  pushd support/python >/dev/null
-  scripts/dist
-)

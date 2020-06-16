@@ -15,16 +15,18 @@ import (
 func TestGitOutput(t *testing.T) {
 	t.Skip("Functional testing harness. Needs to be completed.")
 
-	opts := testutil.SingleSpecMockMetadataAPIOptions("test1", testutil.MockSpec{
-		ResponseObject: map[string]interface{}{
-			"git": map[string]interface{}{
-				"ssh_key":     "<ssh_key>",
-				"known_hosts": "<known_hosts>",
-				"name":        "<name>",
-				"repository":  "<repository>",
+	opts := testutil.MockMetadataAPIOptions{
+		SpecResponse: map[string]interface{}{
+			"value": map[string]interface{}{
+				"git": map[string]interface{}{
+					"ssh_key":     "<ssh_key>",
+					"known_hosts": "<known_hosts>",
+					"name":        "<name>",
+					"repository":  "<repository>",
+				},
 			},
 		},
-	})
+	}
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		// opts := taskutil.DefaultPlanOptions{
@@ -71,9 +73,11 @@ func TestGitSSHKeyBackwardCompatibility(t *testing.T) {
 	}
 	for i, test := range tests {
 		t.Run(strconv.Itoa(i), func(t *testing.T) {
-			opts := testutil.SingleSpecMockMetadataAPIOptions(t.Name(), testutil.MockSpec{
-				ResponseObject: test.Spec,
-			})
+			opts := testutil.MockMetadataAPIOptions{
+				SpecResponse: map[string]interface{}{
+					"value": test.Spec,
+				},
+			}
 
 			testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 				opts := taskutil.DefaultPlanOptions{

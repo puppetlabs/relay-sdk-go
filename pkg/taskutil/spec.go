@@ -2,7 +2,7 @@ package taskutil
 
 import (
 	"bytes"
-	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -10,9 +10,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"time"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
+	"github.com/mitchellh/mapstructure"
+	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 )
 
 const MetadataAPIURLEnvName = "METADATA_API_URL"
@@ -41,7 +42,15 @@ func (r RemoteSpecLoader) LoadSpec() (io.Reader, error) {
 		return nil, fmt.Errorf("network request failed: %+v", err)
 	}
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode == http.StatusNotFound {
+		return nil, errors.New("the spec was not found")
+	} else if resp.StatusCode == http.StatusInternalServerError {
+		return nil, errors.New("an unexpected server error was encountered when retrieving the spec")
+	} else if resp.StatusCode == http.StatusUnprocessableEntity {
+		// Spec evaluation failed
+		// TODO: Is this the correct behavior?
+		return nil, nil
+	} else if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
@@ -85,8 +94,9 @@ type SpecDecoder interface {
 }
 
 type DefaultPlanOptions struct {
-	Client  *http.Client
-	SpecURL string
+	Client   *http.Client
+	SpecURL  string
+	SpecPath string
 }
 
 func MetadataSpecURL() (string, error) {
@@ -102,25 +112,25 @@ func MetadataSpecURL() (string, error) {
 }
 
 func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) error {
-	eval, err := EvaluatorFromDefaultPlan(opts)
+	tree, err := TreeFromDefaultPlan(opts)
 	if err != nil {
 		return err
 	}
 
-	resultTarget := evaluate.Result{
-		Value: target,
-	}
-	// The existing behavior is to substitute empty strings where secrets,
-	// outputs, etc. are currently missing. We should revisit this.
-	_, err = eval.EvaluateInto(context.Background(), &resultTarget)
-	if err != nil {
-		return err
-	}
+	d, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		DecodeHook: mapstructure.ComposeDecodeHookFunc(
+			mapstructure.StringToTimeDurationHookFunc(),
+			mapstructure.StringToTimeHookFunc(time.RFC3339Nano),
+		),
+		ZeroFields: true,
+		Result:     target,
+		TagName:    "spec",
+	})
 
-	return nil
+	return d.Decode(tree)
 }
 
-func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluator, error) {
+func TreeFromDefaultPlan(opts DefaultPlanOptions) (interface{}, error) {
 	location := opts.SpecURL
 	var err error
 
@@ -130,13 +140,21 @@ func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluato
 			return nil, err
 		}
 		if location == "" {
-			return nil, errors.New(fmt.Sprintf("%s was empty", MetadataAPIURLEnvName))
+			return nil, fmt.Errorf("%s was empty", MetadataAPIURLEnvName)
 		}
 	}
 
 	u, err := url.Parse(location)
 	if err != nil {
 		return nil, fmt.Errorf("parsing spec URL %s failed: %+v", location, err)
+	}
+
+	if opts.SpecPath != "" {
+		qs := u.Query()
+		qs.Set("q", opts.SpecPath)
+		qs.Set("lang", "jsonpath-template")
+
+		u.RawQuery = qs.Encode()
 	}
 
 	var loader SpecLoader
@@ -149,17 +167,16 @@ func EvaluatorFromDefaultPlan(opts DefaultPlanOptions) (*evaluate.ScopedEvaluato
 	}
 
 	r, err := loader.LoadSpec()
-	if err != nil {
+	if err != nil || r == nil {
 		return nil, err
 	}
 
-	tree, err := parse.ParseJSON(r)
-	if err != nil {
+	var env struct {
+		Value transfer.JSONInterface `json:"value"`
+	}
+	if err := json.NewDecoder(r).Decode(&env); err != nil {
 		return nil, err
 	}
 
-	ev := evaluate.NewEvaluator(
-		evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
-	).ScopeTo(tree)
-	return ev, nil
+	return env.Value.Data, nil
 }
