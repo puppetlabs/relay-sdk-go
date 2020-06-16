@@ -64,13 +64,6 @@ between steps.
 
 **`ni log warn`** -- Logs a warning message
 
-**`ni output get`** -- Get a value that a previous task stored
-```
-      --json               whether to always provide the output as JSON, even if it is a string
-  -k, --key string         the output key
-  -n, --task-name string   the name of the task
-```
-
 **`ni output set`** -- Set a value to a key that can be fetched by another task
 ```
       --json           whether the value should be interpreted as a JSON string
