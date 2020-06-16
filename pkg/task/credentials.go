@@ -3,8 +3,8 @@ package task
 import (
 	"path/filepath"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/model"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
 
 func (ti *TaskInterface) ProcessCredentials(directory string) error {

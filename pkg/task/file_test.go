@@ -7,11 +7,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
-	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"gopkg.in/yaml.v2"
+	yaml "gopkg.in/yaml.v2"
 )
 
 type TestValues struct {

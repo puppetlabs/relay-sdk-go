@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
-	outputsclient "github.com/puppetlabs/nebula-sdk/pkg/outputs"
+	outputsclient "github.com/puppetlabs/relay-sdk-go/pkg/outputs"
 	"github.com/spf13/cobra"
 )
 

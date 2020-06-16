@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/task"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/task"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"github.com/spf13/cobra"
 )
 

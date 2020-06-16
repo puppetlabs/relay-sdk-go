@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/cmd"
+	"github.com/puppetlabs/relay-sdk-go/pkg/cmd"
 )
 
 func main() {

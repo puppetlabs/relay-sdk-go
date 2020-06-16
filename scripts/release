@@ -14,16 +14,16 @@ ARTIFACTS_DIR="${ARTIFACTS_DIR:-artifacts}"
 
 . scripts/library.sh
 
-[[ "$#" -eq 1 ]] || nebula::sdk::usage "$0 <program>"
+[[ "$#" -eq 1 ]] || relay::sdk::go::usage "$0 <program>"
 
-eval "$( nebula::sdk::cli_vars "$1" )"
+eval "$( relay::sdk::go::cli_vars "$1" )"
 
 PACKAGE_KEY_PREFIX="gs://${ARTIFACTS_BUCKET}/sdk/${CLI_NAME}"
 
-for PACKAGE in $( nebula::sdk::cli_artifacts "$1" "${ARTIFACTS_DIR}/${CLI_NAME}" ); do
+for PACKAGE in $( relay::sdk::go::cli_artifacts "$1" "${ARTIFACTS_DIR}/${CLI_NAME}" ); do
   # Get the remaining file path and extension (directory, name and version
   # truncated) from the package.
-  CLI_PLATFORM_EXT="-$( nebula::sdk::cli_platform_ext "$1" "${PACKAGE}" )"
-  nebula::sdk::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}" "${CLI_PLATFORM_EXT}"
-  nebula::sdk::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}.sha256" "${CLI_PLATFORM_EXT}.sha256"
+  CLI_PLATFORM_EXT="-$( relay::sdk::go::cli_platform_ext "$1" "${PACKAGE}" )"
+  relay::sdk::go::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}" "${CLI_PLATFORM_EXT}"
+  relay::sdk::go::release "${ARTIFACTS_BUCKET}" "${CLI_NAME}" "${PACKAGE}.sha256" "${CLI_PLATFORM_EXT}.sha256"
 done

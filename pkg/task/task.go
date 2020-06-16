@@ -1,7 +1,7 @@
 package task
 
 import (
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
 
 const (

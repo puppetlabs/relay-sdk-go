@@ -3,8 +3,8 @@ package task
 import (
 	"encoding/json"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
-	"gopkg.in/yaml.v2"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
+	yaml "gopkg.in/yaml.v2"
 )
 
 func (ti *TaskInterface) WriteFile(file, path, output string) error {

@@ -4,7 +4,7 @@ set -euo pipefail
 . scripts/library.sh
 
 GO_DIST_OS_ARCHES=( linux-amd64 linux-386 linux-arm64 linux-ppc64le linux-s390x windows-amd64 darwin-amd64 )
-GO_DIST_PROGRAMS=( $( nebula::sdk::default_programs ) )
+GO_DIST_PROGRAMS=( $( relay::sdk::go::default_programs ) )
 
 for PROGRAM in "${GO_DIST_PROGRAMS[@]}"; do
   for OS_ARCH in "${GO_DIST_OS_ARCHES[@]}"; do

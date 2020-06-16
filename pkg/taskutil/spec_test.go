@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
-	"github.com/puppetlabs/nebula-sdk/pkg/testutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
 
