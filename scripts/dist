@@ -25,10 +25,10 @@ GOARCH="$( $GO env GOARCH )"
 
 . scripts/library.sh
 
-[[ "$#" -eq 1 ]] || nebula::sdk::usage "$0 <program>"
+[[ "$#" -eq 1 ]] || relay::sdk::go::usage "$0 <program>"
 
-nebula::sdk::release_check
-eval "$( nebula::sdk::cli_vars "$1" )"
+relay::sdk::go::release_check
+eval "$( relay::sdk::go::cli_vars "$1" )"
 
 ARTIFACTS_CLI_DIR="${ARTIFACTS_DIR}/${CLI_NAME}"
 
@@ -44,7 +44,7 @@ windows)
     set -x
     pushd "${ARTIFACTS_CLI_DIR}" >/dev/null
     $ZIP_M -q "${CLI_FILE_PREFIX}.zip" "${CLI_FILE_BIN}"
-    nebula::sdk::sha256sum <"${CLI_FILE_PREFIX}.zip" >"${CLI_FILE_PREFIX}.zip.sha256"
+    relay::sdk::go::sha256sum <"${CLI_FILE_PREFIX}.zip" >"${CLI_FILE_PREFIX}.zip.sha256"
   )
   ;;
 *)
@@ -52,7 +52,7 @@ windows)
     set -x
     pushd "${ARTIFACTS_CLI_DIR}" >/dev/null
     $TAR -cJ --remove-files -f "${CLI_FILE_PREFIX}.tar.xz" "${CLI_FILE_BIN}"
-    nebula::sdk::sha256sum <"${CLI_FILE_PREFIX}.tar.xz" >"${CLI_FILE_PREFIX}.tar.xz.sha256"
+    relay::sdk::go::sha256sum <"${CLI_FILE_PREFIX}.tar.xz" >"${CLI_FILE_PREFIX}.tar.xz.sha256"
   )
   ;;
 esac

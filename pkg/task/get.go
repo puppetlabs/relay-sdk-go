@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
 
 func (ti *TaskInterface) ReadData(path string) ([]byte, error) {

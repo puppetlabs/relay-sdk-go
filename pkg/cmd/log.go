@@ -3,7 +3,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/log"
+	"github.com/puppetlabs/relay-sdk-go/pkg/log"
 	"github.com/spf13/cobra"
 )
 

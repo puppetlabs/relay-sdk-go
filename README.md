@@ -1,13 +1,12 @@
-# nebula-sdk
+# Relay Go SDK
 
-This repository contains APIs and utility commands used to interact with Nebula
+This repository contains APIs and utility commands used to interact with Relay
 from inside a step container.
 
 ## Ni
 
-Ni, short for Nebula Interface, is a command provided in every container running
-in Nebula at the location `/nebula/bin/ni`. Usually, it is automatically added
-to the container `$PATH`.
+Ni] is a command provided in every container running in Nebula at the location
+`/nebula/bin/ni`. Usually, it is automatically added to the container `$PATH`.
 
 ### Getting Ni
 

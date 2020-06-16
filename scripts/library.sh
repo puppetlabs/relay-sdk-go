@@ -13,7 +13,7 @@ SHA256SUM="${SHA256SUM:-shasum -a 256}"
 #
 #
 
-nebula::sdk::default_programs() {
+relay::sdk::go::default_programs() {
   local DEFAULT_PROGRAMS
   DEFAULT_PROGRAMS=( ni )
 
@@ -22,21 +22,21 @@ nebula::sdk::default_programs() {
   done
 }
 
-nebula::sdk::git_tag() {
+relay::sdk::go::git_tag() {
   printf "%s\n" "${GIT_TAG_OVERRIDE:-$( $GIT tag --points-at HEAD 'v*.*.*' )}"
 }
 
-nebula::sdk::sha256sum() {
+relay::sdk::go::sha256sum() {
   $SHA256SUM | cut -d' ' -f1
 }
 
-nebula::sdk::escape_shell() {
+relay::sdk::go::escape_shell() {
   printf '%s\n' "'${*//\'/\'\"\'\"\'}'"
 }
 
-nebula::sdk::release_version() {
+relay::sdk::go::release_version() {
   local GIT_TAG GIT_CHANGED_FILES
-  GIT_TAG="$( nebula::sdk::git_tag )"
+  GIT_TAG="$( relay::sdk::go::git_tag )"
   GIT_CHANGED_FILES="$( $GIT status --short )"
 
   # Check for releasable version: if we have no tags or any changed files, we
@@ -51,15 +51,15 @@ nebula::sdk::release_version() {
   printf "%s\n" "${GIT_TAG_A#v}"
 }
 
-nebula::sdk::release_check() {
-  if ! nebula::sdk::release_version >/dev/null; then
+relay::sdk::go::release_check() {
+  if ! relay::sdk::go::release_version >/dev/null; then
     echo "$0: no release tag (this commit must be tagged with the format vX.Y.Z)" >&2
     return 2
   fi
 }
 
-nebula::sdk::release_vars() {
-  RELEASE_VERSION="$( nebula::sdk::release_version || true )"
+relay::sdk::go::release_vars() {
+  RELEASE_VERSION="$( relay::sdk::go::release_version || true )"
   if [ -z "${RELEASE_VERSION}" ]; then
     printf 'RELEASE_VERSION=\n'
     return
@@ -68,25 +68,25 @@ nebula::sdk::release_vars() {
   # Parse the version information.
   IFS='.' read RELEASE_VERSION_MAJOR RELEASE_VERSION_MINOR RELEASE_VERSION_PATCH <<<"${RELEASE_VERSION}"
 
-  printf 'RELEASE_VERSION=%s\n' "$( nebula::sdk::escape_shell "${RELEASE_VERSION}" )"
-  printf 'RELEASE_VERSION_MAJOR=%s\n' "$( nebula::sdk::escape_shell "${RELEASE_VERSION_MAJOR}" )"
-  printf 'RELEASE_VERSION_MINOR=%s\n' "$( nebula::sdk::escape_shell "${RELEASE_VERSION_MINOR}" )"
-  printf 'RELEASE_VERSION_PATCH=%s\n' "$( nebula::sdk::escape_shell "${RELEASE_VERSION_PATCH}" )"
+  printf 'RELEASE_VERSION=%s\n' "$( relay::sdk::go::escape_shell "${RELEASE_VERSION}" )"
+  printf 'RELEASE_VERSION_MAJOR=%s\n' "$( relay::sdk::go::escape_shell "${RELEASE_VERSION_MAJOR}" )"
+  printf 'RELEASE_VERSION_MINOR=%s\n' "$( relay::sdk::go::escape_shell "${RELEASE_VERSION_MINOR}" )"
+  printf 'RELEASE_VERSION_PATCH=%s\n' "$( relay::sdk::go::escape_shell "${RELEASE_VERSION_PATCH}" )"
 }
 
-nebula::sdk::release_vars_local() {
+relay::sdk::go::release_vars_local() {
   printf 'local RELEASE_VERSION RELEASE_VERSION_MAJOR RELEASE_VERSION_MINOR RELEASE_VERSION_PATCH\n'
-  nebula::sdk::release_vars "$@"
+  relay::sdk::go::release_vars "$@"
 }
 
-nebula::sdk::release() {
+relay::sdk::go::release() {
   if [[ "$#" -lt 3 ]]; then
     echo "usage: ${FUNCNAME[0]} <bucket> <release-name> <filename> [dist-ext [dist-prefix]]" >&2
     return 1
   fi
 
-  nebula::sdk::release_check
-  eval "$( nebula::sdk::release_vars )"
+  relay::sdk::go::release_check
+  eval "$( relay::sdk::go::release_vars )"
 
   local KEY_PREFIX FILENAME DIST_PREFIX DIST_EXT
   KEY_PREFIX="gs://$1/sdk/$2"
@@ -108,8 +108,8 @@ nebula::sdk::release() {
   )
 }
 
-nebula::sdk::version() {
-  eval "$( nebula::sdk::release_vars )"
+relay::sdk::go::version() {
+  eval "$( relay::sdk::go::release_vars )"
 
   if [ -n "${RELEASE_VERSION}" ]; then
     printf "%s\n" "v${RELEASE_VERSION}"
@@ -118,7 +118,7 @@ nebula::sdk::version() {
   fi
 }
 
-nebula::sdk::cli_vars() {
+relay::sdk::go::cli_vars() {
   if [[ "$#" -ne 1 ]]; then
     echo "usage: ${FUNCNAME[0]} <program>" >&2
     return 1
@@ -132,26 +132,26 @@ nebula::sdk::cli_vars() {
   local EXT=
   [[ "${GOOS}" == "windows" ]] && EXT=.exe
 
-  printf 'CLI_NAME=%s\n' "$( nebula::sdk::escape_shell "$1" )"
-  printf 'CLI_VERSION=%s\n' "$( nebula::sdk::version )"
+  printf 'CLI_NAME=%s\n' "$( relay::sdk::go::escape_shell "$1" )"
+  printf 'CLI_VERSION=%s\n' "$( relay::sdk::go::version )"
   printf 'CLI_FILE_PREFIX="${CLI_NAME}-${CLI_VERSION}"-%s-%s\n' \
-    "$( nebula::sdk::escape_shell "${GOOS}" )" \
-    "$( nebula::sdk::escape_shell "${GOARCH}" )"
+    "$( relay::sdk::go::escape_shell "${GOOS}" )" \
+    "$( relay::sdk::go::escape_shell "${GOARCH}" )"
   printf 'CLI_FILE_BIN="${CLI_FILE_PREFIX}%s"\n' "${EXT}"
 }
 
-nebula::sdk::cli_vars_local() {
+relay::sdk::go::cli_vars_local() {
   printf 'local CLI_NAME CLI_FILE_PREFIX CLI_FILE_BIN\n'
-  nebula::sdk::cli_vars "$@"
+  relay::sdk::go::cli_vars "$@"
 }
 
-nebula::sdk::cli_artifacts() {
+relay::sdk::go::cli_artifacts() {
   if [[ "$#" -ne 2 ]]; then
     echo "usage: ${FUNCNAME[0]} <program> <directory>" >&2
     return 1
   fi
 
-  eval "$( nebula::sdk::cli_vars_local "$1" )"
+  eval "$( relay::sdk::go::cli_vars_local "$1" )"
 
   local CLI_MATCH
   CLI_MATCH="${CLI_NAME}-${CLI_VERSION}-"
@@ -159,13 +159,13 @@ nebula::sdk::cli_artifacts() {
   $FIND "$2" -type f -name "${CLI_MATCH}"'*.tar.xz' -or -name "${CLI_MATCH}"'*.zip'
 }
 
-nebula::sdk::cli_platform_ext() {
+relay::sdk::go::cli_platform_ext() {
   if [[ "$#" -ne 2 ]]; then
     echo "usage: ${FUNCNAME[0]} <program> <package-file>" >&2
     return 1
   fi
 
-  eval "$( nebula::sdk::cli_vars_local "$1" )"
+  eval "$( relay::sdk::go::cli_vars_local "$1" )"
 
   local CLI_FILE
   CLI_FILE="$( basename "$2" )"
@@ -173,7 +173,7 @@ nebula::sdk::cli_platform_ext() {
   printf "%s\n" "${CLI_FILE##${CLI_NAME}-${CLI_VERSION}-}"
 }
 
-nebula::sdk::usage() {
+relay::sdk::go::usage() {
   echo "usage: $*" >&2
   exit 1
 }

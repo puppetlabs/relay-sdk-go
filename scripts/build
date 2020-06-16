@@ -24,9 +24,9 @@ LDFLAGS="${LDFLAGS:-}"
 
 . scripts/library.sh
 
-[[ "$#" -eq 1 ]] || nebula::sdk::usage "$0 <program>"
+[[ "$#" -eq 1 ]] || relay::sdk::go::usage "$0 <program>"
 
-eval "$( nebula::sdk::cli_vars "$1" )"
+eval "$( relay::sdk::go::cli_vars "$1" )"
 
 $MKDIR_P "${BIN_DIR}"
 

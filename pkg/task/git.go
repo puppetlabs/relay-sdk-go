@@ -6,8 +6,8 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/model"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
 
 var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-\.]+):(.+)/(.+)(\.git)?$`)

@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
+	"github.com/puppetlabs/relay-sdk-go/pkg/model"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )

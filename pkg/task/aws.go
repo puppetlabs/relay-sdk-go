@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/puppetlabs/nebula-sdk/pkg/model"
-	"github.com/puppetlabs/nebula-sdk/pkg/taskutil"
-	"gopkg.in/ini.v1"
+	"github.com/puppetlabs/relay-sdk-go/pkg/model"
+	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
+	ini "gopkg.in/ini.v1"
 )
 
 func (ti *TaskInterface) ProcessAWS(directory string) error {

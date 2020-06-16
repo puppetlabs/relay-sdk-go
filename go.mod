@@ -1,4 +1,4 @@
-module github.com/puppetlabs/nebula-sdk
+module github.com/puppetlabs/relay-sdk-go
 
 go 1.12
 
