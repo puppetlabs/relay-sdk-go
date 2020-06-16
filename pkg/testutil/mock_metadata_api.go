@@ -1,103 +1,43 @@
 package testutil
 
 import (
-	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"path"
 	"strings"
 	"testing"
-
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/evaluate"
-	"github.com/puppetlabs/nebula-sdk/pkg/workflow/spec/parse"
-	"github.com/stretchr/testify/require"
 )
 
-type MockSecret struct {
-	ResponseObject interface{}
-}
-
-type MockOutputKey struct {
-	TaskName string
-	Key      string
-}
-
-type MockOutput struct {
-	ResponseObject interface{}
-}
-
-type MockSpec struct {
-	ResponseObject interface{}
-}
-
 type MockMetadataAPIOptions struct {
-	Secrets map[string]MockSecret
-	Outputs map[MockOutputKey]MockOutput
-	Spec    MockSpec
-}
-
-func SingleSpecMockMetadataAPIOptions(name string, spec MockSpec) MockMetadataAPIOptions {
-	return MockMetadataAPIOptions{
-		Spec: spec,
-	}
+	SpecResponse       interface{}
+	SpecQueryResponses map[string]interface{}
 }
 
 func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMetadataAPIOptions) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler, rest := shiftPath(r.URL.Path)
+		handler, _ := shiftPath(r.URL.Path)
 		switch handler {
 		case "spec":
-			// That is no mock...
-			spec, _ := json.Marshal(opts.Spec.ResponseObject)
-			// This returns a Tree which is an interface{} we don't want that
-			tree, _ := parse.ParseJSONString(string(spec))
+			var resp interface{}
 
-			ev := evaluate.NewEvaluator(
-				evaluate.WithLanguage(evaluate.LanguageJSONPathTemplate),
-			).ScopeTo(tree)
+			if q := r.URL.Query().Get("q"); q != "" {
+				sq, ok := opts.SpecQueryResponses[q]
+				if !ok {
+					w.WriteHeader(http.StatusUnprocessableEntity)
+					return
+				}
 
-			var rv *evaluate.Result
-			var err error
-			ctx := context.Background()
-			query := r.URL.Query().Get("q")
-			if query != "" {
-				rv, err = ev.EvaluateQuery(ctx, query)
+				resp = sq
 			} else {
-				rv, err = ev.EvaluateAll(ctx)
+				resp = opts.SpecResponse
 			}
-			if err != nil {
-				w.WriteHeader(http.StatusUnprocessableEntity)
-				return
+
+			if err := json.NewEncoder(w).Encode(resp); err != nil {
+				panic(err)
 			}
-			err = json.NewEncoder(w).Encode(evaluate.NewJSONResultEnvelope(rv))
-			require.NoError(t, err)
 
 			return
-		case "secrets":
-			name, _ := shiftPath(rest)
-
-			s, found := opts.Secrets[name]
-			if found {
-				if err := json.NewEncoder(w).Encode(s.ResponseObject); err != nil {
-					panic(err)
-				}
-
-				return
-			}
-		case "outputs":
-			var k MockOutputKey
-			k.TaskName, rest = shiftPath(rest)
-			k.Key, _ = shiftPath(rest)
-
-			o, found := opts.Outputs[k]
-			if found {
-				if err := json.NewEncoder(w).Encode(o.ResponseObject); err != nil {
-					panic(err)
-				}
-
-				return
-			}
 		}
 
 		http.NotFound(w, r)

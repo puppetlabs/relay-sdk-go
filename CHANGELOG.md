@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Change: This first public release for Relay removes the non-Go SDK code from
+  this repository.
+
 ## [1.14.1]
 
 * Add: Initial support for markdown conversion.

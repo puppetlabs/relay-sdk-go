@@ -14,6 +14,8 @@ import (
 	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
 )
 
+const MetadataAPIURLEnvName = "METADATA_API_URL"
+
 var (
 	ErrOutputsClientKeyEmpty      = errors.New("key is required but was empty")
 	ErrOutputsClientValueEmpty    = errors.New("value is required but was empty")
@@ -26,7 +28,6 @@ var (
 // the nebula outputs storage.
 type OutputsClient interface {
 	SetOutput(ctx context.Context, key string, value interface{}) error
-	GetOutput(ctx context.Context, taskName, key string) (interface{}, error)
 }
 
 // DefaultOutputsClient uses the default net/http.Client to
@@ -72,49 +73,6 @@ func (c DefaultOutputsClient) SetOutput(ctx context.Context, key string, value i
 	}
 
 	return nil
-}
-
-func (c DefaultOutputsClient) GetOutput(ctx context.Context, taskName, key string) (interface{}, error) {
-	if key == "" {
-		return "", ErrOutputsClientKeyEmpty
-	}
-
-	if taskName == "" {
-		return "", ErrOutputsClientTaskNameEmpty
-	}
-
-	loc := *c.apiURL
-	loc.Path = path.Join(loc.Path, taskName, key)
-
-	req, err := http.NewRequest("GET", loc.String(), nil)
-	if err != nil {
-		return "", err
-	}
-
-	req = req.WithContext(ctx)
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", err
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		if resp.StatusCode == http.StatusNotFound {
-			return "", ErrOutputsClientNotFound
-		}
-
-		return "", fmt.Errorf("unexpected status code %d", resp.StatusCode)
-	}
-
-	var output Output
-
-	if err := json.NewDecoder(resp.Body).Decode(&output); err != nil {
-		return "", err
-	}
-
-	return output.Value.Data, nil
 }
 
 func NewDefaultOutputsClient(location *url.URL) OutputsClient {
