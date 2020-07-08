@@ -67,3 +67,11 @@ type AWSDetails struct {
 	SecretAccessKey string
 	Region          string
 }
+
+type GCPSpec struct {
+	Google *GCPDetails
+}
+
+type GCPDetails struct {
+	ServiceAccountInfo string
+}
