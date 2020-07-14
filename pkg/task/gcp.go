@@ -1,6 +1,7 @@
 package task
 
 import (
+	"os"
 	"path/filepath"
 
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
@@ -24,6 +25,12 @@ func (ti *TaskInterface) ProcessGCP(directory string) error {
 
 	destination := filepath.Join(directory, "credentials.json")
 	err := taskutil.WriteToFile(destination, spec.Google.ServiceAccountInfo)
+
+	if err != nil {
+		return err
+	}
+
+	err = os.Chmod(destination, 0400)
 
 	if err != nil {
 		return err
