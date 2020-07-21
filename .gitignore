@@ -2,3 +2,5 @@
 /bin/
 /node_modules/
 /vendor/
+*.sw[onp]
+/ni
