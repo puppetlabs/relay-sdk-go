@@ -73,5 +73,5 @@ type GCPSpec struct {
 }
 
 type GCPDetails struct {
-	ServiceAccountInfo string
+	ServiceAccountKey string `json:"serviceAccountKey"`
 }
