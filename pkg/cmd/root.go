@@ -27,6 +27,7 @@ between steps.
 	c.AddCommand(NewOutputCommand())
 	c.AddCommand(NewLogCommand())
 	c.AddCommand(NewDocCommand())
+	c.AddCommand(NewGCPCommand())
 
 	return c, nil
 }

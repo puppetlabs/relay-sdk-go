@@ -9,23 +9,23 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewAWSCommand() *cobra.Command {
+func NewGCPCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:                   "aws",
-		Short:                 "Manage AWS access",
+		Use:                   "gcp",
+		Short:                 "Manage Google Cloud Platform access",
 		DisableFlagsInUseLine: true,
 	}
 
-	cmd.AddCommand(NewAWSConfigCommand())
-	cmd.AddCommand(NewAWSEnvCommand())
+	cmd.AddCommand(NewGCPConfigCommand())
+	cmd.AddCommand(NewGCPEnvCommand())
 
 	return cmd
 }
 
-func NewAWSConfigCommand() *cobra.Command {
+func NewGCPConfigCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "config",
-		Short:                 "Create an AWS configuration suitable for using with an AWS CLI or SDK",
+		Short:                 "Create a GCP configuration suitable for using with a GCP CLI or SDK",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directory, _ := cmd.Flags().GetString("directory")
@@ -36,7 +36,7 @@ func NewAWSConfigCommand() *cobra.Command {
 			}
 			planOpts := taskutil.DefaultPlanOptions{SpecURL: u}
 			task := task.NewTaskInterface(planOpts)
-			return task.ProcessAWS(directory)
+			return task.ProcessGCP(directory)
 		},
 	}
 
@@ -45,24 +45,18 @@ func NewAWSConfigCommand() *cobra.Command {
 	return cmd
 }
 
-func NewAWSEnvCommand() *cobra.Command {
+func NewGCPEnvCommand() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:                   "env",
-		Short:                 "Create a POSIX-compatible script that can be sourced to configure the AWS CLI",
+		Short:                 "Create a POSIX-compatible script that can be sourced to configure the GCP CLI",
 		DisableFlagsInUseLine: true,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			directory, _ := cmd.Flags().GetString("directory")
-			if directory == "" {
-				directory = filepath.Join(task.DefaultPath, ".aws")
-			}
 
 			fmt.Fprintf(
 				cmd.OutOrStdout(),
-				`export AWS_CONFIG_FILE=%s
-export AWS_SHARED_CREDENTIALS_FILE=%s
-`,
-				quoteShell(filepath.Join(directory, "config")),
-				quoteShell(filepath.Join(directory, "credentials")),
+				`export GOOGLE_APPLICATION_CREDENTIALS=%s`,
+				quoteShell(filepath.Join(directory, "credentials.json")),
 			)
 			return nil
 		},

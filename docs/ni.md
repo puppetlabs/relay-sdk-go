@@ -45,6 +45,16 @@ between steps.
   -p, --path string     specification data path
 ```
 
+**`ni gcp config`** -- Create a GCP configuration suitable for using with a GCP CLI or SDK
+```
+  -d, --directory string   configuration output directory
+```
+
+**`ni gcp env`** -- Create a POSIX-compatible script that can be sourced to configure the GCP CLI
+```
+  -d, --directory string   configuration output directory
+```
+
 **`ni get`** -- Get specification data
 ```
   -p, --path string   specification data path
