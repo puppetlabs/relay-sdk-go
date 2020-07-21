@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/puppetlabs/relay-sdk-go/pkg/task"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
@@ -72,8 +71,4 @@ export AWS_SHARED_CREDENTIALS_FILE=%s
 	cmd.Flags().StringP("directory", "d", "", "configuration output directory")
 
 	return cmd
-}
-
-func quoteShell(data string) string {
-	return `'` + strings.Replace(data, `'`, `'"'"'`, -1) + `'`
 }
