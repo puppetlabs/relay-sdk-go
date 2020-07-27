@@ -9,6 +9,7 @@ require (
 	github.com/golang/protobuf v1.3.2 // indirect
 	github.com/imdario/mergo v0.3.8
 	github.com/json-iterator/go v1.1.7 // indirect
+	github.com/magiconair/properties v1.8.0
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

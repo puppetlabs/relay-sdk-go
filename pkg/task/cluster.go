@@ -2,6 +2,7 @@ package task
 
 import (
 	"encoding/base64"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -27,9 +28,29 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 			return err
 		}
 	}
+	if cluster == nil {
+		return errors.New("unable to find cluster credentials")
+	}
 
 	if cluster.Name == "" {
 		cluster.Name = DefaultName
+	}
+
+	// Prefer non-deprecated values over deprecated values
+	if cluster.Connection == nil {
+		cluster.Connection = &model.ClusterConnectionSpec{}
+	}
+	if cluster.Connection.Server == "" {
+		cluster.Connection.Server = cluster.URL
+		cluster.URL = ""
+	}
+	if cluster.Connection.CertificateAuthority == "" {
+		cluster.Connection.CertificateAuthority = cluster.CAData
+		cluster.CAData = ""
+	}
+	if cluster.Connection.Token == "" {
+		cluster.Connection.Token = cluster.Token
+		cluster.Token = ""
 	}
 
 	return CreateKubeconfigFile(directory, cluster)
@@ -41,12 +62,12 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 	}
 
 	cluster := &clientcmdapi.Cluster{
-		Server:                resource.URL,
+		Server:                resource.Connection.Server,
 		InsecureSkipTLSVerify: resource.Insecure,
 	}
 
-	if resource.CAData != "" {
-		ca, err := base64.StdEncoding.DecodeString(resource.CAData)
+	if resource.Connection.CertificateAuthority != "" {
+		ca, err := base64.StdEncoding.DecodeString(resource.Connection.CertificateAuthority)
 		if err != nil {
 			return err
 		}
@@ -56,12 +77,12 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 	//only one authentication technique per user is allowed in a kubeconfig, so clear out the password if a token is provided
 	user := resource.Username
 	pass := resource.Password
-	if resource.Token != "" {
+	if resource.Connection.Token != "" {
 		user = ""
 		pass = ""
 	}
 	auth := &clientcmdapi.AuthInfo{
-		Token:    resource.Token,
+		Token:    resource.Connection.Token,
 		Username: user,
 		Password: pass,
 	}
@@ -93,13 +114,13 @@ func retrieveClusterFromEnvironment() *model.ClusterDetails {
 		cluster.Name = nameFromEnv
 	}
 	if urlFromEnv := os.Getenv("CLUSTER_URL"); urlFromEnv != "" {
-		cluster.URL = urlFromEnv
+		cluster.Connection.Server = urlFromEnv
 	}
 	if caFromEnv := os.Getenv("CLUSTER_CADATA"); caFromEnv != "" {
-		cluster.CAData = caFromEnv
+		cluster.Connection.CertificateAuthority = caFromEnv
 	}
 	if tokenFromEnv := os.Getenv("CLUSTER_TOKEN"); tokenFromEnv != "" {
-		cluster.Token = strings.TrimRight(tokenFromEnv, "\r\n")
+		cluster.Connection.Token = strings.TrimRight(tokenFromEnv, "\r\n")
 	}
 	if usernameFromEnv := os.Getenv("CLUSTER_USERNAME"); usernameFromEnv != "" {
 		cluster.Username = usernameFromEnv
