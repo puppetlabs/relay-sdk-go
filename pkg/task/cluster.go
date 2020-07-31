@@ -2,10 +2,7 @@ package task
 
 import (
 	"encoding/base64"
-	"errors"
-	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/imdario/mergo"
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
@@ -21,15 +18,12 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 		return err
 	}
 
-	cluster := retrieveClusterFromEnvironment()
+	cluster := &model.ClusterDetails{}
 
-	if cluster != nil && spec.Cluster != nil {
+	if spec.Cluster != nil {
 		if err := mergo.Merge(cluster, spec.Cluster); err != nil {
 			return err
 		}
-	}
-	if cluster == nil {
-		return errors.New("unable to find cluster credentials")
 	}
 
 	if cluster.Name == "" {
@@ -45,7 +39,11 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 		cluster.URL = ""
 	}
 	if cluster.Connection.CertificateAuthority == "" {
-		cluster.Connection.CertificateAuthority = cluster.CAData
+		ca, err := base64.StdEncoding.DecodeString(cluster.CAData)
+		if err != nil {
+			return err
+		}
+		cluster.Connection.CertificateAuthority = string(ca)
 		cluster.CAData = ""
 	}
 	if cluster.Connection.Token == "" {
@@ -67,11 +65,7 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 	}
 
 	if resource.Connection.CertificateAuthority != "" {
-		ca, err := base64.StdEncoding.DecodeString(resource.Connection.CertificateAuthority)
-		if err != nil {
-			return err
-		}
-		cluster.CertificateAuthorityData = ca
+		cluster.CertificateAuthorityData = []byte(resource.Connection.CertificateAuthority)
 	}
 
 	//only one authentication technique per user is allowed in a kubeconfig, so clear out the password if a token is provided
@@ -104,30 +98,4 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 
 	destination := filepath.Join(directory, resource.Name, KubeConfigFile)
 	return clientcmd.WriteToFile(*c, destination)
-}
-
-func retrieveClusterFromEnvironment() *model.ClusterDetails {
-
-	cluster := &model.ClusterDetails{}
-
-	if nameFromEnv := os.Getenv("CLUSTER_NAME"); nameFromEnv != "" {
-		cluster.Name = nameFromEnv
-	}
-	if urlFromEnv := os.Getenv("CLUSTER_URL"); urlFromEnv != "" {
-		cluster.Connection.Server = urlFromEnv
-	}
-	if caFromEnv := os.Getenv("CLUSTER_CADATA"); caFromEnv != "" {
-		cluster.Connection.CertificateAuthority = caFromEnv
-	}
-	if tokenFromEnv := os.Getenv("CLUSTER_TOKEN"); tokenFromEnv != "" {
-		cluster.Connection.Token = strings.TrimRight(tokenFromEnv, "\r\n")
-	}
-	if usernameFromEnv := os.Getenv("CLUSTER_USERNAME"); usernameFromEnv != "" {
-		cluster.Username = usernameFromEnv
-	}
-	if passwordFromEnv := os.Getenv("CLUSTER_PASSWORD"); passwordFromEnv != "" {
-		cluster.Password = passwordFromEnv
-	}
-
-	return cluster
 }

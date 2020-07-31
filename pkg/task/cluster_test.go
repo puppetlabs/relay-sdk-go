@@ -15,7 +15,7 @@ import (
 )
 
 func TestClusterOutput(t *testing.T) {
-	data := base64.StdEncoding.EncodeToString([]byte("cadata"))
+	data := "cadata"
 
 	opts := testutil.MockMetadataAPIOptions{
 		SpecResponse: map[string]interface{}{
@@ -48,7 +48,7 @@ func TestClusterOutput(t *testing.T) {
 			content, err := ioutil.ReadFile(filepath.Join(dir, "test1", "kubeconfig"))
 			assert.Matches(t, string(content), "token: tokendata")
 			assert.Matches(t, string(content), "server: url")
-			assert.Matches(t, string(content), fmt.Sprintf("certificate-authority-data: %s", data))
+			assert.Matches(t, string(content), fmt.Sprintf("certificate-authority-data: %s", base64.StdEncoding.EncodeToString([]byte(data))))
 		})
 	}, opts)
 }
