@@ -4,7 +4,6 @@ import (
 	"encoding/base64"
 	"path/filepath"
 
-	"github.com/imdario/mergo"
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"k8s.io/client-go/tools/clientcmd"
@@ -18,12 +17,10 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 		return err
 	}
 
-	cluster := &model.ClusterDetails{}
+	cluster := spec.Cluster
 
-	if spec.Cluster != nil {
-		if err := mergo.Merge(cluster, spec.Cluster); err != nil {
-			return err
-		}
+	if cluster == nil {
+		cluster = &model.ClusterDetails{}
 	}
 
 	if cluster.Name == "" {
