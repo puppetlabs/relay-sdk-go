@@ -49,13 +49,24 @@ type ClusterSpec struct {
 }
 
 type ClusterDetails struct {
-	Name     string
-	URL      string
-	CAData   string `spec:"cadata"`
+	Name       string
+	Connection *ClusterConnectionSpec
+
+	// Deprecated
+	URL string
+	// Deprecated
+	CAData string `spec:"cadata"`
+	// Deprecated
 	Token    string
 	Insecure bool
 	Username string
 	Password string
+}
+
+type ClusterConnectionSpec struct {
+	Server               string
+	CertificateAuthority string
+	Token                string
 }
 
 type AWSSpec struct {

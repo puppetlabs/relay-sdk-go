@@ -2,11 +2,8 @@ package task
 
 import (
 	"encoding/base64"
-	"os"
 	"path/filepath"
-	"strings"
 
-	"github.com/imdario/mergo"
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"k8s.io/client-go/tools/clientcmd"
@@ -20,16 +17,35 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 		return err
 	}
 
-	cluster := retrieveClusterFromEnvironment()
+	cluster := spec.Cluster
 
-	if cluster != nil && spec.Cluster != nil {
-		if err := mergo.Merge(cluster, spec.Cluster); err != nil {
-			return err
-		}
+	if cluster == nil {
+		cluster = &model.ClusterDetails{}
 	}
 
 	if cluster.Name == "" {
 		cluster.Name = DefaultName
+	}
+
+	// Prefer non-deprecated values over deprecated values
+	if cluster.Connection == nil {
+		cluster.Connection = &model.ClusterConnectionSpec{}
+	}
+	if cluster.Connection.Server == "" {
+		cluster.Connection.Server = cluster.URL
+		cluster.URL = ""
+	}
+	if cluster.Connection.CertificateAuthority == "" {
+		ca, err := base64.StdEncoding.DecodeString(cluster.CAData)
+		if err != nil {
+			return err
+		}
+		cluster.Connection.CertificateAuthority = string(ca)
+		cluster.CAData = ""
+	}
+	if cluster.Connection.Token == "" {
+		cluster.Connection.Token = cluster.Token
+		cluster.Token = ""
 	}
 
 	return CreateKubeconfigFile(directory, cluster)
@@ -41,27 +57,23 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 	}
 
 	cluster := &clientcmdapi.Cluster{
-		Server:                resource.URL,
+		Server:                resource.Connection.Server,
 		InsecureSkipTLSVerify: resource.Insecure,
 	}
 
-	if resource.CAData != "" {
-		ca, err := base64.StdEncoding.DecodeString(resource.CAData)
-		if err != nil {
-			return err
-		}
-		cluster.CertificateAuthorityData = ca
+	if resource.Connection.CertificateAuthority != "" {
+		cluster.CertificateAuthorityData = []byte(resource.Connection.CertificateAuthority)
 	}
 
 	//only one authentication technique per user is allowed in a kubeconfig, so clear out the password if a token is provided
 	user := resource.Username
 	pass := resource.Password
-	if resource.Token != "" {
+	if resource.Connection.Token != "" {
 		user = ""
 		pass = ""
 	}
 	auth := &clientcmdapi.AuthInfo{
-		Token:    resource.Token,
+		Token:    resource.Connection.Token,
 		Username: user,
 		Password: pass,
 	}
@@ -83,30 +95,4 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 
 	destination := filepath.Join(directory, resource.Name, KubeConfigFile)
 	return clientcmd.WriteToFile(*c, destination)
-}
-
-func retrieveClusterFromEnvironment() *model.ClusterDetails {
-
-	cluster := &model.ClusterDetails{}
-
-	if nameFromEnv := os.Getenv("CLUSTER_NAME"); nameFromEnv != "" {
-		cluster.Name = nameFromEnv
-	}
-	if urlFromEnv := os.Getenv("CLUSTER_URL"); urlFromEnv != "" {
-		cluster.URL = urlFromEnv
-	}
-	if caFromEnv := os.Getenv("CLUSTER_CADATA"); caFromEnv != "" {
-		cluster.CAData = caFromEnv
-	}
-	if tokenFromEnv := os.Getenv("CLUSTER_TOKEN"); tokenFromEnv != "" {
-		cluster.Token = strings.TrimRight(tokenFromEnv, "\r\n")
-	}
-	if usernameFromEnv := os.Getenv("CLUSTER_USERNAME"); usernameFromEnv != "" {
-		cluster.Username = usernameFromEnv
-	}
-	if passwordFromEnv := os.Getenv("CLUSTER_PASSWORD"); passwordFromEnv != "" {
-		cluster.Password = passwordFromEnv
-	}
-
-	return cluster
 }
