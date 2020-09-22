@@ -73,10 +73,35 @@ type AWSSpec struct {
 	AWS *AWSDetails
 }
 
-type AWSDetails struct {
+type AWSConnection struct {
 	AccessKeyID     string
 	SecretAccessKey string
+}
+
+type AWSDetails struct {
+	Connection *AWSConnection
+
+	// deprecated
+	AccessKeyID string
+	// deprecated
+	SecretAccessKey string
 	Region          string
+}
+
+func (ad *AWSDetails) GetAccessKeyID() string {
+	if ad.Connection.AccessKeyID == "" {
+		return ad.AccessKeyID
+
+	}
+	return ad.Connection.AccessKeyID
+}
+
+func (ad *AWSDetails) GetSecretAccessKey() string {
+	if ad.Connection.SecretAccessKey == "" {
+		return ad.SecretAccessKey
+
+	}
+	return ad.Connection.SecretAccessKey
 }
 
 type GCPSpec struct {
