@@ -24,7 +24,7 @@ func (ti *TaskInterface) ProcessGCP(directory string) error {
 	}
 
 	destination := filepath.Join(directory, "credentials.json")
-	err := taskutil.WriteToFile(destination, spec.Google.ServiceAccountKey)
+	err := taskutil.WriteToFile(destination, spec.Google.GetServiceAccountKey())
 
 	if err != nil {
 		return err

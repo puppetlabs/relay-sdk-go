@@ -79,7 +79,7 @@ type AWSConnection struct {
 }
 
 type AWSDetails struct {
-	Connection *AWSConnection
+	Connection AWSConnection
 
 	// deprecated
 	AccessKeyID string
@@ -109,5 +109,20 @@ type GCPSpec struct {
 }
 
 type GCPDetails struct {
+	Connection GCPConnection
+	Project    string
+
+	// deprecated
+	ServiceAccountKey string `json:"serviceAccountKey"`
+}
+
+func (gd *GCPDetails) GetServiceAccountKey() string {
+	if gd.Connection.ServiceAccountKey == "" {
+		return gd.ServiceAccountKey
+	}
+	return gd.Connection.ServiceAccountKey
+}
+
+type GCPConnection struct {
 	ServiceAccountKey string `json:"serviceAccountKey"`
 }
