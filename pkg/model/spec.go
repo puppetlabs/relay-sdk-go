@@ -79,7 +79,7 @@ type AWSConnection struct {
 }
 
 type AWSDetails struct {
-	Connection *AWSConnection
+	Connection AWSConnection
 
 	// deprecated
 	AccessKeyID string
@@ -109,7 +109,7 @@ type GCPSpec struct {
 }
 
 type GCPDetails struct {
-	Connection *GCPConnection
+	Connection GCPConnection
 	Project    string
 
 	// deprecated
