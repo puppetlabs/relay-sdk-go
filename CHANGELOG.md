@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+* Fix: Allow outputs to be set to the empty string.
+
 ## [1.16.2]
 
 * Fix: `ni gcp config` should prefer a GCP connection under `google.connection`

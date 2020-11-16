@@ -18,7 +18,6 @@ const MetadataAPIURLEnvName = "METADATA_API_URL"
 
 var (
 	ErrOutputsClientKeyEmpty      = errors.New("key is required but was empty")
-	ErrOutputsClientValueEmpty    = errors.New("value is required but was empty")
 	ErrOutputsClientTaskNameEmpty = errors.New("taskName is required but was empty")
 	ErrOutputsClientEnvVarMissing = errors.New(MetadataAPIURLEnvName + " was expected but was empty")
 	ErrOutputsClientNotFound      = errors.New("output was not found")
@@ -39,10 +38,6 @@ type DefaultOutputsClient struct {
 func (c DefaultOutputsClient) SetOutput(ctx context.Context, key string, value interface{}) error {
 	if key == "" {
 		return ErrOutputsClientKeyEmpty
-	}
-
-	if value == "" {
-		return ErrOutputsClientValueEmpty
 	}
 
 	loc := *c.apiURL
