@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.3]
+
 * Fix: Allow outputs to be set to the empty string.
 
 ## [1.16.2]
@@ -200,7 +202,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.2...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.3...HEAD
+[1.16.3]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.2...v1.16.3
 [1.16.2]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.1...v1.16.2
 [1.16.1]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.0...v1.16.1
 [1.16.0]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.15.0...v1.16.0
