@@ -2,6 +2,7 @@ package taskutil
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -13,10 +14,15 @@ import (
 	"time"
 
 	"github.com/mitchellh/mapstructure"
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/leg/encoding/transfer"
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 )
 
-const MetadataAPIURLEnvName = "METADATA_API_URL"
+const (
+	DefaultMetadataTimeout = 5 * time.Minute
+
+	MetadataAPIURLEnvName = "METADATA_API_URL"
+)
 
 // SpecLoader returns an io.Reader containing the bytes
 // of a task spec. This is used as input to a spec unmarshaler.
@@ -94,9 +100,10 @@ type SpecDecoder interface {
 }
 
 type DefaultPlanOptions struct {
-	Client   *http.Client
-	SpecURL  string
-	SpecPath string
+	Client      *http.Client
+	SpecURL     string
+	SpecPath    string
+	SpecTimeout time.Duration
 }
 
 func MetadataSpecURL() (string, error) {
@@ -132,6 +139,12 @@ func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) er
 
 func TreeFromDefaultPlan(opts DefaultPlanOptions) (interface{}, error) {
 	location := opts.SpecURL
+
+	timeout := DefaultMetadataTimeout
+	if opts.SpecTimeout > 0 {
+		timeout = opts.SpecTimeout
+	}
+
 	var err error
 
 	if location == "" {
@@ -166,15 +179,34 @@ func TreeFromDefaultPlan(opts DefaultPlanOptions) (interface{}, error) {
 		return nil, fmt.Errorf("unknown scheme %s in spec URL", u.Scheme)
 	}
 
-	r, err := loader.LoadSpec()
-	if err != nil || r == nil {
-		return nil, err
-	}
-
 	var env struct {
 		Value transfer.JSONInterface `json:"value"`
 	}
-	if err := json.NewDecoder(r).Decode(&env); err != nil {
+
+	ctx := context.Background()
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+
+	waitOptions := []retry.WaitOption{}
+
+	err = retry.Wait(ctx, func(ctx context.Context) (bool, error) {
+		r, rerr := loader.LoadSpec()
+		if rerr != nil {
+			return false, rerr
+		}
+
+		if r == nil {
+			return true, nil
+		}
+
+		if derr := json.NewDecoder(r).Decode(&env); derr != nil {
+			return false, derr
+		}
+
+		return true, nil
+	}, waitOptions...)
+
+	if err != nil {
 		return nil, err
 	}
 

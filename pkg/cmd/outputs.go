@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/leg/encoding/transfer"
 	outputsclient "github.com/puppetlabs/relay-sdk-go/pkg/outputs"
 	"github.com/spf13/cobra"
 )

@@ -5,8 +5,9 @@ import (
 	"net/http/httptest"
 	"os"
 	"testing"
+	"time"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/leg/encoding/transfer"
 	"github.com/puppetlabs/relay-sdk-go/pkg/testutil"
 	"github.com/stretchr/testify/require"
 )
@@ -39,8 +40,9 @@ func TestDefaultSpecPlan(t *testing.T) {
 		testSpec := TestSpec{}
 
 		opts := DefaultPlanOptions{
-			Client:  ts.Client(),
-			SpecURL: fmt.Sprintf("%s/spec", ts.URL),
+			Client:      ts.Client(),
+			SpecURL:     fmt.Sprintf("%s/spec", ts.URL),
+			SpecTimeout: 5 * time.Second,
 		}
 
 		require.NoError(t, PopulateSpecFromDefaultPlan(&testSpec, opts))
@@ -48,6 +50,18 @@ func TestDefaultSpecPlan(t *testing.T) {
 		require.Equal(t, 12, testSpec.SomeNum)
 		require.Equal(t, "Hello, \x90!", testSpec.SomeValue)
 	}, opts)
+}
+
+func TestDefaultSpecPlanWithInvalidMetadataAPI(t *testing.T) {
+	testSpec := TestSpec{}
+
+	opts := DefaultPlanOptions{
+		Client:      nil,
+		SpecURL:     "http://ip/spec",
+		SpecTimeout: 5 * time.Second,
+	}
+
+	require.Error(t, PopulateSpecFromDefaultPlan(&testSpec, opts))
 }
 
 func TestValidMetadataURL(t *testing.T) {
