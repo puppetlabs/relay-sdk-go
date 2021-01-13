@@ -6,8 +6,9 @@ import (
 	"net/http/httptest"
 	"strconv"
 	"testing"
+	"time"
 
-	"github.com/puppetlabs/horsehead/v2/encoding/transfer"
+	"github.com/puppetlabs/leg/encoding/transfer"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"github.com/puppetlabs/relay-sdk-go/pkg/testutil"
 	"github.com/stretchr/testify/require"
@@ -45,8 +46,9 @@ func TestGetOutput(t *testing.T) {
 
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		opts := taskutil.DefaultPlanOptions{
-			Client:  ts.Client(),
-			SpecURL: fmt.Sprintf("%s/spec", ts.URL),
+			Client:      ts.Client(),
+			SpecURL:     fmt.Sprintf("%s/spec", ts.URL),
+			SpecTimeout: 5 * time.Second,
 		}
 
 		task := NewTaskInterface(opts)
