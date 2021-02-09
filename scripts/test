@@ -11,5 +11,5 @@ GO="${GO:-go}"
 #
 #
 
-set -x
-$GO test -v -race ./...
+$GO run gotest.tools/gotestsum -f testname --no-summary output --packages ./... -- -race --cover
+

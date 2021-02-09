@@ -18,8 +18,6 @@ type TestSpec struct {
 	SomeValue string `spec:"someEncodedValue"`
 }
 
-var EnvProvider map[string]string
-
 func TestDefaultSpecPlan(t *testing.T) {
 	encodedValue, _ := transfer.EncodeJSON([]byte("Hello, \x90!"))
 

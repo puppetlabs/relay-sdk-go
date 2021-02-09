@@ -26,7 +26,9 @@ func NewGetCommand() *cobra.Command {
 				return err
 			}
 
-			cmd.OutOrStdout().Write(data)
+			if _, err = cmd.OutOrStdout().Write(data); err != nil {
+				return err
+			}
 
 			return nil
 		},

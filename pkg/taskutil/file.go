@@ -19,7 +19,9 @@ func WriteToFile(file, content string) error {
 		return err
 	}
 
-	f.Sync()
+	if err := f.Sync(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -36,7 +38,9 @@ func WriteDataToFile(file string, data []byte) error {
 		return err
 	}
 
-	f.Sync()
+	if err := f.Sync(); err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -61,7 +65,7 @@ func writeData(w io.Writer, data []byte) error {
 func createFilePath(file string) (*os.File, error) {
 	dir := filepath.Dir(file)
 	if _, err := os.Stat(dir); os.IsNotExist(err) {
-		if err = os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(dir, 0755); err != nil {
 			return nil, err
 		}
 	}

@@ -33,6 +33,4 @@ func GetData(spec map[string]interface{}, path, output string) ([]byte, error) {
 	default:
 		return yaml.Marshal(spec[path])
 	}
-
-	return nil, nil
 }

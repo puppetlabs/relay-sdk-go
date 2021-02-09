@@ -24,20 +24,33 @@ type GitDetails struct {
 }
 
 func (gd *GitDetails) ConfiguredSSHKey() (string, bool, error) {
-	if gd.Connection != nil {
-		return gd.Connection.SSHKey, gd.Connection.SSHKey != "", nil
+	if gd.Connection == nil {
+		gd.Connection = &GitConnection{
+			SSHKey: gd.SSHKey,
+		}
 	}
 
-	if gd.SSHKey == "" {
+	if gd.Connection.SSHKey == "" {
 		return "", false, nil
 	}
 
-	sshKey, err := base64.StdEncoding.DecodeString(gd.SSHKey)
-	if err != nil {
-		return "", false, err
+	if sshKey, err := base64.StdEncoding.DecodeString(gd.Connection.SSHKey); err == nil {
+		return string(sshKey), true, nil
 	}
 
-	return string(sshKey), true, nil
+	return gd.Connection.SSHKey, true, nil
+}
+
+func (gd *GitDetails) ConfiguredKnownHosts() (string, bool, error) {
+	if gd.KnownHosts == "" {
+		return "", false, nil
+	}
+
+	if knownHosts, err := base64.StdEncoding.DecodeString(gd.KnownHosts); err == nil {
+		return string(knownHosts), true, nil
+	}
+
+	return gd.KnownHosts, true, nil
 }
 
 type GitConnection struct {

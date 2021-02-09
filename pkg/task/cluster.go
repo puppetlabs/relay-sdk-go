@@ -36,16 +36,16 @@ func (ti *TaskInterface) ProcessClusters(directory string) error {
 		cluster.URL = ""
 	}
 	if cluster.Connection.CertificateAuthority == "" {
-		ca, err := base64.StdEncoding.DecodeString(cluster.CAData)
-		if err != nil {
-			return err
-		}
-		cluster.Connection.CertificateAuthority = string(ca)
+		cluster.Connection.CertificateAuthority = cluster.CAData
 		cluster.CAData = ""
 	}
 	if cluster.Connection.Token == "" {
 		cluster.Connection.Token = cluster.Token
 		cluster.Token = ""
+	}
+
+	if ca, err := base64.StdEncoding.DecodeString(cluster.Connection.CertificateAuthority); err == nil {
+		cluster.Connection.CertificateAuthority = string(ca)
 	}
 
 	return CreateKubeconfigFile(directory, cluster)
@@ -65,7 +65,8 @@ func CreateKubeconfigFile(directory string, resource *model.ClusterDetails) erro
 		cluster.CertificateAuthorityData = []byte(resource.Connection.CertificateAuthority)
 	}
 
-	//only one authentication technique per user is allowed in a kubeconfig, so clear out the password if a token is provided
+	// Only one authentication technique per user is allowed in a kubeconfig
+	// Clear out the password if a token is provided
 	user := resource.Username
 	pass := resource.Password
 	if resource.Connection.Token != "" {

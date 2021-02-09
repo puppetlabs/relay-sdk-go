@@ -62,7 +62,6 @@ func TestGCPConnectionBackwardCompatibility(t *testing.T) {
 				key := spec.GetServiceAccountKey()
 				if test.ExpectedError {
 					require.Empty(t, key)
-					//require.Error(t, err)
 				} else if test.ExpectedKey != "" {
 					require.Equal(t, test.ExpectedKey, key)
 				} else {
