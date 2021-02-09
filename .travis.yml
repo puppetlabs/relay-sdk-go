@@ -18,6 +18,7 @@ jobs:
     script:
     - set -e
     - scripts/ci scripts/generate
+    - scripts/ci scripts/check
     - scripts/ci scripts/build-all
     - scripts/ci scripts/test
   - stage: release

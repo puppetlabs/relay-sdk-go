@@ -43,6 +43,7 @@ func (r RemoteSpecLoader) LoadSpec() (io.Reader, error) {
 		client = http.DefaultClient
 	}
 
+	//nolint:noctx // FIXME Consider replacing this later
 	resp, err := client.Get(r.u.String())
 	if err != nil {
 		return nil, fmt.Errorf("network request failed: %+v", err)
@@ -133,6 +134,9 @@ func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) er
 		Result:     target,
 		TagName:    "spec",
 	})
+	if err != nil {
+		return err
+	}
 
 	return d.Decode(tree)
 }

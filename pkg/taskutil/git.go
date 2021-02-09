@@ -33,12 +33,10 @@ func Fetch(revision, path, url string) error {
 	euid := os.Geteuid()
 	// Special case the root user/directory
 	if euid == 0 {
-		if err := os.Symlink(homeenv+"/.ssh", "/root/.ssh"); err != nil {
-		}
+		_ = os.Symlink(homeenv+"/.ssh", "/root/.ssh")
 	} else if homeenv != "" && homeenv != homepath {
 		if _, err := os.Stat(homepath + "/.ssh"); os.IsNotExist(err) {
-			if err := os.Symlink(homeenv+"/.ssh", homepath+"/.ssh"); err != nil {
-			}
+			_ = os.Symlink(homeenv+"/.ssh", homepath+"/.ssh")
 		}
 	}
 
@@ -52,10 +50,8 @@ func Fetch(revision, path, url string) error {
 		if err := os.Chdir(path); err != nil {
 			return nil
 		}
-	} else {
-		if err := run("git", "init"); err != nil {
-			return err
-		}
+	} else if err := run("git", "init"); err != nil {
+		return err
 	}
 
 	trimmedURL := strings.TrimSpace(url)
@@ -71,10 +67,8 @@ func Fetch(revision, path, url string) error {
 		if err := run("git", "checkout", revision); err != nil {
 			return err
 		}
-	} else {
-		if err := run("git", "reset", "--hard", "FETCH_HEAD"); err != nil {
-			return err
-		}
+	} else if err := run("git", "reset", "--hard", "FETCH_HEAD"); err != nil {
+		return err
 	}
 	return nil
 }

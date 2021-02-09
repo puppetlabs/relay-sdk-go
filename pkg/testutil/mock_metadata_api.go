@@ -38,6 +38,8 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 			}
 
 			return
+		default:
+			http.NotFound(w, r)
 		}
 
 		http.NotFound(w, r)

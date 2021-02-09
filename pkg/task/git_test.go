@@ -28,6 +28,7 @@ func TestGitOutput(t *testing.T) {
 		},
 	}
 
+	//nolint:gocritic
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		// opts := taskutil.DefaultPlanOptions{
 		// 	Client:  ts.Client(),
@@ -60,7 +61,7 @@ func TestGitSSHKeyBackwardCompatibility(t *testing.T) {
 			Spec: map[string]interface{}{
 				"ssh_key": "invalid",
 			},
-			ExpectedError: true,
+			ExpectedSSHKey: "invalid",
 		},
 		{
 			Spec: map[string]interface{}{

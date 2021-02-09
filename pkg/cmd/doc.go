@@ -53,10 +53,12 @@ func genDocs(cmd *cobra.Command, args []string) error {
 		buf.WriteString(flags.FlagUsages() + "\n```\n")
 	}
 
-	file, nil := cmd.Flags().GetString("file")
+	file, _ := cmd.Flags().GetString("file")
 	if file == "" {
-		cmd.OutOrStdout().Write(buf.Bytes())
-	} else if err := ioutil.WriteFile(file, buf.Bytes(), 0644); err != nil {
+		if _, err = cmd.OutOrStdout().Write(buf.Bytes()); err != nil {
+			return err
+		}
+	} else if err := ioutil.WriteFile(file, buf.Bytes(), 0600); err != nil {
 		return err
 	}
 
@@ -91,8 +93,9 @@ func genChildMarkdown(children []*cobra.Command, buf *bytes.Buffer) error {
 		// Because commands can be nested arbitrarily deep, this recurses into
 		// the current command's children and generates their docs too
 		grandchildren := child.Commands()
-		genChildMarkdown(grandchildren, buf)
-
+		if err := genChildMarkdown(grandchildren, buf); err != nil {
+			return err
+		}
 	}
 
 	return nil

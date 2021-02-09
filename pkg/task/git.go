@@ -1,7 +1,6 @@
 package task
 
 import (
-	"encoding/base64"
 	"errors"
 	"path/filepath"
 	"regexp"
@@ -10,9 +9,9 @@ import (
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
 
-var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-\.]+):(.+)/(.+)(\.git)?$`)
+var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-.]+):(.+)/(.+)(\.git)?$`)
 
-func (ti *TaskInterface) CloneRepository(revision string, directory string) error {
+func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	var spec model.GitSpec
 	if err := taskutil.PopulateSpecFromDefaultPlan(&spec, ti.opts); err != nil {
 		return err
@@ -61,11 +60,6 @@ func gitURLComponents(url string) ([]string, error) {
 }
 
 func writeSSHConfig(resource *model.GitDetails) error {
-	sshKey, found, err := resource.ConfiguredSSHKey()
-	if err != nil || !found {
-		return err
-	}
-
 	gitConfig := taskutil.SSHConfig{}
 
 	matches, err := gitURLComponents(resource.Repository)
@@ -77,24 +71,31 @@ func writeSSHConfig(resource *model.GitDetails) error {
 
 	gitConfig.Order = make([]string, 0)
 	gitConfig.Order = append(gitConfig.Order, host)
-	gitConfig.Entries = make(map[string]taskutil.SSHEntry, 0)
+	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
 
-	knownHosts, err := base64.StdEncoding.DecodeString(resource.KnownHosts)
+	sshKey, found, err := resource.ConfiguredSSHKey()
+	if err != nil || !found {
+		return err
+	}
+
+	knownHosts, found, err := resource.ConfiguredKnownHosts()
 	if err != nil {
 		return err
 	}
 
-	if len(knownHosts) == 0 || err != nil {
-		knownHosts, err = taskutil.SSHKeyScan(host)
+	if !found {
+		hostKeys, err := taskutil.SSHKeyScan(host)
 		if err != nil {
 			return err
 		}
+
+		knownHosts = string(hostKeys)
 	}
 
 	gitConfig.Entries[host] = taskutil.SSHEntry{
 		Name:       resource.Name,
 		PrivateKey: sshKey,
-		KnownHosts: string(knownHosts),
+		KnownHosts: knownHosts,
 	}
 
 	return gitConfig.Write()
