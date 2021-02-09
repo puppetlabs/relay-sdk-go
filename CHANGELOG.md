@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.5]
+
+* Fix: Improved internal (and optional) base64 encoding.
+
 ## [1.16.4]
 
 * Fix: Add retries to spec handling.
@@ -206,7 +210,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.4...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.5...HEAD
+[1.16.5]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.4...v1.16.5
 [1.16.4]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.3...v1.16.4
 [1.16.3]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.2...v1.16.3
 [1.16.2]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.1...v1.16.2
