@@ -1,15 +1,11 @@
 package task
 
 import (
-	"errors"
 	"path/filepath"
-	"regexp"
 
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
-
-var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-.]+):(.+)/(.+)(\.git)?$`)
 
 func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	var spec model.GitSpec
@@ -38,11 +34,18 @@ func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 		directory = DefaultPath
 	}
 
-	if err := writeSSHConfig(resource); err != nil {
+	ssh, err := configuredSSH(resource)
+	if err != nil {
 		return err
 	}
 
-	err := taskutil.Fetch(resource.Branch, filepath.Join(directory, resource.Name), resource.Repository)
+	if ssh != nil {
+		if err := writeSSHConfig(resource.Name, ssh); err != nil {
+			return err
+		}
+	}
+
+	err = taskutil.Fetch(resource.Branch, filepath.Join(directory, resource.Name), resource.Repository)
 	if err != nil {
 		return err
 	}
@@ -50,52 +53,55 @@ func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	return nil
 }
 
-func gitURLComponents(url string) ([]string, error) {
-	matches := gitSSHURL.FindStringSubmatch(url)
-	if len(matches) <= 1 {
-		return nil, errors.New("SSH URL is malformed")
+func configuredSSH(gd *model.GitDetails) (*model.GitSSHDetails, error) {
+	if gd.Repository == "" {
+		return nil, nil
 	}
 
-	return matches, nil
-}
-
-func writeSSHConfig(resource *model.GitDetails) error {
-	gitConfig := taskutil.SSHConfig{}
-
-	matches, err := gitURLComponents(resource.Repository)
-	if err != nil {
-		return err
+	matches := model.GitSSHURL.FindStringSubmatch(gd.Repository)
+	if len(matches) < 4 {
+		return nil, nil
 	}
 
 	host := matches[2]
 
-	gitConfig.Order = make([]string, 0)
-	gitConfig.Order = append(gitConfig.Order, host)
-	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
-
-	sshKey, found, err := resource.ConfiguredSSHKey()
+	sshKey, found, err := gd.ConfiguredSSHKey()
 	if err != nil || !found {
-		return err
+		return nil, err
 	}
 
-	knownHosts, found, err := resource.ConfiguredKnownHosts()
+	knownHosts, found, err := gd.ConfiguredKnownHosts()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !found {
 		hostKeys, err := taskutil.SSHKeyScan(host)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		knownHosts = string(hostKeys)
 	}
 
-	gitConfig.Entries[host] = taskutil.SSHEntry{
-		Name:       resource.Name,
-		PrivateKey: sshKey,
+	return &model.GitSSHDetails{
+		Host:       host,
+		SSHKey:     sshKey,
 		KnownHosts: knownHosts,
+	}, nil
+}
+
+func writeSSHConfig(name string, ssh *model.GitSSHDetails) error {
+	gitConfig := taskutil.SSHConfig{}
+
+	gitConfig.Order = make([]string, 0)
+	gitConfig.Order = append(gitConfig.Order, ssh.Host)
+	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
+
+	gitConfig.Entries[ssh.Host] = taskutil.SSHEntry{
+		Name:       name,
+		PrivateKey: ssh.SSHKey,
+		KnownHosts: ssh.KnownHosts,
 	}
 
 	return gitConfig.Write()

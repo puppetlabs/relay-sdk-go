@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"github.com/puppetlabs/relay-sdk-go/pkg/testutil"
@@ -21,7 +22,7 @@ func TestGitOutput(t *testing.T) {
 				"git": map[string]interface{}{
 					"ssh_key":     "<ssh_key>",
 					"known_hosts": "<known_hosts>",
-					"name":        "<name>",
+					"name":        uuid.New().String(),
 					"repository":  "<repository>",
 				},
 			},
@@ -32,7 +33,7 @@ func TestGitOutput(t *testing.T) {
 	testutil.WithMockMetadataAPI(t, func(ts *httptest.Server) {
 		// opts := taskutil.DefaultPlanOptions{
 		// 	Client:  ts.Client(),
-		// 	SpecURL: fmt.Sprintf("%s/specs/test1", ts.URL),
+		// 	SpecURL: fmt.Sprintf("%s/spec", ts.URL),
 		// }
 
 		// task := NewTaskInterface(opts)
@@ -103,30 +104,48 @@ func TestGitSSHKeyBackwardCompatibility(t *testing.T) {
 	}
 }
 
-func TestGitURLMatching(t *testing.T) {
+func TestGitSSHConfiguration(t *testing.T) {
 	cases := []struct {
 		gitURL      string
+		host        string
 		shouldMatch bool
 	}{
-		{gitURL: "git@github.com:example/example-repo", shouldMatch: true},
-		{gitURL: "git@github.com:example/example-repo.git", shouldMatch: true},
+		{gitURL: "git@github.com:example/example-repo", host: "github.com", shouldMatch: true},
+		{gitURL: "git@github.com:example/example-repo.git", host: "github.com", shouldMatch: true},
 		{gitURL: "git@github.com/example/example-repo.git", shouldMatch: false},
-		{gitURL: "foobar@github.com:example/example-repo", shouldMatch: true},
-		{gitURL: "foobar@github.com:example/example-repo.git", shouldMatch: true},
+		{gitURL: "foobar@github.com:example/example-repo", host: "github.com", shouldMatch: true},
+		{gitURL: "foobar@github.com:example/example-repo.git", host: "github.com", shouldMatch: true},
 		{gitURL: "foobar@github.com/example/example-repo.git", shouldMatch: false},
+		{gitURL: "git@github.com:example", shouldMatch: false},
+		{gitURL: "git@github.com/example", shouldMatch: false},
+		{gitURL: "git@example.com:example-org/example-repo", host: "example.com", shouldMatch: true},
+		{gitURL: "", shouldMatch: false},
 		{gitURL: "https://example.com", shouldMatch: false},
-		{gitURL: "git@example.com:example-org/example-repo", shouldMatch: true},
+		{gitURL: "https://example.com/example", shouldMatch: false},
+		{gitURL: "https://example.com:example", shouldMatch: false},
+		{gitURL: "https://example.com:example/example-repo.git", shouldMatch: false},
+		{gitURL: "https://example.com/example-org/example-repo", shouldMatch: false},
+		{gitURL: "https://example.com/example-org/example-repo.git", shouldMatch: false},
 	}
 
 	for _, c := range cases {
 		t.Run(c.gitURL, func(t *testing.T) {
-			matches, err := gitURLComponents(c.gitURL)
+			gd := &model.GitDetails{
+				Repository: c.gitURL,
+				SSHKey:     "<ssh_key>",
+				KnownHosts: "<known_hosts>",
+			}
+
+			ssh, err := configuredSSH(gd)
+
+			require.NoError(t, err)
 
 			if !c.shouldMatch {
-				require.Error(t, err)
+				require.Empty(t, ssh)
 			} else {
-				require.NoError(t, err)
-				require.GreaterOrEqual(t, len(matches), 4)
+				require.Equal(t, c.host, ssh.Host)
+				require.Equal(t, gd.SSHKey, ssh.SSHKey)
+				require.Equal(t, gd.KnownHosts, ssh.KnownHosts)
 			}
 		})
 	}

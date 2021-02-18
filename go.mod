@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/golangci/golangci-lint v1.36.0
+	github.com/google/uuid v1.2.0
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/magiconair/properties v1.8.1
 	github.com/mitchellh/go-homedir v1.1.0

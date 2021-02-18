@@ -1,6 +1,13 @@
 package model
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	"regexp"
+)
+
+var (
+	GitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-.]+):(.+)/(.+)(\.git)?$`)
+)
 
 type CredentialSpec struct {
 	Credentials map[string]string
@@ -21,6 +28,12 @@ type GitDetails struct {
 	Repository string
 	Branch     string
 	KnownHosts string `spec:"known_hosts"`
+}
+
+type GitSSHDetails struct {
+	Host       string
+	KnownHosts string
+	SSHKey     string
 }
 
 func (gd *GitDetails) ConfiguredSSHKey() (string, bool, error) {
