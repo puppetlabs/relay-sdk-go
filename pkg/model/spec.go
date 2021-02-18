@@ -1,6 +1,16 @@
 package model
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+	"errors"
+	"regexp"
+)
+
+var (
+	GitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-.]+):(.+)/(.+)(\.git)?$`)
+
+	ErrMalformedSSHURL = errors.New("SSH URL is malformed")
+)
 
 type CredentialSpec struct {
 	Credentials map[string]string
@@ -21,6 +31,21 @@ type GitDetails struct {
 	Repository string
 	Branch     string
 	KnownHosts string `spec:"known_hosts"`
+}
+
+func (gd *GitDetails) ConfiguredRepository() (string, bool, error) {
+	if gd.Repository == "" {
+		return "", false, nil
+	}
+
+	matches := GitSSHURL.FindStringSubmatch(gd.Repository)
+	if len(matches) <= 1 {
+		return "", false, ErrMalformedSSHURL
+	}
+
+	host := matches[2]
+
+	return host, true, nil
 }
 
 func (gd *GitDetails) ConfiguredSSHKey() (string, bool, error) {

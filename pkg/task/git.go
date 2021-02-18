@@ -1,15 +1,11 @@
 package task
 
 import (
-	"errors"
 	"path/filepath"
-	"regexp"
 
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
-
-var gitSSHURL = regexp.MustCompile(`^([a-z-]+)@([a-zA-Z0-9\-.]+):(.+)/(.+)(\.git)?$`)
 
 func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	var spec model.GitSpec
@@ -50,33 +46,16 @@ func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	return nil
 }
 
-func gitURLComponents(url string) ([]string, error) {
-	matches := gitSSHURL.FindStringSubmatch(url)
-	if len(matches) <= 1 {
-		return nil, errors.New("SSH URL is malformed")
-	}
-
-	return matches, nil
-}
-
 func writeSSHConfig(resource *model.GitDetails) error {
 	sshKey, found, err := resource.ConfiguredSSHKey()
 	if err != nil || !found {
 		return err
 	}
 
-	gitConfig := taskutil.SSHConfig{}
-
-	matches, err := gitURLComponents(resource.Repository)
-	if err != nil {
+	host, found, err := resource.ConfiguredRepository()
+	if err != nil || !found {
 		return err
 	}
-
-	host := matches[2]
-
-	gitConfig.Order = make([]string, 0)
-	gitConfig.Order = append(gitConfig.Order, host)
-	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
 
 	knownHosts, found, err := resource.ConfiguredKnownHosts()
 	if err != nil {
@@ -91,6 +70,12 @@ func writeSSHConfig(resource *model.GitDetails) error {
 
 		knownHosts = string(hostKeys)
 	}
+
+	gitConfig := taskutil.SSHConfig{}
+
+	gitConfig.Order = make([]string, 0)
+	gitConfig.Order = append(gitConfig.Order, host)
+	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
 
 	gitConfig.Entries[host] = taskutil.SSHEntry{
 		Name:       resource.Name,

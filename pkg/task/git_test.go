@@ -120,12 +120,17 @@ func TestGitURLMatching(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.gitURL, func(t *testing.T) {
-			matches, err := gitURLComponents(c.gitURL)
+			gd := model.GitDetails{
+				Repository: c.gitURL,
+			}
+			matches, found, err := gd.ConfiguredRepository()
 
 			if !c.shouldMatch {
 				require.Error(t, err)
+				require.False(t, found)
 			} else {
 				require.NoError(t, err)
+				require.True(t, found)
 				require.GreaterOrEqual(t, len(matches), 4)
 			}
 		})
