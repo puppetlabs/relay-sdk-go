@@ -34,11 +34,18 @@ func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 		directory = DefaultPath
 	}
 
-	if err := writeSSHConfig(resource); err != nil {
+	ssh, err := configuredSSH(resource)
+	if err != nil {
 		return err
 	}
 
-	err := taskutil.Fetch(resource.Branch, filepath.Join(directory, resource.Name), resource.Repository)
+	if ssh != nil {
+		if err := writeSSHConfig(resource.Name, ssh); err != nil {
+			return err
+		}
+	}
+
+	err = taskutil.Fetch(resource.Branch, filepath.Join(directory, resource.Name), resource.Repository)
 	if err != nil {
 		return err
 	}
@@ -46,41 +53,55 @@ func (ti *TaskInterface) CloneRepository(revision, directory string) error {
 	return nil
 }
 
-func writeSSHConfig(resource *model.GitDetails) error {
-	sshKey, found, err := resource.ConfiguredSSHKey()
-	if err != nil || !found {
-		return err
+func configuredSSH(gd *model.GitDetails) (*model.GitSSHDetails, error) {
+	if gd.Repository == "" {
+		return nil, nil
 	}
 
-	host, found, err := resource.ConfiguredRepository()
-	if err != nil || !found {
-		return err
+	matches := model.GitSSHURL.FindStringSubmatch(gd.Repository)
+	if len(matches) < 4 {
+		return nil, nil
 	}
 
-	knownHosts, found, err := resource.ConfiguredKnownHosts()
+	host := matches[2]
+
+	sshKey, found, err := gd.ConfiguredSSHKey()
+	if err != nil || !found {
+		return nil, err
+	}
+
+	knownHosts, found, err := gd.ConfiguredKnownHosts()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if !found {
 		hostKeys, err := taskutil.SSHKeyScan(host)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		knownHosts = string(hostKeys)
 	}
 
+	return &model.GitSSHDetails{
+		Host:       host,
+		SSHKey:     sshKey,
+		KnownHosts: knownHosts,
+	}, nil
+}
+
+func writeSSHConfig(name string, ssh *model.GitSSHDetails) error {
 	gitConfig := taskutil.SSHConfig{}
 
 	gitConfig.Order = make([]string, 0)
-	gitConfig.Order = append(gitConfig.Order, host)
+	gitConfig.Order = append(gitConfig.Order, ssh.Host)
 	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
 
-	gitConfig.Entries[host] = taskutil.SSHEntry{
-		Name:       resource.Name,
-		PrivateKey: sshKey,
-		KnownHosts: knownHosts,
+	gitConfig.Entries[ssh.Host] = taskutil.SSHEntry{
+		Name:       name,
+		PrivateKey: ssh.SSHKey,
+		KnownHosts: ssh.KnownHosts,
 	}
 
 	return gitConfig.Write()
