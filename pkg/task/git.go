@@ -60,6 +60,11 @@ func gitURLComponents(url string) ([]string, error) {
 }
 
 func writeSSHConfig(resource *model.GitDetails) error {
+	sshKey, found, err := resource.ConfiguredSSHKey()
+	if err != nil || !found {
+		return err
+	}
+
 	gitConfig := taskutil.SSHConfig{}
 
 	matches, err := gitURLComponents(resource.Repository)
@@ -72,11 +77,6 @@ func writeSSHConfig(resource *model.GitDetails) error {
 	gitConfig.Order = make([]string, 0)
 	gitConfig.Order = append(gitConfig.Order, host)
 	gitConfig.Entries = make(map[string]taskutil.SSHEntry)
-
-	sshKey, found, err := resource.ConfiguredSSHKey()
-	if err != nil || !found {
-		return err
-	}
 
 	knownHosts, found, err := resource.ConfiguredKnownHosts()
 	if err != nil {
