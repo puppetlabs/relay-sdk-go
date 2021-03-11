@@ -5,8 +5,8 @@ from inside a step container.
 
 ## Ni
 
-Ni] is a command provided in every container running in Nebula at the location
-`/nebula/bin/ni`. Usually, it is automatically added to the container `$PATH`.
+Ni is a command provided in every container running in Relay at the location
+`/var/lib/puppet/relay/ni`. Usually, it is automatically added to the container `$PATH`.
 
 ### Getting Ni
 
