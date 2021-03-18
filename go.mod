@@ -8,7 +8,7 @@ require (
 	github.com/imdario/mergo v0.3.8 // indirect
 	github.com/magiconair/properties v1.8.1
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mitchellh/mapstructure v1.1.2
+	github.com/mitchellh/mapstructure v1.4.1
 	github.com/puppetlabs/leg/encoding v0.1.0
 	github.com/puppetlabs/leg/timeutil v0.2.0
 	github.com/spf13/cobra v1.1.1
