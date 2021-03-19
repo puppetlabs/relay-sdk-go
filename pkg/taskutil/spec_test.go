@@ -13,9 +13,19 @@ import (
 )
 
 type TestSpec struct {
-	Name      string
-	SomeNum   int
-	SomeValue string `spec:"someEncodedValue"`
+	Name       string
+	SomeNum    int
+	SomeValue  string `spec:"someEncodedValue"`
+	SomeStruct OtherStruct
+}
+
+type OtherStruct struct {
+	Value string
+}
+
+func (o *OtherStruct) UnmarshalText(data []byte) (err error) {
+	o.Value = string(data)
+	return
 }
 
 func TestDefaultSpecPlan(t *testing.T) {
@@ -30,6 +40,7 @@ func TestDefaultSpecPlan(t *testing.T) {
 				"name":             "test1",
 				"someNum":          12,
 				"someEncodedValue": encodedValue,
+				"someStruct":       "test2",
 			},
 		},
 	}
@@ -47,6 +58,7 @@ func TestDefaultSpecPlan(t *testing.T) {
 		require.Equal(t, "test1", testSpec.Name)
 		require.Equal(t, 12, testSpec.SomeNum)
 		require.Equal(t, "Hello, \x90!", testSpec.SomeValue)
+		require.Equal(t, "test2", testSpec.SomeStruct.Value)
 	}, opts)
 }
 

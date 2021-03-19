@@ -129,6 +129,7 @@ func PopulateSpecFromDefaultPlan(target interface{}, opts DefaultPlanOptions) er
 		DecodeHook: mapstructure.ComposeDecodeHookFunc(
 			mapstructure.StringToTimeDurationHookFunc(),
 			mapstructure.StringToTimeHookFunc(time.RFC3339Nano),
+			mapstructure.TextUnmarshallerHookFunc(),
 		),
 		ZeroFields: true,
 		Result:     target,
