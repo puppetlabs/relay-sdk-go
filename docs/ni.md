@@ -74,6 +74,10 @@ between steps.
 
 **`ni log warn`** -- Logs a warning message
 
+**`ni metadata retrieve environment variable [name]`** -- Retrieve an environment variable by name
+
+**`ni metadata retrieve environment variables`** -- Retrieve all environment variables
+
 **`ni output set`** -- Set a value to a key that can be fetched by another task
 ```
       --json           whether the value should be interpreted as a JSON string
