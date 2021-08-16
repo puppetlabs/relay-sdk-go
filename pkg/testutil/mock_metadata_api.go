@@ -16,11 +16,22 @@ type MockMetadataAPIOptions struct {
 
 func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMetadataAPIOptions) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		handler, _ := shiftPath(r.URL.Path)
+		handler, subpath := shiftPath(r.URL.Path)
 		switch handler {
-		case "spec":
-			var resp interface{}
+		case "environment":
+			resp := opts.SpecResponse
+			if subpath != "" {
+				name := path.Base(subpath)
+				resp = opts.SpecQueryResponses[name]
+			}
 
+			if err := json.NewEncoder(w).Encode(resp); err != nil {
+				panic(err)
+			}
+
+			return
+		case "spec":
+			resp := opts.SpecResponse
 			if q := r.URL.Query().Get("q"); q != "" {
 				sq, ok := opts.SpecQueryResponses[q]
 				if !ok {
@@ -29,8 +40,6 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 				}
 
 				resp = sq
-			} else {
-				resp = opts.SpecResponse
 			}
 
 			if err := json.NewEncoder(w).Encode(resp); err != nil {

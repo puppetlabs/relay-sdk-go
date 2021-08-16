@@ -18,7 +18,7 @@ func (ti *TaskInterface) ReadData(path string) ([]byte, error) {
 	}
 
 	if opts.SpecPath != "" {
-		// If a path is specified, `ni get` returns the single value, not json
+		// If a path is specified, returns the single value, not json
 		return []byte(fmt.Sprintf("%v", tree)), nil
 	}
 
