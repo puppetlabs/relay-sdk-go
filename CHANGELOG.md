@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.1]
+
 * Add: Retrieve metadata environment variables
 
 ## [1.17.0]
@@ -220,7 +222,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.0...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.1...HEAD
+[1.17.1]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.6...v1.17.0
 [1.16.6]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.5...v1.16.6
 [1.16.5]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.4...v1.16.5
