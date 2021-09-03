@@ -29,6 +29,7 @@ between steps.
 	c.AddCommand(NewDocCommand())
 	c.AddCommand(NewGCPCommand())
 	c.AddCommand(NewMetadataCommand())
+	c.AddCommand(NewAzureCommand())
 
 	return c, nil
 }
