@@ -6,6 +6,7 @@ set -euo pipefail
 #
 
 GO="${GO:-go}"
+GIT="${GIT:-git}"
 
 #
 #
@@ -13,3 +14,7 @@ GO="${GO:-go}"
 
 set -x
 $GO generate ./...
+
+if [ -n "$( $GIT status --porcelain --untracked-files=no )" ]; then
+    exit 1
+fi
