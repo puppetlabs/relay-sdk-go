@@ -95,6 +95,21 @@ type ClusterConnectionSpec struct {
 	Token                string
 }
 
+type AzureSpec struct {
+	Azure *AzureDetails
+}
+
+type AzureDetails struct {
+	Connection AzureConnection
+}
+
+type AzureConnection struct {
+	SubscriptionID string
+	ClientID       string
+	TenantID       string
+	Secret         string
+}
+
 type AWSSpec struct {
 	AWS *AWSDetails
 }
