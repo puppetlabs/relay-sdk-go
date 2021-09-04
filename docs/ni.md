@@ -23,6 +23,8 @@ between steps.
   -d, --directory string   configuration output directory
 ```
 
+**`ni azure arm env`** -- Create a POSIX-compatible script that can be sourced to configure Azure ARM
+
 **`ni cluster config`** -- Create cluster config
 ```
   -d, --directory string   configuration output directory
