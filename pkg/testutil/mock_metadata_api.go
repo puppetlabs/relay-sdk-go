@@ -7,11 +7,14 @@ import (
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/puppetlabs/relay-sdk-go/pkg/envelope"
 )
 
 type MockMetadataAPIOptions struct {
-	SpecResponse       interface{}
-	SpecQueryResponses map[string]interface{}
+	SpecResponse         interface{}
+	SpecQueryResponses   map[string]interface{}
+	WorkflowRunResponses map[string]interface{}
 }
 
 func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMetadataAPIOptions) {
@@ -47,10 +50,42 @@ func WithMockMetadataAPI(t *testing.T, fn func(ts *httptest.Server), opts MockMe
 			}
 
 			return
-		default:
-			http.NotFound(w, r)
+		case "workflows":
+			if subpath == "" {
+				t.Log("mock metadata api: missing subpath")
+				break
+			}
+
+			var name string
+			name, subpath = shiftPath(subpath)
+
+			if path.Base(subpath) != "run" {
+				t.Logf("mock metadata api: missing run subpath: %s", subpath)
+				break
+			}
+
+			req := envelope.PostWorkflowRunRequestEnvelope{}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				t.Logf("mock metadata api: failed to decode body: %v", err)
+				w.WriteHeader(http.StatusNotAcceptable)
+				return
+			}
+
+			resp, ok := opts.WorkflowRunResponses[name]
+			if !ok {
+				t.Logf("mock metadata api: missing response config: %s", name)
+				break
+			}
+
+			w.WriteHeader(http.StatusCreated)
+			if err := json.NewEncoder(w).Encode(resp); err != nil {
+				panic(err)
+			}
+
+			return
 		}
 
+		t.Logf("mock metadata api: request path: %s", r.URL.Path)
 		http.NotFound(w, r)
 	})
 

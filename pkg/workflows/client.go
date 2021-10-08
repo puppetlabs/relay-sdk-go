@@ -11,6 +11,7 @@ import (
 	"path"
 
 	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
+	"github.com/puppetlabs/relay-sdk-go/pkg/envelope"
 	"github.com/puppetlabs/relay-sdk-go/pkg/model"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 )
@@ -35,7 +36,7 @@ func (d *DefaultWorkflowsClient) Run(ctx context.Context, name string, parameter
 	loc := *d.apiURL
 	loc.Path = path.Join(loc.Path, name, "run")
 
-	reqEnv := PostWorkflowRunRequestEnvelope{
+	reqEnv := envelope.PostWorkflowRunRequestEnvelope{
 		Parameters: make(map[string]openapi.WorkflowRunParameter),
 	}
 
@@ -69,7 +70,7 @@ func (d *DefaultWorkflowsClient) Run(ctx context.Context, name string, parameter
 		return nil, fmt.Errorf("unexpected status code %d", resp.StatusCode)
 	}
 
-	env := PostWorkflowRunResponseEnvelope{}
+	env := envelope.PostWorkflowRunResponseEnvelope{}
 
 	if err := json.NewDecoder(resp.Body).Decode(&env); err != nil {
 		return nil, err

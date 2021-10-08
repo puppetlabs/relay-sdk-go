@@ -1,4 +1,4 @@
-package workflows
+package envelope
 
 import (
 	"github.com/puppetlabs/relay-client-go/client/pkg/client/openapi"
