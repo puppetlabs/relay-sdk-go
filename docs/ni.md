@@ -87,3 +87,10 @@ between steps.
   -v, --value string   the output value
 ```
 
+**`ni workflow run [flags]`** -- run a workflow by its name
+```
+  -n, --name string         the workflow name
+  -o, --output string       the output format to use
+  -p, --parameter strings   one or more workflow parameters
+```
+
