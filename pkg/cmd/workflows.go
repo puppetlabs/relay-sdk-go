@@ -42,15 +42,20 @@ func NewRunWorkflowCommand() *cobra.Command {
 				return err
 			}
 
-			var params map[string]string
+			var params = make(map[string]string)
 			for _, p := range pf {
-				parts := strings.Split(p, "=")
+				parts := strings.SplitN(p, "=", 2)
 
-				if len(parts) < 2 || len(parts) > 2 {
-					return fmt.Errorf("invalid parameter: %s", p)
+				if len(parts) == 2 {
+					key, value := parts[0], parts[1]
+					if key != "" {
+						params[key] = value
+
+						continue
+					}
 				}
 
-				params[parts[0]] = parts[1]
+				return fmt.Errorf("invalid parameter: %s", p)
 			}
 
 			resp, err := client.Run(context.Background(), name, params)
@@ -78,7 +83,9 @@ func NewRunWorkflowCommand() *cobra.Command {
 				return err
 			}
 
-			cmd.OutOrStdout().Write(b)
+			if _, err := cmd.OutOrStdout().Write(b); err != nil {
+				return err
+			}
 
 			return nil
 		},
