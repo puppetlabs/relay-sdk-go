@@ -30,6 +30,7 @@ between steps.
 	c.AddCommand(NewGCPCommand())
 	c.AddCommand(NewMetadataCommand())
 	c.AddCommand(NewAzureCommand())
+	c.AddCommand(NewWorkflowsCommand())
 
 	return c, nil
 }
