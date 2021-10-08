@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.3]
+
+* Add: Workflow run command.
+
 ## [1.17.2]
 
 * Add: Initial Azure connection handling
@@ -226,7 +230,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.2...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.3...HEAD
+[1.17.3]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.2...v1.17.3
 [1.17.2]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.1...v1.17.2
 [1.17.1]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.0...v1.17.1
 [1.17.0]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.16.6...v1.17.0
