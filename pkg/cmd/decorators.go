@@ -30,10 +30,14 @@ func NewSetDecoratorCommand() *cobra.Command {
 	}
 
 	cmd.Flags().StringP("name", "n", "", "the decorator name")
-	cmd.MarkFlagRequired("name")
 
 	cmd.Flags().StringSliceP("value", "v", []string{}, "one or more decorator values")
-	cmd.MarkFlagRequired("value")
+
+	// lint: this is instructing the linter to ignore the error check here
+	// since it's not strictly necessary (it's a potential flag does not exist
+	// error from pflag's SetAnnotation).
+	_ = cmd.MarkFlagRequired("name")
+	_ = cmd.MarkFlagRequired("value")
 
 	return cmd
 }
