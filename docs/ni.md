@@ -35,6 +35,12 @@ between steps.
   -d, --directory string   configuration output directory
 ```
 
+**`ni decorator set [type] [flags]`** -- set a step decorator
+```
+  -n, --name string     the decorator name
+  -v, --value strings   one or more decorator values
+```
+
 **`ni doc [flags]`** -- build command documentation
 ```
   -f, --file string   The path to a file to write the documentation to
