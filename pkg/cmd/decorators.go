@@ -23,7 +23,7 @@ func NewDecoratorCommand() *cobra.Command {
 
 func NewSetDecoratorCommand() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set",
+		Use:   "set [type]",
 		Short: "set a step decorator",
 		Args:  cobra.ExactArgs(1),
 		RunE:  doSetDecorator,

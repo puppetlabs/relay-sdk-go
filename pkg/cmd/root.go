@@ -20,6 +20,7 @@ between steps.
 
 	c.AddCommand(NewClusterCommand())
 	c.AddCommand(NewCredentialsCommand())
+	c.AddCommand(NewDecoratorCommand())
 	c.AddCommand(NewFileCommand())
 	c.AddCommand(NewGetCommand())
 	c.AddCommand(NewGitCommand())
