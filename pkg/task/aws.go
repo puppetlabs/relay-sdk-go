@@ -29,6 +29,11 @@ func (ti *TaskInterface) ProcessAWS(directory string) error {
 	creds.Section("default").Key("aws_access_key_id").SetValue(spec.AWS.GetAccessKeyID())
 	creds.Section("default").Key("aws_secret_access_key").SetValue(spec.AWS.GetSecretAccessKey())
 
+	sessionToken := spec.AWS.GetSessionToken()
+	if sessionToken != "" {
+		creds.Section("default").Key("aws_session_token").SetValue(sessionToken)
+	}
+
 	// .aws/config
 	config := ini.Empty()
 	if spec.AWS.Region != "" {

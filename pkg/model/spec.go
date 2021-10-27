@@ -117,6 +117,7 @@ type AWSSpec struct {
 type AWSConnection struct {
 	AccessKeyID     string
 	SecretAccessKey string
+	SessionToken    string
 }
 
 type AWSDetails struct {
@@ -143,6 +144,10 @@ func (ad *AWSDetails) GetSecretAccessKey() string {
 
 	}
 	return ad.Connection.SecretAccessKey
+}
+
+func (ad *AWSDetails) GetSessionToken() string {
+	return ad.Connection.SessionToken
 }
 
 type GCPSpec struct {
