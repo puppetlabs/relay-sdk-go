@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.5]
+
+* Add: Optional AWS session token.
+
 ## [1.17.4]
 
 * Add: Decorator set command.
@@ -234,7 +238,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.4...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.5...HEAD
+[1.17.5]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.4...v1.17.5
 [1.17.4]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.3...v1.17.4
 [1.17.3]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.2...v1.17.3
 [1.17.2]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.1...v1.17.2
