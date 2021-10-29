@@ -21,7 +21,7 @@ func TestRunWorkflow(t *testing.T) {
 				WorkflowRun: &model.WorkflowRun{
 					Name:      "test-workflow",
 					RunNumber: 1,
-					URL:       "https://unit-testing.relay.sh/workflows/test-workflow/runs/1",
+					AppURL:    "https://unit-testing.relay.sh/workflows/test-workflow/runs/1",
 				},
 			},
 		},
@@ -43,7 +43,7 @@ func TestRunWorkflow(t *testing.T) {
 
 		require.Equal(t, "test-workflow", wfr.Name)
 		require.Equal(t, int32(1), wfr.RunNumber)
-		require.Equal(t, "https://unit-testing.relay.sh/workflows/test-workflow/runs/1", wfr.URL)
+		require.Equal(t, "https://unit-testing.relay.sh/workflows/test-workflow/runs/1", wfr.AppURL)
 
 		wfr, err = c.Run(ctx, "test-workflow-not", nil)
 		require.Error(t, err)
