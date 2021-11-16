@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/puppetlabs/leg/encoding/transfer"
+	"github.com/puppetlabs/relay-core/pkg/model"
 	outputsclient "github.com/puppetlabs/relay-sdk-go/pkg/outputs"
 	"github.com/spf13/cobra"
 )
@@ -36,6 +37,17 @@ func NewSetOutputCommand() *cobra.Command {
 			key, err := cmd.Flags().GetString("key")
 			if err != nil {
 				return err
+			}
+
+			if isSensitive, err := cmd.Flags().GetBool("sensitive"); err != nil {
+				return err
+			} else if isSensitive {
+				metadata := &model.StepOutputMetadata{
+					Sensitive: true,
+				}
+				if err := client.SetOutputMetadata(context.Background(), key, metadata); err != nil {
+					return err
+				}
 			}
 
 			var value interface{}
@@ -72,6 +84,7 @@ func NewSetOutputCommand() *cobra.Command {
 
 	cmd.Flags().StringP("key", "k", "", "the output key")
 	cmd.Flags().StringP("value", "v", "", "the output value")
+	cmd.Flags().Bool("sensitive", false, "flag the output value as sensitive")
 	cmd.Flags().Bool("json", false, "whether the value should be interpreted as a JSON string")
 
 	return cmd
