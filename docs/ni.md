@@ -90,6 +90,7 @@ between steps.
 ```
       --json           whether the value should be interpreted as a JSON string
   -k, --key string     the output key
+      --sensitive      flag the output value as sensitive
   -v, --value string   the output value
 ```
 

@@ -12,6 +12,7 @@ import (
 	"path"
 
 	"github.com/puppetlabs/leg/encoding/transfer"
+	"github.com/puppetlabs/relay-core/pkg/model"
 )
 
 const MetadataAPIURLEnvName = "METADATA_API_URL"
@@ -27,6 +28,7 @@ var (
 // the nebula outputs storage.
 type OutputsClient interface {
 	SetOutput(ctx context.Context, key string, value interface{}) error
+	SetOutputMetadata(ctx context.Context, key string, metadata *model.StepOutputMetadata) error
 }
 
 // DefaultOutputsClient uses the default net/http.Client to
@@ -44,6 +46,41 @@ func (c DefaultOutputsClient) SetOutput(ctx context.Context, key string, value i
 	loc.Path = path.Join(loc.Path, key)
 
 	encoded, err := json.Marshal(transfer.JSONInterface{Data: value})
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("PUT", loc.String(), bytes.NewBuffer(encoded))
+	if err != nil {
+		return err
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+	req = req.WithContext(ctx)
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusCreated {
+		return fmt.Errorf("unexpected status code %d", resp.StatusCode)
+	}
+
+	return nil
+}
+
+func (c DefaultOutputsClient) SetOutputMetadata(ctx context.Context, key string, metadata *model.StepOutputMetadata) error {
+	if key == "" {
+		return ErrOutputsClientKeyEmpty
+	}
+
+	loc := *c.apiURL
+	loc.Path = path.Join(loc.Path, key, "metadata")
+
+	encoded, err := json.Marshal(metadata)
 	if err != nil {
 		return err
 	}
