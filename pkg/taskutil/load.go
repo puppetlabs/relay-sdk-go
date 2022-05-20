@@ -27,18 +27,18 @@ func LoadData(c *http.Client, u *url.URL, timeout time.Duration) (interface{}, e
 	err := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
 		r, rerr := loader.Load()
 		if rerr != nil {
-			return false, rerr
+			return retry.Repeat(rerr)
 		}
 
 		if r == nil {
-			return true, nil
+			return retry.Done(nil)
 		}
 
 		if derr := json.NewDecoder(r).Decode(&env); derr != nil {
-			return false, derr
+			return retry.Repeat(derr)
 		}
 
-		return true, nil
+		return retry.Done(nil)
 	}, waitOptions...)
 
 	if err != nil {
