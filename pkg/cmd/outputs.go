@@ -6,10 +6,10 @@ import (
 	"fmt"
 
 	"github.com/puppetlabs/leg/encoding/transfer"
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/relay-core/pkg/model"
 	outputsclient "github.com/puppetlabs/relay-sdk-go/pkg/outputs"
 	"github.com/spf13/cobra"
-	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 )
 
 func NewOutputCommand() *cobra.Command {

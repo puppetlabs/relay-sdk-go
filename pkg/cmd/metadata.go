@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"time"
-	
+
 	"github.com/puppetlabs/relay-sdk-go/pkg/task"
 	"github.com/puppetlabs/relay-sdk-go/pkg/taskutil"
 	"github.com/spf13/cobra"
