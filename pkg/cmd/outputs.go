@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/puppetlabs/leg/encoding/transfer"
+	"github.com/puppetlabs/leg/timeutil/pkg/retry"
 	"github.com/puppetlabs/relay-core/pkg/model"
 	outputsclient "github.com/puppetlabs/relay-sdk-go/pkg/outputs"
 	"github.com/spf13/cobra"
@@ -70,10 +71,23 @@ func NewSetOutputCommand() *cobra.Command {
 				value = valueString
 			}
 
-			if err := client.SetOutput(context.Background(), key, value); err != nil {
-				return err
-			}
+			ctx := context.Background()
+			ctx, cancel := context.WithTimeout(ctx, DefaultMetadataTimeout)
+			defer cancel()
+			waitOptions := []retry.WaitOption{}
+			retryError := retry.Wait(ctx, func(ctx context.Context) (bool, error) {
+				outputError := client.SetOutput(ctx, key, value)
 
+				if outputError != nil {
+					return retry.Repeat(outputError)
+				}
+
+				return retry.Done(nil)
+			}, waitOptions...)
+
+			if retryError != nil {
+				return retryError
+			}
 			if _, err := fmt.Fprintf(cmd.OutOrStdout(), "Successfully set output for %q.\n", key); err != nil {
 				return err
 			}
