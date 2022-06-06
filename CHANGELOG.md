@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.8]
+
+* Change: Add retry logic to outputs.
+
 ## [1.17.7]
 
 * Add: Output values can now be marked as sensitive.
@@ -247,7 +251,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Public release of the `ni` command.
 
-[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.7...HEAD
+[Unreleased]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.8...HEAD
+[1.17.8]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.7...v1.17.8
 [1.17.7]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.6...v1.17.7
 [1.17.6]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.5...v1.17.6
 [1.17.5]: https://github.com/puppetlabs/relay-sdk-go/compare/v1.17.4...v1.17.5
